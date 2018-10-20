@@ -4,17 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PointContainer {
-	private List<Double[]> points=new ArrayList<Double[]>();
+	private List<double[]> points=new ArrayList<double[]>();
+	private List<String> headers;
 	private Double[] center=null;
+	private int dim;
 
-	public List<Double[]> getPoints() {
+	public PointContainer(int dim) {
+		this.dim=dim;
+	}
+
+	public List<double[]> getPoints() {
 		return points;
 	}
 
-	public void setPoints(List<Double[]> points) {
+	public void setPoints(List<double[]> points) {
 		this.points = points;
 	}
-	public void addPoint(Double[] point) {
+	public void addPoint(double[] point) {
 		points.add(point);
 	}
 
@@ -26,22 +32,21 @@ public class PointContainer {
 
 	public Double[] getCalculatedCenter() {
 		if(points==null||points.isEmpty())return null;
-		final int length=points.get(0).length;
-		center=new Double[length];
-		for(int i=0;i<length;++i)
+		center=new Double[dim];
+		for(int i=0;i<dim;++i)
 			center[i]=(double) 0;
-		for(final Double[] point:points) {
-			for(int i=0;i<length;++i)
+		for(final double[] point:points) {
+			for(int i=0;i<dim;++i)
 				center[i]+=point[i];
 		}
-		for(int i=0;i<length;++i)
+		for(int i=0;i<dim;++i)
 			center[i]/=points.size();
 		return center;
 	}
 
 	public double getMinFrom(int dimension) {
 		double min=Double.MAX_VALUE;
-		for(final Double[] point:points) {
+		for(final double[] point:points) {
 			if(min>point[dimension])
 				min=point[dimension];
 		}
@@ -50,7 +55,7 @@ public class PointContainer {
 
 	public double getMaxFrom(int dimension) {
 		double max=Double.MIN_VALUE;
-		for(final Double[] point:points) {
+		for(final double[] point:points) {
 			if(max<point[dimension])
 				max=point[dimension];
 		}
@@ -61,7 +66,7 @@ public class PointContainer {
 		final double[] minMax=new double[2];
 		minMax[0]=Double.MAX_VALUE;
 		minMax[1]=Double.MIN_VALUE;
-		for(final Double[] point:points) {
+		for(final double[] point:points) {
 			if(minMax[0]>point[dimension])
 				minMax[0]=point[dimension];
 			if(minMax[1]<point[dimension])
@@ -70,9 +75,24 @@ public class PointContainer {
 		return minMax;
 	}
 
-	public void addPointList(List<Double[]> newPoints) {
-		points.addAll(points);
+	public void addPointList(List<double[]> newPoints) {
+		points.addAll(newPoints);
 	}
 
+	public List<String> getHeaders() {
+		return headers;
+	}
+
+	public void setHeaders(List<String> headers) {
+		this.headers = headers;
+	}
+
+	public int getDim() {
+		return dim;
+	}
+
+	public void setDim(int dim) {
+		this.dim=dim;
+	}
 
 }

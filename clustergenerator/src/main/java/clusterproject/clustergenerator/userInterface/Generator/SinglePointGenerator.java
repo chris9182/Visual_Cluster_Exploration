@@ -1,15 +1,13 @@
 package clusterproject.clustergenerator.userInterface.Generator;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.swing.JPanel;
 
+import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.userInterface.Generator.Panel.NoOptionsPanel;
 
 public class SinglePointGenerator implements IGenerator{
 
-	NoOptionsPanel optionsPanel=new NoOptionsPanel();
+	private final NoOptionsPanel optionsPanel=new NoOptionsPanel(this);
 
 	public JPanel getPanel() {
 		return optionsPanel;
@@ -23,9 +21,10 @@ public class SinglePointGenerator implements IGenerator{
 		return false;
 	}
 
-	public List<Double[]> generate() {
-		return null;
+	public boolean generate(PointContainer container) {
+		return false;
 	}
+
 
 
 
@@ -33,10 +32,13 @@ public class SinglePointGenerator implements IGenerator{
 		return true;
 	}
 
-	public List<Double[]> generate(Double[] point) {
-		final List<Double[]> points=new ArrayList<Double[]>();
-		points.add(point);
-		return points;
+	public boolean generate(double[] point,PointContainer container) {
+		final int dim=container.getDim();
+		int i;
+		for(i=0;i<point.length&&i<dim;++i)
+			if(point[i]==Double.NaN)point[i]=0;//TODO: handle NaN
+		container.addPoint(point);
+		return true;
 	}
 
 }

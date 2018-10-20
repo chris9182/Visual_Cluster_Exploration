@@ -1,28 +1,32 @@
 package clusterproject.clustergenerator.userInterface;
 
-import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JPanel;
+import javax.swing.JLayeredPane;
 import javax.swing.SpringLayout;
 
 import clusterproject.clustergenerator.data.PointContainer;
+import clusterproject.clustergenerator.userInterface.ClusterViewerElement.PointCanvas;
+import clusterproject.clustergenerator.userInterface.ClusterViewerElement.ViewerAxis;
 
-public class ClusterViewer extends JPanel{
+public class ClusterViewer extends JLayeredPane{
 
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final int AXIS_WIDTH=20;
 	private final PointContainer pointContainer;
-	private double[] xInterval= new double[2];
-	private double[] yInterval= new double[2];
-	private final int selectedDimX=0;
-	private final int selectedDimY=1;
+
+	private int selectedDimX;
+	private int selectedDimY;
 	private final SpringLayout layout;
 	private final IClickHandler clickHandler;
+	final ViewerAxis xAxis;
+	final ViewerAxis yAxis;
+	final PointCanvas canvas;
 
 	public ClusterViewer(IClickHandler clickHandler) {
 		this(clickHandler,null);
@@ -31,39 +35,84 @@ public class ClusterViewer extends JPanel{
 	public ClusterViewer(IClickHandler handler,PointContainer pointContainer) {
 		this.pointContainer=pointContainer;
 		clickHandler=handler;
+		final double[] xInterval= new double[2];
+		final double[] yInterval= new double[2];
 		xInterval[0]=0;
-		xInterval[1]=0;
+		xInterval[1]=100;
 		yInterval[0]=0;
-		yInterval[1]=0;
+		yInterval[1]=100;
+		selectedDimX=0;
+		selectedDimY=1;
 		layout=new SpringLayout();
 		setLayout(layout);
-		setBackground(Color.red);
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				final Double[] translation=translatePosition(e.getPoint());
+				final double[] translation=getCoordinates(e.getPoint());
 				clickHandler.handleClick(translation);
-				super.mouseClicked(e);
 			}
 		});
+		pointContainer.addPoint(new double[] {10,10});
+		xAxis=new ViewerAxis(true, xInterval,pointContainer.getHeaders().get(1));
+		yAxis=new ViewerAxis(false, yInterval,pointContainer.getHeaders().get(0));
 
+		add(xAxis,new Integer(2));
+		add(yAxis,new Integer(2));
+
+		layout.putConstraint(SpringLayout.NORTH, yAxis, 0, SpringLayout.NORTH,this);
+		layout.putConstraint(SpringLayout.EAST, yAxis, AXIS_WIDTH, SpringLayout.WEST,this);
+		layout.putConstraint(SpringLayout.WEST, yAxis, 0, SpringLayout.WEST,this);
+		layout.putConstraint(SpringLayout.SOUTH, yAxis, -AXIS_WIDTH, SpringLayout.SOUTH,this);
+
+		layout.putConstraint(SpringLayout.NORTH, xAxis, -AXIS_WIDTH, SpringLayout.SOUTH,this);
+		layout.putConstraint(SpringLayout.EAST, xAxis, 0, SpringLayout.EAST,this);
+		layout.putConstraint(SpringLayout.WEST, xAxis, AXIS_WIDTH, SpringLayout.WEST,this);
+		layout.putConstraint(SpringLayout.SOUTH, xAxis, 0, SpringLayout.SOUTH,this);
+
+		canvas= new PointCanvas(pointContainer, this);
+		add(canvas,new Integer(1));
+		layout.putConstraint(SpringLayout.NORTH, canvas, 0, SpringLayout.NORTH,this);
+		layout.putConstraint(SpringLayout.EAST, canvas, 0, SpringLayout.EAST,this);
+		layout.putConstraint(SpringLayout.WEST, canvas, 0, SpringLayout.WEST,this);
+		layout.putConstraint(SpringLayout.SOUTH, canvas, 0, SpringLayout.SOUTH,this);
 	}
 
-	protected Double[] translatePosition(Point point) {
-		// TODO
-		final Double[] position = new Double[2];
-		position[0]=(double) 1;
-		position[1]=(double) 1;
+	public double[] getCoordinates(Point point) {
+		final double[] position = new double[pointContainer.getDim()];
+		for(int i=0;i<position.length;++i)
+			position[i]=Double.NaN;//TODO: set NaN
+		position[selectedDimX]=xAxis.getCoordinate(point.getX()-AXIS_WIDTH);
+		position[selectedDimY]=yAxis.getCoordinate(point.getY());
 		return position;
 	}
 
+	public Point getPixel(double[] position) {
+		return new Point((int)xAxis.getPixel(position[selectedDimX])+AXIS_WIDTH, (int) yAxis.getPixel(position[selectedDimY]));
+	}
+
 	private void autoAdjust() {
-		xInterval=pointContainer.getMinMaxFrom(selectedDimX);
-		yInterval=pointContainer.getMinMaxFrom(selectedDimY);
+		xAxis.setInterval(pointContainer.getMinMaxFrom(selectedDimX));
+		yAxis.setInterval(pointContainer.getMinMaxFrom(selectedDimY));
 	}
 
 	public void update() {
-		//TODO:
+		canvas.repaint();
+	}
+
+	public int getSelectedDimX() {
+		return selectedDimX;
+	}
+
+	public void setSelectedDimX(int selectedDimX) {
+		this.selectedDimX = selectedDimX;
+	}
+
+	public int getSelectedDimY() {
+		return selectedDimY;
+	}
+
+	public void setSelectedDimY(int selectedDimY) {
+		this.selectedDimY = selectedDimY;
 	}
 
 }

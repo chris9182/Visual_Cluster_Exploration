@@ -1,5 +1,5 @@
 package clusterproject.clustergenerator.userInterface;
 
 public interface IClickHandler {
-	void handleClick(Double[] point);
+	void handleClick(double[] point);
 }

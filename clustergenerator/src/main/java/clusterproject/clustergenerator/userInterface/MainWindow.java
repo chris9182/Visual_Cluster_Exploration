@@ -17,7 +17,7 @@ public class MainWindow extends JFrame implements IClickHandler{
 	/**
 	 *
 	 */
-	private static final int INNER_SPACE=10;
+	private static final int INNER_SPACE=4;
 	public static final int OPTIONS_WIDTH=200;
 
 	private final JLayeredPane mainFrame;
@@ -27,10 +27,15 @@ public class MainWindow extends JFrame implements IClickHandler{
 	final JComboBox<String> selector;
 	private final PointContainer pointContainer;
 	final ClusterViewer clusterViewer;
+	private final int dim=2;
 
 	private static final long serialVersionUID = 1L;
 	public MainWindow() {
-		pointContainer=new PointContainer();
+		pointContainer=new PointContainer(2);
+		final List<String> headers=new ArrayList<String>();
+		headers.add("y");
+		headers.add("x");
+		pointContainer.setHeaders(headers);
 		mainFrame= new JLayeredPane();
 		generators= new ArrayList<IGenerator>();
 		add(mainFrame);
@@ -80,14 +85,16 @@ public class MainWindow extends JFrame implements IClickHandler{
 		generators.add(generator1);
 
 	}
-	public void handleClick(Double[] point) {
-		final List<Double[]> newPoints=activeGenerator.generate(point);
-		//TODO: continue here
-		pointContainer.addPointList(newPoints);
-		System.err.println(newPoints.get(0)[0]+" "+newPoints.get(0)[0]);
-		clusterViewer.update();
-
-
+	public void handleClick(double[] point) {
+		if(activeGenerator.canClickGenerate()) {
+			final boolean done=activeGenerator.generate(point,pointContainer);
+			if(done)
+				clusterViewer.update();
+			else
+			{
+				//TODO:error
+			}
+		}
 	}
 
 }

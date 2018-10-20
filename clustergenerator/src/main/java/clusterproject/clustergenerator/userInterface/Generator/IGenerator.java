@@ -1,14 +1,14 @@
 package clusterproject.clustergenerator.userInterface.Generator;
 
-import java.util.List;
-
 import javax.swing.JPanel;
+
+import clusterproject.clustergenerator.data.PointContainer;
 
 public interface IGenerator {
 	JPanel getPanel();
 	String getName();
 	boolean canSimpleGenerate();
-	List<Double[]> generate();
+	boolean generate(PointContainer container);
 	boolean canClickGenerate();
-	List<Double[]> generate(Double[] point);
+	boolean generate(double[] point,PointContainer container);
 }
