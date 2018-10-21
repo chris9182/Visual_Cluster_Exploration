@@ -23,6 +23,7 @@ public class PointCanvas extends JPanel{
 	public PointCanvas(PointContainer pointContainer,ClusterViewer clusterViewer) {
 		this.pointContainer=pointContainer;
 		this.clusterViewer=clusterViewer;
+		setOpaque(false);
 	}
 
 	@Override

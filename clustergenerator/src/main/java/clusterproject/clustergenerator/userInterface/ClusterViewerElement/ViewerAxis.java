@@ -2,9 +2,22 @@ package clusterproject.clustergenerator.userInterface.ClusterViewerElement;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.text.NumberFormat;
 
+import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+import clusterproject.clustergenerator.userInterface.ClusterViewer;
 
 public class ViewerAxis extends JPanel{
 
@@ -14,14 +27,89 @@ public class ViewerAxis extends JPanel{
 	private static final long serialVersionUID = 1L;
 	private static final int LABLE_OFFSET=5;
 	private final boolean isHorizontal;
-	private double[] interval;
+	private final double[] interval;
 	private final String header;
+	private final ClusterViewer clusterViewer;
 
-	public ViewerAxis(boolean isHorizontal,double[] interval,String header) {
-		this.isHorizontal=isHorizontal;
-		this.interval=interval;
+
+	public ViewerAxis(boolean horizontal,final double[] defaultInterval,String header, ClusterViewer clusterViewer) {
+		this.isHorizontal=horizontal;
+		this.interval=defaultInterval;
 		this.header=header;
+		this.clusterViewer=clusterViewer;
 		setOpaque(false);
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				final Point point=e.getLocationOnScreen();
+				if(isHorizontal) {
+					if(e.getPoint().getX()<getWidth()/4) {
+						editBound(point,0);
+					}
+					else if(e.getPoint().getX()<getWidth()/4*3) {
+						changeDimension(point);
+					}
+					else{
+						editBound(point,1);
+					}
+				}
+				else{
+					if(e.getPoint().getY()<getHeight()/4) {
+						editBound(point,1);
+					}
+					else if(e.getPoint().getY()<getHeight()/4*3) {
+						changeDimension(point);
+					}
+					else{
+						editBound(point,0);
+					}
+				}
+			}
+		});
+	}
+
+	protected void editBound(Point point,final int boundary) {
+		final JFrame editFrame=new JFrame();
+		editFrame.setUndecorated(true);
+		final JFormattedTextField amountField = new JFormattedTextField(NumberFormat.getNumberInstance());
+		editFrame.addWindowFocusListener(new WindowAdapter() {
+			@Override
+			public void windowLostFocus(WindowEvent e) {
+				editAxis(boundary,Double.parseDouble(amountField.getText()));
+				editFrame.setVisible(false);
+			}
+		});
+		amountField.setValue(new Double(interval[1]));
+		amountField.setColumns(10);
+		amountField.addPropertyChangeListener("value", new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				editAxis(boundary,Double.parseDouble(amountField.getText()));
+				editFrame.setVisible(false);
+			}
+		});
+		editFrame.add(amountField);
+		editFrame.pack();
+		editFrame.setLocation(point);
+		editFrame.setVisible(true);
+		editFrame.transferFocus();
+	}
+
+	protected void editAxis(int boundary,double value) {
+		final double newVal=value;
+		if(newVal==interval[boundary])return;
+		interval[boundary]=newVal;
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				clusterViewer.repaint();
+			}
+		});
+
+	}
+
+	protected void changeDimension(Point point) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public double[] getInterval() {
@@ -29,7 +117,8 @@ public class ViewerAxis extends JPanel{
 	}
 
 	public void setInterval(double[] interval) {
-		this.interval = interval;
+		this.interval[0] = interval[0];
+		this.interval[1] = interval[1];
 	}
 	@Override
 	public void paint(Graphics g) {
@@ -42,6 +131,7 @@ public class ViewerAxis extends JPanel{
 				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		if(isHorizontal) {
 			g2.drawLine(0, 0, getWidth(), 0);
+
 			g2.drawString(Double.toString(interval[0]), LABLE_OFFSET, getHeight()-LABLE_OFFSET);
 			final int endTickWidth=g.getFontMetrics().stringWidth(Double.toString(interval[1]));
 			g2.drawString(Double.toString(interval[1]), getWidth()-LABLE_OFFSET-endTickWidth, getHeight()-LABLE_OFFSET);
