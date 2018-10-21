@@ -12,7 +12,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
@@ -22,5 +22,43 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-3dpc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-batik-visualization"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-bundle"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-classification"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-clustering"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-core-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-core-data"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-core-dbids"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-core-dbids-int"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-core-distance"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-core-math"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-core-parallel"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-core-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-data-generator"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-database"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-docutil"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-geo"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-gui-minigui"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-index"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-index-lsh"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-index-mtree"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-index-preprocessed"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-index-rtree"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-index-various"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-input"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-itemsets"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-libsvm"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-logging"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-outlier"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-persistent"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-precomputed"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-project"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-test-core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-timeseries"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-tutorial"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/elki-uncertain"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
