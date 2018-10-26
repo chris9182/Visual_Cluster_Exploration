@@ -19,8 +19,7 @@ public class ClusterViewer extends JLayeredPane {
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int AXIS_WIDTH = 20;
-	private final PointContainer pointContainer;
-
+	private PointContainer pointContainer;
 	private final SpringLayout layout;
 	private final IClickHandler clickHandler;
 	final ViewerAxis xAxis;
@@ -49,9 +48,9 @@ public class ClusterViewer extends JLayeredPane {
 				clickHandler.handleClick(translation);
 			}
 		});
-		pointContainer.addPoint(new double[] { 10, 10 });
-		xAxis = new ViewerAxis(true, xInterval, pointContainer.getHeaders().get(1), this);
-		yAxis = new ViewerAxis(false, yInterval, pointContainer.getHeaders().get(0), this);
+		pointContainer.addPoint(new double[] { 15, 10 });// XXX
+		xAxis = new ViewerAxis(true, xInterval, this);
+		yAxis = new ViewerAxis(false, yInterval, this);
 
 		add(xAxis, new Integer(2));
 		add(yAxis, new Integer(2));
@@ -95,10 +94,19 @@ public class ClusterViewer extends JLayeredPane {
 
 	public void update() {
 		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				canvas.repaint();
 			}
 		});
+	}
+
+	public PointContainer getPointContainer() {
+		return pointContainer;
+	}
+
+	public void setPointContainer(PointContainer pointContainer) {
+		this.pointContainer = pointContainer;
 	}
 
 }
