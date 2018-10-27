@@ -87,7 +87,7 @@ public class ViewerAxis extends JPanel {
 				editFrame.setVisible(false);
 			}
 		});
-		amountField.setValue(new Double(interval[1]));
+		amountField.setValue(new Double(interval[boundary]));
 		amountField.setColumns(10);
 		amountField.addPropertyChangeListener("value", new PropertyChangeListener() {
 			@Override
@@ -210,17 +210,17 @@ public class ViewerAxis extends JPanel {
 
 	public double getCoordinate(double pixel) {
 		if (isHorizontal)
-			return (pixel) / getWidth() * (interval[1] - interval[0]);
+			return (pixel) / getWidth() * (interval[1] - interval[0]) + interval[0];
 		else {
-			return (1 - (pixel) / getHeight()) * (interval[1] - interval[0]);
+			return (1 - (pixel) / getHeight()) * (interval[1] - interval[0]) + interval[0];
 		}
 	}
 
 	public double getPixel(double coordinate) {
 		if (isHorizontal)
-			return coordinate / (interval[1] - interval[0]) * getWidth();
+			return (coordinate - interval[0]) / (interval[1] - interval[0]) * getWidth();
 		else {
-			return (-coordinate / (interval[1] - interval[0]) + 1) * getHeight();
+			return (-(coordinate - interval[0]) / (interval[1] - interval[0]) + 1) * getHeight();
 		}
 	}
 

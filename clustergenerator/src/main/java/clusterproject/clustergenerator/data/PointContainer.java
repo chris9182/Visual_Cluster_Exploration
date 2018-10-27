@@ -115,4 +115,31 @@ public class PointContainer {
 		this.selectedDimY = selectedDimY;
 	}
 
+	public void empty() {
+		points.clear();
+		headers.clear();
+		selectedDimX = -1;
+		selectedDimY = -1;
+		dim = -1;
+	}
+
+	public void rebuild() {
+		if (points == null || points.isEmpty())
+			return;
+		dim = points.get(0).length;
+		if (dim > 1) {
+			selectedDimX = 1;
+			selectedDimY = 0;
+		} else if (dim == 1) {
+			selectedDimX = 0;
+			selectedDimY = 0;
+		} else {
+			selectedDimX = -1;
+			selectedDimY = -1;
+		}
+		for (int i = 0; i < dim; i++)
+			headers.add(Integer.toString(i));
+
+	}
+
 }

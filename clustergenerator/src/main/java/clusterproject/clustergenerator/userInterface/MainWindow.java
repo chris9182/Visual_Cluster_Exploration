@@ -50,11 +50,13 @@ public class MainWindow extends JFrame implements IClickHandler {
 		generateButton = new JButton("generate");
 		generateButton.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				final boolean done = activeGenerator.generate(pointContainer);
-				if (done)
+				if (done) {
+					clusterViewer.autoAdjust();
 					clusterViewer.update();
-				else {
+				} else {
 					// TODO:error
 				}
 			}
@@ -85,6 +87,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 			names.add(generator.getName());
 		selector = new JComboBox<String>(names.toArray(new String[names.size()]));
 		selector.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				setActiveGenerator((String) selector.getSelectedItem());
 			}
@@ -135,6 +138,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 		activeGenerator.getPanel().setVisible(true);
 		generateButton.setVisible(activeGenerator.canSimpleGenerate());
 		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				repaint();
 			}
@@ -152,6 +156,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 	}
 
+	@Override
 	public void handleClick(double[] point) {
 		if (activeGenerator.canClickGenerate()) {
 			final boolean done = activeGenerator.generate(point, pointContainer);

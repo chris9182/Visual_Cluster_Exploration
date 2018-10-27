@@ -8,21 +8,20 @@ import java.io.UnsupportedEncodingException;
 import javax.swing.JPanel;
 
 import clusterproject.clustergenerator.data.PointContainer;
-import de.lmu.ifi.dbs.elki.application.GeneratorXMLSpec;
-import de.lmu.ifi.dbs.elki.data.ClassLabel;
+import clusterproject.clustergenerator.userInterface.Generator.Panel.ELKIOptions;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
 import de.lmu.ifi.dbs.elki.data.type.TypeUtil;
 import de.lmu.ifi.dbs.elki.database.Database;
 import de.lmu.ifi.dbs.elki.database.StaticArrayDatabase;
 import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
 import de.lmu.ifi.dbs.elki.database.relation.Relation;
-import de.lmu.ifi.dbs.elki.datasource.FileBasedDatabaseConnection;
+import de.lmu.ifi.dbs.elki.datasource.GeneratorXMLDatabaseConnection;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
 public class ELKIGenerator implements IGenerator {
 
-	JPanel optionsPanel = new JPanel();
+	ELKIOptions optionsPanel = new ELKIOptions();
 
 	@Override
 	public JPanel getPanel() {
@@ -45,22 +44,11 @@ public class ELKIGenerator implements IGenerator {
 	@Override
 	public boolean generate(PointContainer container) {
 		final String tempInName = "test.xml";
-		final String tempOutName = "out.txt";
-		final File oldFile = new File(tempOutName);
-		oldFile.delete();
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(tempInName, "UTF-8");
 			writer.print("<!DOCTYPE dataset PUBLIC \"GeneratorByModel.dtd\" \"GeneratorByModel.dtd\">\r\n"
-					+ "<dataset random-seed=\"5\">\r\n" + "  <cluster name=\"Cluster1\" size=\"50\">\r\n"
-					+ "    <normal mean=\"0.1\" stddev=\"0.02\" />\r\n"
-					+ "    <normal mean=\"0.1\" stddev=\"0.02\" />\r\n" + "  </cluster>\r\n"
-					+ "  <cluster name=\"Cluster2\" size=\"50\">\r\n"
-					+ "    <normal mean=\"0.28\" stddev=\"0.08\" />\r\n"
-					+ "    <normal mean=\"0.28\" stddev=\"0.08\" />\r\n" + "  </cluster>\r\n"
-					+ "  <cluster name=\"Cluster3\" size=\"50\">\r\n"
-					+ "    <normal mean=\"0.65\" stddev=\"0.13\" />\r\n"
-					+ "    <normal mean=\"0.65\" stddev=\"0.13\" />\r\n" + "  </cluster>\r\n" + "</dataset>");
+					+ optionsPanel.getTemplate());
 
 		} catch (final FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -74,33 +62,36 @@ public class ELKIGenerator implements IGenerator {
 				writer.close();
 		}
 
-		GeneratorXMLSpec.runCLIApplication(GeneratorXMLSpec.class,
-				new String[] { "-bymodel.spec", tempInName, "-app.out", tempOutName, });
-
-		final File dataFile = new File(tempOutName);
 		final ListParameterization params = new ListParameterization();
-		params.addParameter(FileBasedDatabaseConnection.Parameterizer.INPUT_ID, dataFile);
-		final Database db = ClassGenericsUtil.parameterizeOrAbort(StaticArrayDatabase.class, params);
+		params.addParameter(GeneratorXMLDatabaseConnection.Parameterizer.CONFIGFILE_ID, tempInName);
 
+		final GeneratorXMLDatabaseConnection con = ClassGenericsUtil
+				.parameterizeOrAbort(GeneratorXMLDatabaseConnection.class, params);
+
+		final Database db = new StaticArrayDatabase(con, null);
 		db.initialize();
 		// Check the relation has the expected size:
 
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
-		final Relation<ClassLabel> rel2 = db.getRelation(TypeUtil.CLASSLABEL);
-		final DBIDIter it2 = rel2.getDBIDs().iter();
+
+		if (optionsPanel.replacePoints()) {
+			container.empty();
+		}
+
 		for (final DBIDIter it = rel.getDBIDs().iter(); it.valid(); it.advance()) {
-			it2.advance();
+
 			// To get the vector use:
 			final NumberVector v = rel.get(it);
-			// v.toArray();
-			System.err.println(v.toString());
+			container.addPoint(v.toArray());
+		}
+
+		if (optionsPanel.replacePoints()) {
+			container.rebuild();
 		}
 
 		final File file1 = new File(tempInName);
 		file1.delete();
-
-		// dataFile.delete();
-		return false;
+		return true;
 	}
 
 	@Override

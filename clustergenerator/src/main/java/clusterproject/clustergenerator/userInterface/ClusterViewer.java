@@ -19,6 +19,7 @@ public class ClusterViewer extends JLayeredPane {
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final int AXIS_WIDTH = 20;
+	private static final int AXIS_PADDING = 20;
 	private PointContainer pointContainer;
 	private final SpringLayout layout;
 	private final IClickHandler clickHandler;
@@ -48,20 +49,20 @@ public class ClusterViewer extends JLayeredPane {
 				clickHandler.handleClick(translation);
 			}
 		});
-		pointContainer.addPoint(new double[] { 15, 10 });// XXX
+		pointContainer.addPoint(new double[] { 0, 0 });// XXX
 		xAxis = new ViewerAxis(true, xInterval, this);
 		yAxis = new ViewerAxis(false, yInterval, this);
 
 		add(xAxis, new Integer(2));
 		add(yAxis, new Integer(2));
 
-		layout.putConstraint(SpringLayout.NORTH, yAxis, 0, SpringLayout.NORTH, this);
+		layout.putConstraint(SpringLayout.NORTH, yAxis, AXIS_PADDING, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.EAST, yAxis, AXIS_WIDTH, SpringLayout.WEST, this);
 		layout.putConstraint(SpringLayout.WEST, yAxis, 0, SpringLayout.WEST, this);
 		layout.putConstraint(SpringLayout.SOUTH, yAxis, -AXIS_WIDTH, SpringLayout.SOUTH, this);
 
 		layout.putConstraint(SpringLayout.NORTH, xAxis, -AXIS_WIDTH, SpringLayout.SOUTH, this);
-		layout.putConstraint(SpringLayout.EAST, xAxis, 0, SpringLayout.EAST, this);
+		layout.putConstraint(SpringLayout.EAST, xAxis, -AXIS_PADDING, SpringLayout.EAST, this);
 		layout.putConstraint(SpringLayout.WEST, xAxis, AXIS_WIDTH, SpringLayout.WEST, this);
 		layout.putConstraint(SpringLayout.SOUTH, xAxis, 0, SpringLayout.SOUTH, this);
 
@@ -78,21 +79,23 @@ public class ClusterViewer extends JLayeredPane {
 		for (int i = 0; i < position.length; ++i)
 			position[i] = Double.NaN;// TODO: set NaN
 		position[pointContainer.getSelectedDimX()] = xAxis.getCoordinate(point.getX() - AXIS_WIDTH);
-		position[pointContainer.getSelectedDimY()] = yAxis.getCoordinate(point.getY());
+		position[pointContainer.getSelectedDimY()] = yAxis.getCoordinate(point.getY() - AXIS_PADDING);
+		// System.err.println(position[0] + " " + position[1]);
 		return position;
 	}
 
-	public Point getPixel(double[] position) {
-		return new Point((int) xAxis.getPixel(position[pointContainer.getSelectedDimX()]) + AXIS_WIDTH,
-				(int) yAxis.getPixel(position[pointContainer.getSelectedDimY()]));
+	public int[] getPixel(double[] position) {
+		return new int[] { (int) xAxis.getPixel(position[pointContainer.getSelectedDimX()]) + AXIS_WIDTH,
+				(int) yAxis.getPixel(position[pointContainer.getSelectedDimY()]) + AXIS_PADDING };
 	}
 
-	private void autoAdjust() {
+	public void autoAdjust() {
 		xAxis.setInterval(pointContainer.getMinMaxFrom(pointContainer.getSelectedDimX()));
 		yAxis.setInterval(pointContainer.getMinMaxFrom(pointContainer.getSelectedDimY()));
 	}
 
 	public void update() {
+
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
