@@ -17,6 +17,7 @@ import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
 import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.datasource.GeneratorXMLDatabaseConnection;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
+import de.lmu.ifi.dbs.elki.utilities.exceptions.AbortException;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
 public class ELKIGenerator implements IGenerator {
@@ -64,7 +65,14 @@ public class ELKIGenerator implements IGenerator {
 				.parameterizeOrAbort(GeneratorXMLDatabaseConnection.class, params);
 
 		final Database db = new StaticArrayDatabase(con, null);
-		db.initialize();
+		try {
+			db.initialize();
+		} catch (final AbortException e) {
+			// TODO: handle exception
+			final File file1 = new File(tempInName);
+			file1.delete();
+			return false;
+		}
 		// Check the relation has the expected size:
 
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);

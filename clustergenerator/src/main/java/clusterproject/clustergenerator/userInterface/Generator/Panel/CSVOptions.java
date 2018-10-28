@@ -48,6 +48,8 @@ public class CSVOptions extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				selectedFile = fileChooser.getSelectedFile();
+				if (selectedFile == null)
+					return;
 				selectedLable.setText(selectedFile.getName());
 				SwingUtilities.invokeLater(new Runnable() {
 
