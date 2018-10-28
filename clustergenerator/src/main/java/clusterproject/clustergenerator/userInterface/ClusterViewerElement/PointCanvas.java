@@ -35,7 +35,8 @@ public class PointCanvas extends JPanel {
 
 		for (final double[] position : pointContainer.getPoints()) {
 			final int[] pixel = clusterViewer.getPixel(position);// TODO: this could be fetched in parallel
-
+			if (pixel == null)
+				continue;
 			g2.setColor(Color.GRAY);
 			g2.fillOval(pixel[0] - POINT_WIDTH / 2, pixel[1] - POINT_WIDTH / 2, POINT_WIDTH, POINT_WIDTH);
 			g2.setColor(Color.BLACK);

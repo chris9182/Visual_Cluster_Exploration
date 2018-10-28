@@ -25,19 +25,16 @@ public class ELKIGenerator implements IGenerator {
 
 	@Override
 	public JPanel getOptionsPanel() {
-		// TODO Auto-generated method stub
 		return optionsPanel;
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return "ELKIGenerator";
 	}
 
 	@Override
 	public boolean canSimpleGenerate() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
@@ -51,11 +48,9 @@ public class ELKIGenerator implements IGenerator {
 					+ optionsPanel.getTemplate());
 
 		} catch (final FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 
 		} catch (final UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			if (writer != null)
@@ -73,6 +68,11 @@ public class ELKIGenerator implements IGenerator {
 		// Check the relation has the expected size:
 
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
+
+		final int newDim = rel.get(rel.getDBIDs().iter()).toArray().length;
+		if (newDim != container.getDim() && !optionsPanel.replacePoints()) {
+			return false;// TODO set error
+		}
 
 		if (optionsPanel.replacePoints()) {
 			container.empty();
@@ -96,13 +96,11 @@ public class ELKIGenerator implements IGenerator {
 
 	@Override
 	public boolean canClickGenerate() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean generate(double[] point, PointContainer container) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

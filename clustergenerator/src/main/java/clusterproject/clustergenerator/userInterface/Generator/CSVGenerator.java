@@ -47,8 +47,7 @@ public class CSVGenerator implements IGenerator {
 			final File selectedFile = optionsPanel.getFile();
 			if (selectedFile == null)
 				return false;
-			if (optionsPanel.replacePoints())
-				container.empty();
+
 			in = new FileReader(selectedFile);
 			final CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
 			final int size = parser.getHeaderMap().size();
@@ -60,6 +59,15 @@ public class CSVGenerator implements IGenerator {
 				}
 
 			});
+
+			final int newDim = headers.size();
+			if (newDim != container.getDim() && !optionsPanel.replacePoints()) {
+				return false;// TODO set error
+			}
+
+			if (optionsPanel.replacePoints())
+				container.empty();
+
 			container.setHeaders(headers);
 			final Iterable<CSVRecord> records = parser;
 			for (final CSVRecord record : records) {
@@ -79,9 +87,9 @@ public class CSVGenerator implements IGenerator {
 			e.printStackTrace();
 		} finally {
 			try {
-				in.close();
+				if (in != null)
+					in.close();
 			} catch (final IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

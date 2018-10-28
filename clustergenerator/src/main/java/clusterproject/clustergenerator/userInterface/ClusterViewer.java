@@ -85,8 +85,11 @@ public class ClusterViewer extends JLayeredPane {
 	}
 
 	public int[] getPixel(double[] position) {
-		return new int[] { (int) xAxis.getPixel(position[pointContainer.getSelectedDimX()]) + AXIS_WIDTH,
-				(int) yAxis.getPixel(position[pointContainer.getSelectedDimY()]) + AXIS_PADDING };
+		final double px = position[pointContainer.getSelectedDimX()];
+		final double py = position[pointContainer.getSelectedDimY()];
+		if (px == Double.NaN || py == Double.NaN)
+			return null;
+		return new int[] { (int) xAxis.getPixel(px) + AXIS_WIDTH, (int) yAxis.getPixel(py) + AXIS_PADDING };
 	}
 
 	public void autoAdjust() {
