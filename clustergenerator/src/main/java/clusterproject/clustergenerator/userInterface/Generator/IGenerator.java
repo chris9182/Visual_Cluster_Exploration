@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 import clusterproject.clustergenerator.data.PointContainer;
 
 public interface IGenerator {
-	JPanel getPanel();
+	JPanel getOptionsPanel();
 	String getName();
 	boolean canSimpleGenerate();
 	boolean generate(PointContainer container);

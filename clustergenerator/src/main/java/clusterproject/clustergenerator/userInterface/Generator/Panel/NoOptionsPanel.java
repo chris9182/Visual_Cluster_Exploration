@@ -5,16 +5,18 @@ import javax.swing.JPanel;
 
 import clusterproject.clustergenerator.userInterface.Generator.IGenerator;
 
-public class NoOptionsPanel extends JPanel{
+public class NoOptionsPanel extends JPanel {
 
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
 	private final IGenerator generator;
+
 	public NoOptionsPanel(IGenerator generator) {
+		setVisible(false);
 		setOpaque(false);
-		this.generator=generator;
+		this.generator = generator;
 		add(new JLabel("no Options"));
 	}
 

@@ -137,8 +137,9 @@ public class PointContainer {
 			selectedDimX = -1;
 			selectedDimY = -1;
 		}
-		for (int i = 0; i < dim; i++)
-			headers.add(Integer.toString(i));
+		if (headers.isEmpty())
+			for (int i = 0; i < dim; i++)
+				headers.add(Integer.toString(i));
 
 	}
 

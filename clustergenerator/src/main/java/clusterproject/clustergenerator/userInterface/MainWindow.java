@@ -1,6 +1,7 @@
 package clusterproject.clustergenerator.userInterface;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ public class MainWindow extends JFrame implements IClickHandler {
 	 */
 	private static final int INNER_SPACE = 4;
 	public static final int OPTIONS_WIDTH = 200;
+
+	private static final int ADJUST_BUTTON_DIM = 20;
 	public static final int GENERATOR_BUTTON_HEIGHT = 200;
 	public static final Color BACKGROUND_COLOR = Color.white;
 
@@ -111,6 +114,31 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainFrame.add(generateButton, new Integer(101));
 		mainFrame.add(clusterViewer, new Integer(1));
 
+		final JButton autoAdjust = new JButton("");
+		autoAdjust.setToolTipText("Auto-Adjust Axies");
+		autoAdjust.setPreferredSize(new Dimension(ADJUST_BUTTON_DIM, ADJUST_BUTTON_DIM));
+		autoAdjust.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clusterViewer.autoAdjust();
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						clusterViewer.repaint();
+
+					}
+				});
+
+			}
+		});
+
+		mainLayout.putConstraint(SpringLayout.SOUTH, autoAdjust, -1, SpringLayout.SOUTH, mainFrame);
+		mainLayout.putConstraint(SpringLayout.WEST, autoAdjust, 1, SpringLayout.WEST, mainFrame);
+
+		mainFrame.add(autoAdjust, new Integer(100));
+
 		setActiveGenerator(generators.get(0).getName());
 	}
 
@@ -122,20 +150,20 @@ public class MainWindow extends JFrame implements IClickHandler {
 		if (newGenerator == null)
 			return;
 		if (activeGenerator != null) {
-			mainFrame.remove(activeGenerator.getPanel());
-			activeGenerator.getPanel().setVisible(false);
+			mainFrame.remove(activeGenerator.getOptionsPanel());
+			activeGenerator.getOptionsPanel().setVisible(false);
 		}
 		activeGenerator = newGenerator;
 
-		mainLayout.putConstraint(SpringLayout.NORTH, activeGenerator.getPanel(), INNER_SPACE, SpringLayout.SOUTH,
+		mainLayout.putConstraint(SpringLayout.NORTH, activeGenerator.getOptionsPanel(), INNER_SPACE, SpringLayout.SOUTH,
 				selector);
-		mainLayout.putConstraint(SpringLayout.EAST, activeGenerator.getPanel(), -INNER_SPACE, SpringLayout.EAST,
+		mainLayout.putConstraint(SpringLayout.EAST, activeGenerator.getOptionsPanel(), -INNER_SPACE, SpringLayout.EAST,
 				mainFrame);
-		mainLayout.putConstraint(SpringLayout.WEST, activeGenerator.getPanel(), -INNER_SPACE - OPTIONS_WIDTH,
+		mainLayout.putConstraint(SpringLayout.WEST, activeGenerator.getOptionsPanel(), -INNER_SPACE - OPTIONS_WIDTH,
 				SpringLayout.EAST, mainFrame);
 
-		mainFrame.add(activeGenerator.getPanel(), new Integer(1));
-		activeGenerator.getPanel().setVisible(true);
+		mainFrame.add(activeGenerator.getOptionsPanel(), new Integer(1));
+		activeGenerator.getOptionsPanel().setVisible(true);
 		generateButton.setVisible(activeGenerator.canSimpleGenerate());
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override

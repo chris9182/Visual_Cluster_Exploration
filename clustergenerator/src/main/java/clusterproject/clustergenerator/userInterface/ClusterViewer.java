@@ -90,6 +90,18 @@ public class ClusterViewer extends JLayeredPane {
 	}
 
 	public void autoAdjust() {
+		if (pointContainer.getPoints().size() < 2) {
+			final double[] xInterval = new double[2];
+			final double[] yInterval = new double[2];
+			xInterval[0] = 0;
+			xInterval[1] = 100;
+			yInterval[0] = 0;
+			yInterval[1] = 100;
+			xAxis.setInterval(xInterval);
+			yAxis.setInterval(yInterval);
+			return;
+		}
+
 		xAxis.setInterval(pointContainer.getMinMaxFrom(pointContainer.getSelectedDimX()));
 		yAxis.setInterval(pointContainer.getMinMaxFrom(pointContainer.getSelectedDimY()));
 	}

@@ -9,7 +9,7 @@ public class SinglePointGenerator implements IGenerator{
 
 	private final NoOptionsPanel optionsPanel=new NoOptionsPanel(this);
 
-	public JPanel getPanel() {
+	public JPanel getOptionsPanel() {
 		return optionsPanel;
 	}
 

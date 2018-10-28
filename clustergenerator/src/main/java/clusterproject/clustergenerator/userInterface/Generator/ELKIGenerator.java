@@ -24,7 +24,7 @@ public class ELKIGenerator implements IGenerator {
 	ELKIOptions optionsPanel = new ELKIOptions();
 
 	@Override
-	public JPanel getPanel() {
+	public JPanel getOptionsPanel() {
 		// TODO Auto-generated method stub
 		return optionsPanel;
 	}
