@@ -71,6 +71,8 @@ public class PointContainer {
 		minMax[0] = Double.MAX_VALUE;
 		minMax[1] = Double.MIN_VALUE;
 		for (final double[] point : points) {
+			if (point[dimension] == Double.NaN)
+				continue;
 			if (minMax[0] > point[dimension])
 				minMax[0] = point[dimension];
 			if (minMax[1] < point[dimension])

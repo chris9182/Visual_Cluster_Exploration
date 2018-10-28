@@ -1,15 +1,20 @@
 package clusterproject.clustergenerator.userInterface.Generator;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.JPanel;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 
 import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.userInterface.Generator.Panel.CSVOptions;
@@ -35,36 +40,37 @@ public class CSVGenerator implements IGenerator {
 
 	@Override
 	public boolean generate(PointContainer container) {
-		BufferedReader br = null;
-		String line = "";
-		final String cvsSplitBy = ",";
-		boolean firstLine = true;
-		final NumberFormat format = NumberFormat.getInstance();
 
+		final NumberFormat format = NumberFormat.getInstance();
+		Reader in = null;
 		try {
 			final File selectedFile = optionsPanel.getFile();
 			if (selectedFile == null)
 				return false;
 			if (optionsPanel.replacePoints())
 				container.empty();
-			br = new BufferedReader(new FileReader(selectedFile));
-			while ((line = br.readLine()) != null) {
-				line = line.replace("\"", "");
-				// use comma as separator
-				final String[] lineArray = line.split(cvsSplitBy);
-				final double[] point = new double[lineArray.length];
-				// TODO: check headers and set
-				try {
-					for (int i = 0; i < lineArray.length; ++i)
-						point[i] = format.parse(lineArray[i]).doubleValue();
-				} catch (final Exception e) {
-					if (firstLine) {
-						container.setHeaders(new ArrayList<String>(Arrays.asList(lineArray)));
-					}
-					firstLine = false;
-					continue;
+			in = new FileReader(selectedFile);
+			final CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
+			final int size = parser.getHeaderMap().size();
+			final List<String> headers = new ArrayList<String>();
+			parser.getHeaderMap().keySet().forEach(new Consumer<String>() {
+				@Override
+				public void accept(String t) {
+					headers.add(t);
 				}
-				firstLine = false;
+
+			});
+			container.setHeaders(headers);
+			final Iterable<CSVRecord> records = parser;
+			for (final CSVRecord record : records) {
+				final double[] point = new double[size];
+
+				for (int i = 0; i < size; ++i)
+					try {
+						point[i] = format.parse(record.get(i)).doubleValue();
+					} catch (final Exception e) {
+						point[i] = Double.NaN;
+					}
 				container.addPoint(point);
 			}
 		} catch (final FileNotFoundException e) {
@@ -72,12 +78,11 @@ public class CSVGenerator implements IGenerator {
 		} catch (final IOException e) {
 			e.printStackTrace();
 		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (final IOException e) {
-					e.printStackTrace();
-				}
+			try {
+				in.close();
+			} catch (final IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		container.rebuild();
