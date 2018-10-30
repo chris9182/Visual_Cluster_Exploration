@@ -17,12 +17,13 @@ import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
 import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.datasource.GeneratorXMLDatabaseConnection;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
+import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
 import de.lmu.ifi.dbs.elki.utilities.exceptions.AbortException;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
 public class ELKIGenerator implements IGenerator {
 
-	ELKIOptions optionsPanel = new ELKIOptions();
+	private final ELKIOptions optionsPanel = new ELKIOptions();
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -77,7 +78,7 @@ public class ELKIGenerator implements IGenerator {
 
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
-		final int newDim = rel.get(rel.getDBIDs().iter()).toArray().length;
+		final int newDim = ArrayLikeUtil.toPrimitiveDoubleArray(rel.get(rel.getDBIDs().iter())).length;
 		if (newDim != container.getDim() && !optionsPanel.replacePoints()) {
 			return false;// TODO set error
 		}
@@ -90,7 +91,7 @@ public class ELKIGenerator implements IGenerator {
 
 			// To get the vector use:
 			final NumberVector v = rel.get(it);
-			container.addPoint(v.toArray());
+			container.addPoint(ArrayLikeUtil.toPrimitiveDoubleArray(v));
 		}
 
 		if (optionsPanel.replacePoints()) {

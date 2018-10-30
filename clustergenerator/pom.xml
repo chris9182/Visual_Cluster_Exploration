@@ -26,5 +26,10 @@
     <artifactId>commons-csv</artifactId>
     <version>1.6</version>
 </dependency>
+<dependency>
+    <groupId>de.lmu.ifi.dbs.elki</groupId>
+    <artifactId>elki</artifactId>
+    <version>0.7.1</version>
+</dependency>
   </dependencies>
 </project>
