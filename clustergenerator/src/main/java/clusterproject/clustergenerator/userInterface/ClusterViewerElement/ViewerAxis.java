@@ -132,7 +132,10 @@ public class ViewerAxis extends JPanel {
 			clusterViewer.setSelectedDimY(clusterViewer.getPointContainer().getHeaders().indexOf(string));
 		}
 		// TODO: maybe change interval?
-		SwingUtilities.invokeLater(() -> clusterViewer.repaint());
+		SwingUtilities.invokeLater(() -> {
+			clusterViewer.update();
+			repaint();
+		});
 	}
 
 	public double[] getInterval() {

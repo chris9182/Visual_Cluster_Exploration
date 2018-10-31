@@ -22,10 +22,19 @@ public class PointCanvas extends JPanel {
 	private final PointContainer pointContainer;
 	private final ScatterPlot clusterViewer;
 
+	private double[] yCoordinates;// TODO: this needs to be in a shared container
+	private double[] xCoordinates;
+
 	public PointCanvas(PointContainer pointContainer, ScatterPlot clusterViewer) {
 		this.pointContainer = pointContainer;
 		this.clusterViewer = clusterViewer;
 		setOpaque(false);
+	}
+
+	@Override
+	public void setBounds(int x, int y, int width, int height) {
+		super.setBounds(x, y, width, height);
+		reset();
 	}
 
 	@Override
@@ -37,13 +46,17 @@ public class PointCanvas extends JPanel {
 
 		final int pointWidth = clusterViewer.getPointDiameter();
 		final int pointCount = pointContainer.getPoints().size();
-		final double[] yCoordinates = new double[pointCount];
-		final double[] xCoordinates = new double[pointCount];
+		if (yCoordinates == null) {
+			yCoordinates = new double[pointCount];
+			xCoordinates = new double[pointCount];
 
-		final List<double[]> points = pointContainer.getPoints();
+			final List<double[]> points = pointContainer.getPoints();
 
-		IntStream.range(0, yCoordinates.length).forEach(i -> yCoordinates[i] = clusterViewer.getPixelY(points.get(i)));
-		IntStream.range(0, xCoordinates.length).forEach(i -> xCoordinates[i] = clusterViewer.getPixelX(points.get(i)));
+			IntStream.range(0, yCoordinates.length)
+					.forEach(i -> yCoordinates[i] = clusterViewer.getPixelY(points.get(i)));
+			IntStream.range(0, xCoordinates.length)
+					.forEach(i -> xCoordinates[i] = clusterViewer.getPixelX(points.get(i)));
+		}
 
 		for (int i = 0; i < pointCount; ++i) {
 			if (xCoordinates[i] == Double.NaN || yCoordinates[i] == Double.NaN)
@@ -55,6 +68,13 @@ public class PointCanvas extends JPanel {
 			g2.drawOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
 					pointWidth);
 		}
+	}
+
+	public void reset() {
+		yCoordinates = null;// TODO: this will need to be changed
+		xCoordinates = null;// maybe there will be cases where not everything needs to be reset i.e. editing
+							// axis bounds
+
 	}
 
 }
