@@ -36,14 +36,14 @@ public class ImporterWindow extends JFrame {
 	private final JCheckBox addBox;
 	private File selectedFile;
 	private PointContainer pointContainer;
-	JFrame update;
+	MainWindow update;
 
-	public ImporterWindow(PointContainer pointContainer, JFrame update) {
+	public ImporterWindow(PointContainer pointContainer, MainWindow update) {
+		setTitle("Import");
 		this.update = update;
 		this.pointContainer = pointContainer;
 		final JPanel thisPanel = new JPanel();
 		add(thisPanel);
-		thisPanel.setOpaque(false);
 		final BoxLayout layout = new BoxLayout(thisPanel, BoxLayout.Y_AXIS);
 		thisPanel.setLayout(layout);
 		fileChooser = new JFileChooser();
@@ -65,6 +65,11 @@ public class ImporterWindow extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (e.getActionCommand().equals(JFileChooser.CANCEL_SELECTION)) {
+					setVisible(false);
+					dispose();
+					return;
+				}
 				selectedFile = fileChooser.getSelectedFile();
 				if (selectedFile == null)
 					return;
@@ -130,6 +135,7 @@ public class ImporterWindow extends JFrame {
 			}
 		}
 		pointContainer.rebuild();
+		update.update();
 		SwingUtilities.invokeLater(new Runnable() {
 
 			@Override

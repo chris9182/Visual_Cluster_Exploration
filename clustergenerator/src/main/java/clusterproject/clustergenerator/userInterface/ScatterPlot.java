@@ -12,14 +12,16 @@ import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.userInterface.ClusterViewerElement.PointCanvas;
 import clusterproject.clustergenerator.userInterface.ClusterViewerElement.ViewerAxis;
 
-public class ClusterViewer extends JLayeredPane {
+public class ScatterPlot extends JLayeredPane {
 
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final int AXIS_WIDTH = 20;
-	private static final int AXIS_PADDING = 20;
+	private int axisWidth = 20; // default
+	private int axisPadding = 20; // default
+	private static final int AXIS_WIDTH_NONE = 5;
+	private static final int AXIS_PADDING_NONE = 5;
 	private PointContainer pointContainer;
 	private final SpringLayout layout;
 	private final IClickHandler clickHandler;
@@ -28,20 +30,27 @@ public class ClusterViewer extends JLayeredPane {
 	final PointCanvas canvas;
 	private int selectedDimX = 1;
 	private int selectedDimY = 0;
+	private int pointDiameter = 6;
 
-	public ClusterViewer(IClickHandler handler, PointContainer pointContainer, boolean showAxies) {
+	public ScatterPlot(IClickHandler handler, PointContainer pointContainer, boolean showAxies) {
 		this.pointContainer = pointContainer;
 		clickHandler = handler;
 
+		if (!showAxies) {
+			axisWidth = AXIS_WIDTH_NONE;
+			axisPadding = AXIS_PADDING_NONE;
+		}
+
 		layout = new SpringLayout();
 		setLayout(layout);
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				final double[] translation = getCoordinates(e.getPoint());
-				clickHandler.handleClick(translation);
-			}
-		});
+		if (clickHandler != null)
+			addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					final double[] translation = getCoordinates(e.getPoint());
+					clickHandler.handleClick(translation);
+				}
+			});
 		// pointContainer.addPoint(new double[] { 0, 0 });// XXX
 
 		final double[] xInterval = new double[2];
@@ -52,14 +61,14 @@ public class ClusterViewer extends JLayeredPane {
 		yInterval[1] = 100;
 		xAxis = new ViewerAxis(true, xInterval, this);
 		yAxis = new ViewerAxis(false, yInterval, this);
-		layout.putConstraint(SpringLayout.NORTH, yAxis, AXIS_PADDING, SpringLayout.NORTH, this);
-		layout.putConstraint(SpringLayout.EAST, yAxis, AXIS_WIDTH, SpringLayout.WEST, this);
+		layout.putConstraint(SpringLayout.NORTH, yAxis, axisPadding, SpringLayout.NORTH, this);
+		layout.putConstraint(SpringLayout.EAST, yAxis, axisWidth, SpringLayout.WEST, this);
 		layout.putConstraint(SpringLayout.WEST, yAxis, 0, SpringLayout.WEST, this);
-		layout.putConstraint(SpringLayout.SOUTH, yAxis, -AXIS_WIDTH, SpringLayout.SOUTH, this);
+		layout.putConstraint(SpringLayout.SOUTH, yAxis, -axisWidth, SpringLayout.SOUTH, this);
 
-		layout.putConstraint(SpringLayout.NORTH, xAxis, -AXIS_WIDTH, SpringLayout.SOUTH, this);
-		layout.putConstraint(SpringLayout.EAST, xAxis, -AXIS_PADDING, SpringLayout.EAST, this);
-		layout.putConstraint(SpringLayout.WEST, xAxis, AXIS_WIDTH, SpringLayout.WEST, this);
+		layout.putConstraint(SpringLayout.NORTH, xAxis, -axisWidth, SpringLayout.SOUTH, this);
+		layout.putConstraint(SpringLayout.EAST, xAxis, -axisPadding, SpringLayout.EAST, this);
+		layout.putConstraint(SpringLayout.WEST, xAxis, axisWidth, SpringLayout.WEST, this);
 		layout.putConstraint(SpringLayout.SOUTH, xAxis, 0, SpringLayout.SOUTH, this);
 
 		add(xAxis, new Integer(2));
@@ -81,8 +90,8 @@ public class ClusterViewer extends JLayeredPane {
 		final double[] position = new double[pointContainer.getDim()];
 		for (int i = 0; i < position.length; ++i)
 			position[i] = Double.NaN;// TODO: set NaN
-		position[selectedDimX] = xAxis.getCoordinate(point.getX() - AXIS_WIDTH);
-		position[selectedDimY] = yAxis.getCoordinate(point.getY() - AXIS_PADDING);
+		position[selectedDimX] = xAxis.getCoordinate(point.getX() - axisWidth);
+		position[selectedDimY] = yAxis.getCoordinate(point.getY() - axisPadding);
 		// System.err.println(position[0] + " " + position[1]);
 		return position;
 	}
@@ -92,7 +101,7 @@ public class ClusterViewer extends JLayeredPane {
 		final double py = position[selectedDimY];
 		if (px == Double.NaN || py == Double.NaN)
 			return null;
-		return new int[] { (int) xAxis.getPixel(px) + AXIS_WIDTH, (int) yAxis.getPixel(py) + AXIS_PADDING };
+		return new int[] { (int) xAxis.getPixel(px) + axisWidth, (int) yAxis.getPixel(py) + axisPadding };
 	}
 
 	public void autoAdjust() {
@@ -112,8 +121,26 @@ public class ClusterViewer extends JLayeredPane {
 		yAxis.setInterval(pointContainer.getMinMaxFrom(selectedDimY));
 	}
 
-	public void update() {
+	public void setIntervalX(double[] interval) {
+		xAxis.setInterval(interval);
+	};
 
+	public void setIntervalY(double[] interval) {
+		yAxis.setInterval(interval);
+	};
+
+	public void update() {
+		if (pointContainer.getDim() <= selectedDimX || pointContainer.getDim() <= selectedDimY)
+			if (pointContainer.getDim() > 1) {
+				selectedDimX = 1;
+				selectedDimY = 0;
+			} else if (pointContainer.getDim() == 1) {
+				selectedDimX = 0;
+				selectedDimY = 0;
+			} else {
+				selectedDimX = -1;
+				selectedDimY = -1;
+			}
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -146,6 +173,14 @@ public class ClusterViewer extends JLayeredPane {
 	public void setSelectedDimY(int selectedDimY) {
 		this.selectedDimY = selectedDimY;
 
+	}
+
+	public int getPointDiameter() {
+		return pointDiameter;
+	}
+
+	public void setPointDiameter(int pointDiameter) {
+		this.pointDiameter = pointDiameter;
 	}
 
 }

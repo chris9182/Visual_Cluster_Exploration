@@ -38,13 +38,14 @@ public class MainWindow extends JFrame implements IClickHandler {
 	private IGenerator activeGenerator = null;
 	final JComboBox<String> selector;
 	private final PointContainer pointContainer;
-	final ClusterViewer clusterViewer;
+	final ScatterPlot clusterViewer;
 	private final JButton generateButton;
 	private final JButton importButton;
 
 	private static final long serialVersionUID = 1L;
 
 	public MainWindow() {
+		setTitle("Scatterplot Matrix");
 		pointContainer = new PointContainer(2);
 		final List<String> headers = new ArrayList<String>();
 		headers.add("y");
@@ -59,6 +60,11 @@ public class MainWindow extends JFrame implements IClickHandler {
 				importerFrame.setLocationRelativeTo(null);
 				importerFrame.setVisible(true);
 
+				final ScatterPlotMatrix ms = new ScatterPlotMatrix(pointContainer);// XXX for testing
+				ms.setSize(new Dimension(400, 400));
+				ms.setLocationRelativeTo(null);
+				ms.setVisible(true);
+
 			}
 		});
 		generateButton = new JButton("generate");
@@ -68,20 +74,8 @@ public class MainWindow extends JFrame implements IClickHandler {
 			public void actionPerformed(ActionEvent e) {
 				final boolean done = activeGenerator.generate(pointContainer);
 				if (done) {
-					if (pointContainer.getDim() < clusterViewer.getSelectedDimX()
-							|| pointContainer.getDim() < clusterViewer.getSelectedDimY())
-						if (pointContainer.getDim() > 1) {
-							clusterViewer.setSelectedDimX(1);
-							clusterViewer.setSelectedDimY(0);
-						} else if (pointContainer.getDim() == 1) {
-							clusterViewer.setSelectedDimX(0);
-							clusterViewer.setSelectedDimY(0);
-						} else {
-							clusterViewer.setSelectedDimX(-1);
-							clusterViewer.setSelectedDimY(-1);
-						}
 					clusterViewer.autoAdjust();
-					clusterViewer.update();
+					update();
 				} else {
 					// TODO:error
 				}
@@ -106,7 +100,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 		initGenerators();
 
-		clusterViewer = new ClusterViewer(this, pointContainer, true);
+		clusterViewer = new ScatterPlot(this, pointContainer, true);
 
 		final List<String> names = new ArrayList<String>();
 		for (final IGenerator generator : generators)
@@ -169,6 +163,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainFrame.add(autoAdjust, new Integer(100));
 
 		setActiveGenerator(generators.get(0).getName());
+
 	}
 
 	private void setActiveGenerator(String name) {
@@ -216,23 +211,15 @@ public class MainWindow extends JFrame implements IClickHandler {
 		if (activeGenerator.canClickGenerate()) {
 			final boolean done = activeGenerator.generate(point, pointContainer);
 			if (done) {
-				if (pointContainer.getDim() < clusterViewer.getSelectedDimX()
-						|| pointContainer.getDim() < clusterViewer.getSelectedDimY())
-					if (pointContainer.getDim() > 1) {
-						clusterViewer.setSelectedDimX(1);
-						clusterViewer.setSelectedDimY(0);
-					} else if (pointContainer.getDim() == 1) {
-						clusterViewer.setSelectedDimX(0);
-						clusterViewer.setSelectedDimY(0);
-					} else {
-						clusterViewer.setSelectedDimX(-1);
-						clusterViewer.setSelectedDimY(-1);
-					}
-				clusterViewer.update();
+				update();
 			} else {
 				// TODO:error
 			}
 		}
+	}
+
+	public void update() {
+		clusterViewer.update();
 	}
 
 }

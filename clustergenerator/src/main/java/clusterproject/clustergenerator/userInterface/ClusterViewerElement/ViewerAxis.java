@@ -23,7 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import clusterproject.clustergenerator.data.PointContainer;
-import clusterproject.clustergenerator.userInterface.ClusterViewer;
+import clusterproject.clustergenerator.userInterface.ScatterPlot;
 
 public class ViewerAxis extends JPanel {
 
@@ -35,9 +35,9 @@ public class ViewerAxis extends JPanel {
 	private final boolean isHorizontal;
 	private final double[] interval;
 
-	private final ClusterViewer clusterViewer;
+	private final ScatterPlot clusterViewer;
 
-	public ViewerAxis(boolean horizontal, final double[] defaultInterval, ClusterViewer clusterViewer) {
+	public ViewerAxis(boolean horizontal, final double[] defaultInterval, ScatterPlot clusterViewer) {
 		this.isHorizontal = horizontal;
 		this.interval = defaultInterval;
 		this.clusterViewer = clusterViewer;
