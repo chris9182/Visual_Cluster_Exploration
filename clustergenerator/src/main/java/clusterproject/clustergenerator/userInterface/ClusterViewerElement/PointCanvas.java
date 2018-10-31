@@ -37,23 +37,23 @@ public class PointCanvas extends JPanel {
 
 		final int pointWidth = clusterViewer.getPointDiameter();
 		final int pointCount = pointContainer.getPoints().size();
-		final int[] yCoordinates = new int[pointCount];
-		final int[] xCoordinates = new int[pointCount];
+		final double[] yCoordinates = new double[pointCount];
+		final double[] xCoordinates = new double[pointCount];
 
 		final List<double[]> points = pointContainer.getPoints();
-		final IntStream stream = IntStream.range(0, pointCount);
 
-		stream.parallel().forEach(value -> {
-			final int[] pixel = clusterViewer.getPixel(points.get(value));
-			xCoordinates[value] = pixel[0];
-			yCoordinates[value] = pixel[1];
-		});
+		IntStream.range(0, yCoordinates.length).forEach(i -> yCoordinates[i] = clusterViewer.getPixelY(points.get(i)));
+		IntStream.range(0, xCoordinates.length).forEach(i -> xCoordinates[i] = clusterViewer.getPixelX(points.get(i)));
 
 		for (int i = 0; i < pointCount; ++i) {
+			if (xCoordinates[i] == Double.NaN || yCoordinates[i] == Double.NaN)
+				continue;
 			g2.setColor(Color.GRAY);
-			g2.fillOval(xCoordinates[i] - pointWidth / 2, yCoordinates[i] - pointWidth / 2, pointWidth, pointWidth);
+			g2.fillOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
+					pointWidth);
 			g2.setColor(Color.BLACK);
-			g2.drawOval(xCoordinates[i] - pointWidth / 2, yCoordinates[i] - pointWidth / 2, pointWidth, pointWidth);
+			g2.drawOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
+					pointWidth);
 		}
 	}
 

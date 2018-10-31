@@ -96,12 +96,20 @@ public class ScatterPlot extends JLayeredPane {
 		return position;
 	}
 
-	public int[] getPixel(double[] position) {
+	public double[] getPixel(double[] position) {
 		final double px = position[selectedDimX];
 		final double py = position[selectedDimY];
-		if (px == Double.NaN || py == Double.NaN)
-			return null;
-		return new int[] { (int) xAxis.getPixel(px) + axisWidth, (int) yAxis.getPixel(py) + axisPadding };
+		return new double[] { xAxis.getPixel(px) + axisWidth, yAxis.getPixel(py) + axisPadding };
+	}
+
+	public double getPixelY(double[] position) {
+		final double py = position[selectedDimY];
+		return yAxis.getPixelYNoCheck(py) + axisPadding;
+	}
+
+	public double getPixelX(double[] position) {
+		final double px = position[selectedDimX];
+		return xAxis.getPixelXNoCheck(px) + axisWidth;
 	}
 
 	public void autoAdjust() {
