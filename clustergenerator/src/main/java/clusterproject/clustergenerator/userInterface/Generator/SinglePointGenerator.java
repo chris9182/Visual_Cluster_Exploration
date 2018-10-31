@@ -3,11 +3,11 @@ package clusterproject.clustergenerator.userInterface.Generator;
 import javax.swing.JPanel;
 
 import clusterproject.clustergenerator.data.PointContainer;
-import clusterproject.clustergenerator.userInterface.Generator.Panel.NoOptionsPanel;
+import clusterproject.clustergenerator.userInterface.Generator.Panel.SinglePointOptions;
 
 public class SinglePointGenerator implements IGenerator{
 
-	private final NoOptionsPanel optionsPanel=new NoOptionsPanel(this);
+	private final SinglePointOptions optionsPanel=new SinglePointOptions(this);
 
 	public JPanel getOptionsPanel() {
 		return optionsPanel;
