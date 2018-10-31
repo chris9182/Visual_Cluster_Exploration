@@ -2,8 +2,6 @@ package clusterproject.clustergenerator.userInterface;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,38 +45,31 @@ public class MainWindow extends JFrame implements IClickHandler {
 	public MainWindow() {
 		setTitle("Scatterplot Matrix");
 		pointContainer = new PointContainer(2);
+		clusterViewer = new ScatterPlot(this, pointContainer, true);
 		final List<String> headers = new ArrayList<String>();
 		headers.add("y");
 		headers.add("x");
 		importButton = new JButton("import");
-		importButton.addActionListener(new ActionListener() {
+		importButton.addActionListener(e -> {
+			final JFrame importerFrame = new ImporterWindow(pointContainer, MainWindow.this);
+			importerFrame.setSize(new Dimension(400, 400));
+			importerFrame.setLocationRelativeTo(null);
+			importerFrame.setVisible(true);
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				final JFrame importerFrame = new ImporterWindow(pointContainer, MainWindow.this);
-				importerFrame.setSize(new Dimension(400, 400));
-				importerFrame.setLocationRelativeTo(null);
-				importerFrame.setVisible(true);
+			final ScatterPlotMatrix ms = new ScatterPlotMatrix(pointContainer);// XXX for testing
+			ms.setSize(new Dimension(400, 400));
+			ms.setLocationRelativeTo(null);
+			ms.setVisible(true);
 
-				final ScatterPlotMatrix ms = new ScatterPlotMatrix(pointContainer);// XXX for testing
-				ms.setSize(new Dimension(400, 400));
-				ms.setLocationRelativeTo(null);
-				ms.setVisible(true);
-
-			}
 		});
 		generateButton = new JButton("generate");
-		generateButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				final boolean done = activeGenerator.generate(pointContainer);
-				if (done) {
-					clusterViewer.autoAdjust();
-					update();
-				} else {
-					// TODO:error
-				}
+		generateButton.addActionListener(e -> {
+			final boolean done = activeGenerator.generate(pointContainer);
+			if (done) {
+				clusterViewer.autoAdjust();
+				update();
+			} else {
+				// TODO:error
 			}
 		});
 		pointContainer.setHeaders(headers);
@@ -100,18 +91,11 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 		initGenerators();
 
-		clusterViewer = new ScatterPlot(this, pointContainer, true);
-
 		final List<String> names = new ArrayList<String>();
 		for (final IGenerator generator : generators)
 			names.add(generator.getName());
 		selector = new JComboBox<String>(names.toArray(new String[names.size()]));
-		selector.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setActiveGenerator((String) selector.getSelectedItem());
-			}
-		});
+		selector.addActionListener(e -> setActiveGenerator((String) selector.getSelectedItem()));
 
 		mainLayout.putConstraint(SpringLayout.NORTH, selector, INNER_SPACE, SpringLayout.NORTH, mainFrame);
 		mainLayout.putConstraint(SpringLayout.EAST, selector, -INNER_SPACE, SpringLayout.EAST, mainFrame);
@@ -140,21 +124,10 @@ public class MainWindow extends JFrame implements IClickHandler {
 		final JButton autoAdjust = new JButton("");
 		autoAdjust.setToolTipText("Auto-Adjust Axies");
 		autoAdjust.setPreferredSize(new Dimension(ADJUST_BUTTON_DIM, ADJUST_BUTTON_DIM));
-		autoAdjust.addActionListener(new ActionListener() {
+		autoAdjust.addActionListener(e -> {
+			clusterViewer.autoAdjust();
+			SwingUtilities.invokeLater(() -> clusterViewer.repaint());
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				clusterViewer.autoAdjust();
-				SwingUtilities.invokeLater(new Runnable() {
-
-					@Override
-					public void run() {
-						clusterViewer.repaint();
-
-					}
-				});
-
-			}
 		});
 
 		mainLayout.putConstraint(SpringLayout.SOUTH, autoAdjust, -1, SpringLayout.SOUTH, mainFrame);
@@ -189,12 +162,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainFrame.add(activeGenerator.getOptionsPanel(), new Integer(1));
 		activeGenerator.getOptionsPanel().setVisible(true);
 		generateButton.setVisible(activeGenerator.canSimpleGenerate());
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				repaint();
-			}
-		});
+		SwingUtilities.invokeLater(() -> repaint());
 
 	}
 

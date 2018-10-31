@@ -4,14 +4,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
@@ -89,12 +85,7 @@ public class ViewerAxis extends JPanel {
 		});
 		amountField.setValue(new Double(interval[boundary]));
 		amountField.setColumns(10);
-		amountField.addPropertyChangeListener("value", new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				editFrame.setVisible(false);
-			}
-		});
+		amountField.addPropertyChangeListener("value", evt -> editFrame.setVisible(false));
 		editFrame.add(amountField);
 		editFrame.pack();
 		editFrame.setLocation(point);
@@ -107,13 +98,7 @@ public class ViewerAxis extends JPanel {
 		if (newVal == interval[boundary])
 			return;
 		interval[boundary] = newVal;
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				clusterViewer.repaint();
-			}
-		});
+		SwingUtilities.invokeLater(() -> clusterViewer.repaint());
 
 	}
 
@@ -131,12 +116,7 @@ public class ViewerAxis extends JPanel {
 				editFrame.setVisible(false);
 			}
 		});
-		selector.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				editFrame.setVisible(false);
-			}
-		});
+		selector.addActionListener(e -> editFrame.setVisible(false));
 		editFrame.add(selector);
 		editFrame.pack();
 		editFrame.setLocation(point);
@@ -152,12 +132,7 @@ public class ViewerAxis extends JPanel {
 			clusterViewer.setSelectedDimY(clusterViewer.getPointContainer().getHeaders().indexOf(string));
 		}
 		// TODO: maybe change interval?
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				clusterViewer.repaint();
-			}
-		});
+		SwingUtilities.invokeLater(() -> clusterViewer.repaint());
 	}
 
 	public double[] getInterval() {

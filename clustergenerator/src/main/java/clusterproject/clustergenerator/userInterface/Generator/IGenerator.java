@@ -6,9 +6,14 @@ import clusterproject.clustergenerator.data.PointContainer;
 
 public interface IGenerator {
 	JPanel getOptionsPanel();
+
 	String getName();
+
 	boolean canSimpleGenerate();
+
 	boolean generate(PointContainer container);
+
 	boolean canClickGenerate();
-	boolean generate(double[] point,PointContainer container);
+
+	boolean generate(double[] point, PointContainer container);
 }

@@ -1,7 +1,5 @@
 package clusterproject.clustergenerator.userInterface;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -10,7 +8,6 @@ import java.io.Reader;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -61,21 +58,17 @@ public class ImporterWindow extends JFrame {
 			}
 		});
 		thisPanel.add(fileChooser);
-		fileChooser.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (e.getActionCommand().equals(JFileChooser.CANCEL_SELECTION)) {
-					setVisible(false);
-					dispose();
-					return;
-				}
-				selectedFile = fileChooser.getSelectedFile();
-				if (selectedFile == null)
-					return;
-
-				importFile();
+		fileChooser.addActionListener(e -> {
+			if (e.getActionCommand().equals(JFileChooser.CANCEL_SELECTION)) {
+				setVisible(false);
+				dispose();
+				return;
 			}
+			selectedFile = fileChooser.getSelectedFile();
+			if (selectedFile == null)
+				return;
+
+			importFile();
 		});
 		addBox = new JCheckBox("Add");
 		thisPanel.add(addBox);
@@ -93,13 +86,7 @@ public class ImporterWindow extends JFrame {
 			final CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
 			final int size = parser.getHeaderMap().size();
 			final List<String> headers = new ArrayList<String>();
-			parser.getHeaderMap().keySet().forEach(new Consumer<String>() {
-				@Override
-				public void accept(String t) {
-					headers.add(t);
-				}
-
-			});
+			parser.getHeaderMap().keySet().forEach(t -> headers.add(t));
 
 			final int newDim = headers.size();
 			if (newDim != pointContainer.getDim() && !replacePoints()) {
@@ -136,14 +123,7 @@ public class ImporterWindow extends JFrame {
 		}
 		pointContainer.rebuild();
 		update.update();
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				update.repaint();
-
-			}
-		});
+		SwingUtilities.invokeLater(() -> update.repaint());
 		setVisible(false);
 		dispose();
 		// TODO: check container.getPoints().size()<1 and do something
