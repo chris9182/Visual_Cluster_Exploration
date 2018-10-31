@@ -68,6 +68,18 @@ public class MainWindow extends JFrame implements IClickHandler {
 			public void actionPerformed(ActionEvent e) {
 				final boolean done = activeGenerator.generate(pointContainer);
 				if (done) {
+					if (pointContainer.getDim() < clusterViewer.getSelectedDimX()
+							|| pointContainer.getDim() < clusterViewer.getSelectedDimY())
+						if (pointContainer.getDim() > 1) {
+							clusterViewer.setSelectedDimX(1);
+							clusterViewer.setSelectedDimY(0);
+						} else if (pointContainer.getDim() == 1) {
+							clusterViewer.setSelectedDimX(0);
+							clusterViewer.setSelectedDimY(0);
+						} else {
+							clusterViewer.setSelectedDimX(-1);
+							clusterViewer.setSelectedDimY(-1);
+						}
 					clusterViewer.autoAdjust();
 					clusterViewer.update();
 				} else {
@@ -94,7 +106,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 		initGenerators();
 
-		clusterViewer = new ClusterViewer(this, pointContainer);
+		clusterViewer = new ClusterViewer(this, pointContainer, true);
 
 		final List<String> names = new ArrayList<String>();
 		for (final IGenerator generator : generators)
@@ -203,9 +215,21 @@ public class MainWindow extends JFrame implements IClickHandler {
 	public void handleClick(double[] point) {
 		if (activeGenerator.canClickGenerate()) {
 			final boolean done = activeGenerator.generate(point, pointContainer);
-			if (done)
+			if (done) {
+				if (pointContainer.getDim() < clusterViewer.getSelectedDimX()
+						|| pointContainer.getDim() < clusterViewer.getSelectedDimY())
+					if (pointContainer.getDim() > 1) {
+						clusterViewer.setSelectedDimX(1);
+						clusterViewer.setSelectedDimY(0);
+					} else if (pointContainer.getDim() == 1) {
+						clusterViewer.setSelectedDimX(0);
+						clusterViewer.setSelectedDimY(0);
+					} else {
+						clusterViewer.setSelectedDimX(-1);
+						clusterViewer.setSelectedDimY(-1);
+					}
 				clusterViewer.update();
-			else {
+			} else {
 				// TODO:error
 			}
 		}

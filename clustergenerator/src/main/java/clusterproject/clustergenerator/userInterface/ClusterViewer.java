@@ -26,20 +26,13 @@ public class ClusterViewer extends JLayeredPane {
 	final ViewerAxis xAxis;
 	final ViewerAxis yAxis;
 	final PointCanvas canvas;
+	private int selectedDimX = 1;
+	private int selectedDimY = 0;
 
-	public ClusterViewer(IClickHandler clickHandler) {
-		this(clickHandler, null);
-	}
-
-	public ClusterViewer(IClickHandler handler, PointContainer pointContainer) {
+	public ClusterViewer(IClickHandler handler, PointContainer pointContainer, boolean showAxies) {
 		this.pointContainer = pointContainer;
 		clickHandler = handler;
-		final double[] xInterval = new double[2];
-		final double[] yInterval = new double[2];
-		xInterval[0] = 0;
-		xInterval[1] = 100;
-		yInterval[0] = 0;
-		yInterval[1] = 100;
+
 		layout = new SpringLayout();
 		setLayout(layout);
 		addMouseListener(new MouseAdapter() {
@@ -49,13 +42,16 @@ public class ClusterViewer extends JLayeredPane {
 				clickHandler.handleClick(translation);
 			}
 		});
-		pointContainer.addPoint(new double[] { 0, 0 });// XXX
+		// pointContainer.addPoint(new double[] { 0, 0 });// XXX
+
+		final double[] xInterval = new double[2];
+		final double[] yInterval = new double[2];
+		xInterval[0] = 0;
+		xInterval[1] = 100;
+		yInterval[0] = 0;
+		yInterval[1] = 100;
 		xAxis = new ViewerAxis(true, xInterval, this);
 		yAxis = new ViewerAxis(false, yInterval, this);
-
-		add(xAxis, new Integer(2));
-		add(yAxis, new Integer(2));
-
 		layout.putConstraint(SpringLayout.NORTH, yAxis, AXIS_PADDING, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.EAST, yAxis, AXIS_WIDTH, SpringLayout.WEST, this);
 		layout.putConstraint(SpringLayout.WEST, yAxis, 0, SpringLayout.WEST, this);
@@ -65,6 +61,13 @@ public class ClusterViewer extends JLayeredPane {
 		layout.putConstraint(SpringLayout.EAST, xAxis, -AXIS_PADDING, SpringLayout.EAST, this);
 		layout.putConstraint(SpringLayout.WEST, xAxis, AXIS_WIDTH, SpringLayout.WEST, this);
 		layout.putConstraint(SpringLayout.SOUTH, xAxis, 0, SpringLayout.SOUTH, this);
+
+		add(xAxis, new Integer(2));
+		add(yAxis, new Integer(2));
+		if (!showAxies) {
+			xAxis.setVisible(false);
+			yAxis.setVisible(false);
+		}
 
 		canvas = new PointCanvas(pointContainer, this);
 		add(canvas, new Integer(1));
@@ -78,15 +81,15 @@ public class ClusterViewer extends JLayeredPane {
 		final double[] position = new double[pointContainer.getDim()];
 		for (int i = 0; i < position.length; ++i)
 			position[i] = Double.NaN;// TODO: set NaN
-		position[pointContainer.getSelectedDimX()] = xAxis.getCoordinate(point.getX() - AXIS_WIDTH);
-		position[pointContainer.getSelectedDimY()] = yAxis.getCoordinate(point.getY() - AXIS_PADDING);
+		position[selectedDimX] = xAxis.getCoordinate(point.getX() - AXIS_WIDTH);
+		position[selectedDimY] = yAxis.getCoordinate(point.getY() - AXIS_PADDING);
 		// System.err.println(position[0] + " " + position[1]);
 		return position;
 	}
 
 	public int[] getPixel(double[] position) {
-		final double px = position[pointContainer.getSelectedDimX()];
-		final double py = position[pointContainer.getSelectedDimY()];
+		final double px = position[selectedDimX];
+		final double py = position[selectedDimY];
 		if (px == Double.NaN || py == Double.NaN)
 			return null;
 		return new int[] { (int) xAxis.getPixel(px) + AXIS_WIDTH, (int) yAxis.getPixel(py) + AXIS_PADDING };
@@ -105,8 +108,8 @@ public class ClusterViewer extends JLayeredPane {
 			return;
 		}
 
-		xAxis.setInterval(pointContainer.getMinMaxFrom(pointContainer.getSelectedDimX()));
-		yAxis.setInterval(pointContainer.getMinMaxFrom(pointContainer.getSelectedDimY()));
+		xAxis.setInterval(pointContainer.getMinMaxFrom(selectedDimX));
+		yAxis.setInterval(pointContainer.getMinMaxFrom(selectedDimY));
 	}
 
 	public void update() {
@@ -125,6 +128,24 @@ public class ClusterViewer extends JLayeredPane {
 
 	public void setPointContainer(PointContainer pointContainer) {
 		this.pointContainer = pointContainer;
+	}
+
+	public int getSelectedDimX() {
+		return selectedDimX;
+	}
+
+	public int getSelectedDimY() {
+		return selectedDimY;
+	}
+
+	public void setSelectedDimX(int selectedDimX) {
+		this.selectedDimX = selectedDimX;
+
+	}
+
+	public void setSelectedDimY(int selectedDimY) {
+		this.selectedDimY = selectedDimY;
+
 	}
 
 }

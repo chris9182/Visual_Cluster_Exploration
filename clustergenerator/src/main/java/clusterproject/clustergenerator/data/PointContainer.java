@@ -8,8 +8,6 @@ public class PointContainer {
 	private List<String> headers;
 	private Double[] center = null;
 	private int dim;
-	private int selectedDimX = 1;
-	private int selectedDimY = 0;
 
 	public PointContainer(int dim) {
 		this.dim = dim;
@@ -101,27 +99,9 @@ public class PointContainer {
 		this.dim = dim;
 	}
 
-	public int getSelectedDimX() {
-		return selectedDimX;
-	}
-
-	public int getSelectedDimY() {
-		return selectedDimY;
-	}
-
-	public void setSelectedDimX(int selectedDimX) {
-		this.selectedDimX = selectedDimX;
-	}
-
-	public void setSelectedDimY(int selectedDimY) {
-		this.selectedDimY = selectedDimY;
-	}
-
 	public void empty() {
 		points.clear();
 		headers.clear();
-		selectedDimX = -1;
-		selectedDimY = -1;
 		dim = -1;
 	}
 
@@ -129,16 +109,7 @@ public class PointContainer {
 		if (points == null || points.isEmpty())
 			return;
 		dim = points.get(0).length;
-		if (dim > 1) {
-			selectedDimX = 1;
-			selectedDimY = 0;
-		} else if (dim == 1) {
-			selectedDimX = 0;
-			selectedDimY = 0;
-		} else {
-			selectedDimX = -1;
-			selectedDimY = -1;
-		}
+
 		if (headers.isEmpty())
 			for (int i = 0; i < dim; i++)
 				headers.add(Integer.toString(i));

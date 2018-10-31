@@ -122,8 +122,8 @@ public class ViewerAxis extends JPanel {
 		editFrame.setUndecorated(true);
 		final List<String> names = clusterViewer.getPointContainer().getHeaders();
 		final JComboBox selector = new JComboBox<String>(names.toArray(new String[names.size()]));
-		selector.setSelectedItem(names.get(isHorizontal ? clusterViewer.getPointContainer().getSelectedDimX()
-				: clusterViewer.getPointContainer().getSelectedDimY()));
+		selector.setSelectedItem(
+				names.get(isHorizontal ? clusterViewer.getSelectedDimX() : clusterViewer.getSelectedDimY()));
 		editFrame.addWindowFocusListener(new WindowAdapter() {
 			@Override
 			public void windowLostFocus(WindowEvent e) {
@@ -147,11 +147,9 @@ public class ViewerAxis extends JPanel {
 
 	private void changeAxis(String string) {
 		if (isHorizontal) {
-			clusterViewer.getPointContainer()
-					.setSelectedDimX(clusterViewer.getPointContainer().getHeaders().indexOf(string));
+			clusterViewer.setSelectedDimX(clusterViewer.getPointContainer().getHeaders().indexOf(string));
 		} else {
-			clusterViewer.getPointContainer()
-					.setSelectedDimY(clusterViewer.getPointContainer().getHeaders().indexOf(string));
+			clusterViewer.setSelectedDimY(clusterViewer.getPointContainer().getHeaders().indexOf(string));
 		}
 		// TODO: maybe change interval?
 		SwingUtilities.invokeLater(new Runnable() {
@@ -177,7 +175,7 @@ public class ViewerAxis extends JPanel {
 		super.paint(g);
 		final PointContainer container = clusterViewer.getPointContainer();
 		final String header = container.getHeaders()
-				.get(isHorizontal ? container.getSelectedDimX() : container.getSelectedDimY());
+				.get(isHorizontal ? clusterViewer.getSelectedDimX() : clusterViewer.getSelectedDimY());
 		final Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
