@@ -16,9 +16,9 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import clusterproject.clustergenerator.data.PointContainer;
-import clusterproject.clustergenerator.userInterface.Generator.CSVGenerator;
 import clusterproject.clustergenerator.userInterface.Generator.ELKIGenerator;
 import clusterproject.clustergenerator.userInterface.Generator.IGenerator;
+import clusterproject.clustergenerator.userInterface.Generator.ImporterWindow;
 import clusterproject.clustergenerator.userInterface.Generator.SinglePointGenerator;
 
 public class MainWindow extends JFrame implements IClickHandler {
@@ -40,8 +40,8 @@ public class MainWindow extends JFrame implements IClickHandler {
 	final JComboBox<String> selector;
 	private final PointContainer pointContainer;
 	final ClusterViewer clusterViewer;
-	private final int dim = 2;
 	private final JButton generateButton;
+	private final JButton importButton;
 
 	private static final long serialVersionUID = 1L;
 
@@ -50,6 +50,18 @@ public class MainWindow extends JFrame implements IClickHandler {
 		final List<String> headers = new ArrayList<String>();
 		headers.add("y");
 		headers.add("x");
+		importButton = new JButton("import");
+		importButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final JFrame importerFrame = new ImporterWindow(pointContainer, MainWindow.this);
+				importerFrame.setSize(new Dimension(400, 400));
+				importerFrame.setLocationRelativeTo(null);
+				importerFrame.setVisible(true);
+
+			}
+		});
 		generateButton = new JButton("generate");
 		generateButton.addActionListener(new ActionListener() {
 
@@ -105,12 +117,18 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainLayout.putConstraint(SpringLayout.WEST, clusterViewer, INNER_SPACE, SpringLayout.WEST, mainFrame);
 		mainLayout.putConstraint(SpringLayout.SOUTH, clusterViewer, -INNER_SPACE, SpringLayout.SOUTH, mainFrame);
 
-		mainLayout.putConstraint(SpringLayout.SOUTH, generateButton, -INNER_SPACE, SpringLayout.SOUTH, mainFrame);
+		mainLayout.putConstraint(SpringLayout.SOUTH, importButton, -INNER_SPACE, SpringLayout.SOUTH, mainFrame);
+		mainLayout.putConstraint(SpringLayout.EAST, importButton, -INNER_SPACE, SpringLayout.EAST, mainFrame);
+		mainLayout.putConstraint(SpringLayout.WEST, importButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
+				mainFrame);
+
+		mainLayout.putConstraint(SpringLayout.SOUTH, generateButton, -INNER_SPACE, SpringLayout.NORTH, importButton);
 		mainLayout.putConstraint(SpringLayout.EAST, generateButton, -INNER_SPACE, SpringLayout.EAST, mainFrame);
 		mainLayout.putConstraint(SpringLayout.WEST, generateButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
 				mainFrame);
 
 		mainFrame.add(selector, new Integer(100));
+		mainFrame.add(importButton, new Integer(101));
 		mainFrame.add(generateButton, new Integer(101));
 		mainFrame.add(clusterViewer, new Integer(1));
 
@@ -176,10 +194,10 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 	private void initGenerators() {
 		final IGenerator generator1 = new SinglePointGenerator();
-		final IGenerator generator2 = new CSVGenerator();
+		// final IGenerator generator2 = new CSVGenerator();
 		final IGenerator generator3 = new ELKIGenerator();
 		generators.add(generator1);
-		generators.add(generator2);
+		// generators.add(generator2);
 		generators.add(generator3);
 
 	}
