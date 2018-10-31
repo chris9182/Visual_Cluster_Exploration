@@ -187,6 +187,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 	}
 
 	public void update() {
+		clusterViewer.autoAdjust();
 		clusterViewer.update();
 	}
 
