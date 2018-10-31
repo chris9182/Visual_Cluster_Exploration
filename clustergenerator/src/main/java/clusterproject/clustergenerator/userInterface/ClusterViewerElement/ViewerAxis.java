@@ -197,12 +197,4 @@ public class ViewerAxis extends JPanel {
 		}
 	}
 
-	public double getPixelXNoCheck(double coordinate) {
-		return (coordinate - interval[0]) / (interval[1] - interval[0]) * getWidth();
-	}
-
-	public double getPixelYNoCheck(double coordinate) {
-		return (-(coordinate - interval[0]) / (interval[1] - interval[0]) + 1) * getHeight();
-	}
-
 }
