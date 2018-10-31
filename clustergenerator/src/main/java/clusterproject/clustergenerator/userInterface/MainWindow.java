@@ -194,10 +194,8 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 	private void initGenerators() {
 		final IGenerator generator1 = new SinglePointGenerator();
-		// final IGenerator generator2 = new CSVGenerator();
 		final IGenerator generator3 = new ELKIGenerator();
 		generators.add(generator1);
-		// generators.add(generator2);
 		generators.add(generator3);
 
 	}
