@@ -149,7 +149,6 @@ public class ScatterPlot extends JLayeredPane {
 				selectedDimX = -1;
 				selectedDimY = -1;
 			}
-		canvas.reset();
 		SwingUtilities.invokeLater(() -> canvas.repaint());
 	}
 
