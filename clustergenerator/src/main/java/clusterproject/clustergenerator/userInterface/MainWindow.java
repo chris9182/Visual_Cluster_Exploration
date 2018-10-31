@@ -18,7 +18,6 @@ import javax.swing.SwingUtilities;
 import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.userInterface.Generator.ELKIGenerator;
 import clusterproject.clustergenerator.userInterface.Generator.IGenerator;
-import clusterproject.clustergenerator.userInterface.Generator.ImporterWindow;
 import clusterproject.clustergenerator.userInterface.Generator.SinglePointGenerator;
 
 public class MainWindow extends JFrame implements IClickHandler {

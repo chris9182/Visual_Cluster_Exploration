@@ -1,4 +1,4 @@
-package clusterproject.clustergenerator.userInterface.Generator;
+package clusterproject.clustergenerator.userInterface;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
