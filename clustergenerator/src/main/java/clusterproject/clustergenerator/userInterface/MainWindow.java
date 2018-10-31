@@ -39,6 +39,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 	final ScatterPlot clusterViewer;
 	private final JButton generateButton;
 	private final JButton importButton;
+	private final JButton scatterMatrixButton;
 
 	private static final long serialVersionUID = 1L;
 
@@ -49,18 +50,20 @@ public class MainWindow extends JFrame implements IClickHandler {
 		final List<String> headers = new ArrayList<String>();
 		headers.add("y");
 		headers.add("x");
+		scatterMatrixButton = new JButton("Matrix");
+		scatterMatrixButton.addActionListener(e -> {
+			final ScatterPlotMatrix ms = new ScatterPlotMatrix(pointContainer);// XXX for testing
+			ms.setSize(new Dimension(400, 400));
+			ms.setLocationRelativeTo(null);
+			ms.setVisible(true);
+		});
+
 		importButton = new JButton("import");
 		importButton.addActionListener(e -> {
 			final JFrame importerFrame = new ImporterWindow(pointContainer, MainWindow.this);
 			importerFrame.setSize(new Dimension(400, 400));
 			importerFrame.setLocationRelativeTo(null);
 			importerFrame.setVisible(true);
-
-			final ScatterPlotMatrix ms = new ScatterPlotMatrix(pointContainer);// XXX for testing
-			ms.setSize(new Dimension(400, 400));
-			ms.setLocationRelativeTo(null);
-			ms.setVisible(true);
-
 		});
 		generateButton = new JButton("generate");
 		generateButton.addActionListener(e -> {
@@ -106,6 +109,9 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainLayout.putConstraint(SpringLayout.WEST, clusterViewer, INNER_SPACE, SpringLayout.WEST, mainFrame);
 		mainLayout.putConstraint(SpringLayout.SOUTH, clusterViewer, -INNER_SPACE, SpringLayout.SOUTH, mainFrame);
 
+		mainLayout.putConstraint(SpringLayout.NORTH, scatterMatrixButton, INNER_SPACE, SpringLayout.NORTH, mainFrame);
+		mainLayout.putConstraint(SpringLayout.EAST, scatterMatrixButton, -INNER_SPACE, SpringLayout.WEST, selector);
+
 		mainLayout.putConstraint(SpringLayout.SOUTH, importButton, -INNER_SPACE, SpringLayout.SOUTH, mainFrame);
 		mainLayout.putConstraint(SpringLayout.EAST, importButton, -INNER_SPACE, SpringLayout.EAST, mainFrame);
 		mainLayout.putConstraint(SpringLayout.WEST, importButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
@@ -118,6 +124,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 		mainFrame.add(selector, new Integer(100));
 		mainFrame.add(importButton, new Integer(101));
+		mainFrame.add(scatterMatrixButton, new Integer(101));
 		mainFrame.add(generateButton, new Integer(101));
 		mainFrame.add(clusterViewer, new Integer(1));
 
