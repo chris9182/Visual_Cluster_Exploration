@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.userInterface.ScatterPlot;
 
@@ -168,20 +169,13 @@ public class ViewerAxis extends JPanel {
 			g2.drawString(header, getWidth() / 2 - headerWidth, getHeight() - LABLE_OFFSET);
 		} else {
 			g.drawLine(getWidth() - 1, 0, getWidth() - 1, getHeight());
-			drawRotate(g2, LABLE_OFFSET, LABLE_OFFSET, 90, Double.toString(interval[1]));
+			Util.drawRotate(g2, LABLE_OFFSET, LABLE_OFFSET, 90, Double.toString(interval[1]));
 			final int endTickWidth = g.getFontMetrics().stringWidth(Double.toString(interval[0]));
-			drawRotate(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90, Double.toString(interval[0]));
+			Util.drawRotate(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90,
+					Double.toString(interval[0]));
 			final int headerWidth = g.getFontMetrics().stringWidth(header);
-			drawRotate(g2, LABLE_OFFSET, getHeight() / 2 - headerWidth, 90, header);
+			Util.drawRotate(g2, LABLE_OFFSET, getHeight() / 2 - headerWidth, 90, header);
 		}
-	}
-
-	private static void drawRotate(Graphics2D g2d, double x, double y, int angle, String text) {
-		g2d.translate((float) x, (float) y);
-		g2d.rotate(Math.toRadians(angle));
-		g2d.drawString(text, 0, 0);
-		g2d.rotate(-Math.toRadians(angle));
-		g2d.translate(-(float) x, -(float) y);
 	}
 
 	public double getCoordinate(double pixel) {
