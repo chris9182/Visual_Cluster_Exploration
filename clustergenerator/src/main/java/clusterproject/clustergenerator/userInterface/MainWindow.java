@@ -14,6 +14,9 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import clusterproject.clustergenerator.data.PointContainer;
+import clusterproject.clustergenerator.userInterface.ComboBox.BlockComboListener;
+import clusterproject.clustergenerator.userInterface.ComboBox.ComboBoxRenderer;
+import clusterproject.clustergenerator.userInterface.DimensionalityReduction.IDimensionalityReduction;
 import clusterproject.clustergenerator.userInterface.Generator.ELKIGenerator;
 import clusterproject.clustergenerator.userInterface.Generator.IGenerator;
 import clusterproject.clustergenerator.userInterface.Generator.SinglePointGenerator;
@@ -33,11 +36,13 @@ public class MainWindow extends JFrame implements IClickHandler {
 	private final JLayeredPane mainFrame;
 	private final SpringLayout mainLayout;
 	private final List<IGenerator> generators;
+	private final List<IDimensionalityReduction> reducers;
 	private IGenerator activeGenerator = null;
+	private IDimensionalityReduction activeReducer = null;
 	final JComboBox<String> selector;
 	private final PointContainer pointContainer;
 	final ScatterPlot clusterViewer;
-	private final JButton generateButton;
+	private final JButton activationButton;
 	private final JButton importButton;
 	private final JButton scatterMatrixButton;
 
@@ -58,15 +63,23 @@ public class MainWindow extends JFrame implements IClickHandler {
 			ms.setVisible(true);
 		});
 
-		importButton = new JButton("import");
+		importButton = new JButton("Import");
 		importButton.addActionListener(e -> {
 			final JFrame importerFrame = new ImporterWindow(pointContainer, MainWindow.this);
 			importerFrame.setSize(new Dimension(400, 400));
 			importerFrame.setLocationRelativeTo(null);
 			importerFrame.setVisible(true);
+
+			// http://algo.uni-konstanz.de/software/mdsj/
+			// XXX TESTING
+			// double[][] data = new double[pointContainer.getPoints().size()][];
+			// data = pointContainer.getPoints().toArray(data);
+			// final double[][] output = MDSJ.classicalScaling(data, 4);
+			// for (int i = 0; i < output.length; i++)
+			// System.out.println(output[0][i] + " " + output[1][i]);
 		});
-		generateButton = new JButton("generate");
-		generateButton.addActionListener(e -> {
+		activationButton = new JButton();
+		activationButton.addActionListener(e -> {
 			final boolean done = activeGenerator.generate(pointContainer);
 			if (done) {
 				clusterViewer.autoAdjust();
@@ -78,6 +91,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 		pointContainer.setHeaders(headers);
 		mainFrame = new JLayeredPane();
 		generators = new ArrayList<IGenerator>();
+		reducers = new ArrayList<IDimensionalityReduction>();
 		add(mainFrame);
 		mainLayout = new SpringLayout();
 		mainFrame.setLayout(mainLayout);
@@ -93,12 +107,24 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainFrame.add(background, new Integer(0));
 
 		initGenerators();
+		initReducers();
 
-		final List<String> names = new ArrayList<String>();
+		final List<String> generatorNames = new ArrayList<String>();
 		for (final IGenerator generator : generators)
-			names.add(generator.getName());
-		selector = new JComboBox<String>(names.toArray(new String[names.size()]));
-		selector.addActionListener(e -> setActiveGenerator((String) selector.getSelectedItem()));
+			generatorNames.add(generator.getName());
+
+		final List<String> reducerNames = new ArrayList<String>();
+		for (final IDimensionalityReduction reducer : reducers)
+			reducerNames.add(reducer.getName());
+
+		final String[][] elements = new String[2][];
+		elements[0] = generatorNames.toArray(new String[generatorNames.size()]);
+		elements[1] = reducerNames.toArray(new String[reducerNames.size()]);
+
+		selector = new JComboBox<String>(ComboBoxRenderer.makeVectorData(elements));
+		selector.setRenderer(new ComboBoxRenderer());
+		selector.addActionListener(new BlockComboListener(selector));
+		selector.addActionListener(e -> setActiveElement());
 
 		mainLayout.putConstraint(SpringLayout.NORTH, selector, INNER_SPACE, SpringLayout.NORTH, mainFrame);
 		mainLayout.putConstraint(SpringLayout.EAST, selector, -INNER_SPACE, SpringLayout.EAST, mainFrame);
@@ -117,15 +143,15 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainLayout.putConstraint(SpringLayout.WEST, importButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
 				mainFrame);
 
-		mainLayout.putConstraint(SpringLayout.SOUTH, generateButton, -INNER_SPACE, SpringLayout.NORTH, importButton);
-		mainLayout.putConstraint(SpringLayout.EAST, generateButton, -INNER_SPACE, SpringLayout.EAST, mainFrame);
-		mainLayout.putConstraint(SpringLayout.WEST, generateButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
+		mainLayout.putConstraint(SpringLayout.SOUTH, activationButton, -INNER_SPACE, SpringLayout.NORTH, importButton);
+		mainLayout.putConstraint(SpringLayout.EAST, activationButton, -INNER_SPACE, SpringLayout.EAST, mainFrame);
+		mainLayout.putConstraint(SpringLayout.WEST, activationButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
 				mainFrame);
 
 		mainFrame.add(selector, new Integer(100));
 		mainFrame.add(importButton, new Integer(101));
 		mainFrame.add(scatterMatrixButton, new Integer(101));
-		mainFrame.add(generateButton, new Integer(101));
+		mainFrame.add(activationButton, new Integer(101));
 		mainFrame.add(clusterViewer, new Integer(1));
 
 		final JButton autoAdjust = new JButton("");
@@ -142,7 +168,47 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 		mainFrame.add(autoAdjust, new Integer(100));
 
-		setActiveGenerator(generators.get(0).getName());
+		setActiveElement();
+
+	}
+
+	private void setActiveElement() {
+		if (selector.getSelectedIndex() < generators.size()) {
+			setActiveGenerator((String) selector.getSelectedItem());
+			if (activeReducer != null)
+				activeReducer.getOptionsPanel().setVisible(false);
+		} else {
+			setActiveDimReduction((String) selector.getSelectedItem());
+			if (activeGenerator != null)
+				activeGenerator.getOptionsPanel().setVisible(false);
+		}
+		SwingUtilities.invokeLater(() -> repaint());
+	}
+
+	private void setActiveDimReduction(String name) {
+		IDimensionalityReduction newReducer = null;
+		for (final IDimensionalityReduction reducer : reducers)
+			if (reducer.getName().equals(name))
+				newReducer = reducer;
+		if (newReducer == null)
+			return;
+		if (activeGenerator != null) {
+			mainFrame.remove(activeGenerator.getOptionsPanel());
+			activeGenerator.getOptionsPanel().setVisible(false);
+		}
+		activeReducer = newReducer;
+
+		mainLayout.putConstraint(SpringLayout.NORTH, activeReducer.getOptionsPanel(), INNER_SPACE, SpringLayout.SOUTH,
+				selector);
+		mainLayout.putConstraint(SpringLayout.EAST, activeReducer.getOptionsPanel(), -INNER_SPACE, SpringLayout.EAST,
+				mainFrame);
+		mainLayout.putConstraint(SpringLayout.WEST, activeReducer.getOptionsPanel(), -INNER_SPACE - OPTIONS_WIDTH,
+				SpringLayout.EAST, mainFrame);
+
+		mainFrame.add(activeGenerator.getOptionsPanel(), new Integer(1));
+		activeGenerator.getOptionsPanel().setVisible(true);
+		activationButton.setText("Reduce");
+		activationButton.setVisible(true);
 
 	}
 
@@ -168,16 +234,21 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 		mainFrame.add(activeGenerator.getOptionsPanel(), new Integer(1));
 		activeGenerator.getOptionsPanel().setVisible(true);
-		generateButton.setVisible(activeGenerator.canSimpleGenerate());
-		SwingUtilities.invokeLater(() -> repaint());
+		activationButton.setText("Generate");
+		activationButton.setVisible(activeGenerator.canSimpleGenerate());
 
 	}
 
 	private void initGenerators() {
 		final IGenerator generator1 = new SinglePointGenerator();
-		final IGenerator generator3 = new ELKIGenerator();
+		final IGenerator generator2 = new ELKIGenerator();
 		generators.add(generator1);
-		generators.add(generator3);
+		generators.add(generator2);
+
+	}
+
+	private void initReducers() {
+		// TODO add Reducers
 
 	}
 
@@ -186,7 +257,11 @@ public class MainWindow extends JFrame implements IClickHandler {
 		if (activeGenerator.canClickGenerate()) {
 			final boolean done = activeGenerator.generate(point, pointContainer);
 			if (done) {
-				update();
+				// special case, here we don't want auto-adjust of axies
+				if (activeGenerator instanceof SinglePointGenerator)
+					clusterViewer.update();
+				else
+					update();
 			} else {
 				// TODO:error
 			}
