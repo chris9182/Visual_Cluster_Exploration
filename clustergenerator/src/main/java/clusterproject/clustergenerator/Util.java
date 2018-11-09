@@ -11,4 +11,16 @@ public class Util {
 		g2d.translate(-(float) x, -(float) y);
 	}
 
+	public static double[][] transpose(double[][] data) {
+		final int columns = data[0].length;
+		final int rows = data.length;
+		final double[][] temp = new double[columns][rows];
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < columns; j++) {
+				temp[j][i] = data[i][j];
+			}
+		}
+		return temp;
+	}
+
 }

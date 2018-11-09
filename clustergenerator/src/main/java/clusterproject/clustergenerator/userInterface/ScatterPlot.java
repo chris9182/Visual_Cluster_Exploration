@@ -51,8 +51,6 @@ public class ScatterPlot extends JLayeredPane {
 					clickHandler.handleClick(translation);
 				}
 			});
-		// pointContainer.addPoint(new double[] { 0, 0 });// XXX
-
 		final double[] xInterval = new double[2];
 		final double[] yInterval = new double[2];
 		xInterval[0] = 0;
@@ -124,6 +122,7 @@ public class ScatterPlot extends JLayeredPane {
 			yAxis.setInterval(yInterval);
 			return;
 		}
+		update(false);
 
 		xAxis.setInterval(pointContainer.getMinMaxFrom(selectedDimX));
 		yAxis.setInterval(pointContainer.getMinMaxFrom(selectedDimY));
@@ -138,6 +137,10 @@ public class ScatterPlot extends JLayeredPane {
 	};
 
 	public void update() {
+		update(true);
+	}
+
+	public void update(boolean repaint) {
 		if (pointContainer.getDim() <= selectedDimX || pointContainer.getDim() <= selectedDimY)
 			if (pointContainer.getDim() > 1) {
 				selectedDimX = 1;
@@ -149,7 +152,8 @@ public class ScatterPlot extends JLayeredPane {
 				selectedDimX = -1;
 				selectedDimY = -1;
 			}
-		SwingUtilities.invokeLater(() -> canvas.repaint());
+		if (repaint)
+			SwingUtilities.invokeLater(() -> canvas.repaint());
 	}
 
 	public PointContainer getPointContainer() {

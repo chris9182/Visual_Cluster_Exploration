@@ -17,6 +17,7 @@ import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.userInterface.ComboBox.BlockComboListener;
 import clusterproject.clustergenerator.userInterface.ComboBox.ComboBoxRenderer;
 import clusterproject.clustergenerator.userInterface.DimensionalityReduction.IDimensionalityReduction;
+import clusterproject.clustergenerator.userInterface.DimensionalityReduction.PCAReducer;
 import clusterproject.clustergenerator.userInterface.Generator.ELKIGenerator;
 import clusterproject.clustergenerator.userInterface.Generator.IGenerator;
 import clusterproject.clustergenerator.userInterface.Generator.SinglePointGenerator;
@@ -49,12 +50,14 @@ public class MainWindow extends JFrame implements IClickHandler {
 	private static final long serialVersionUID = 1L;
 
 	public MainWindow() {
+		this(new PointContainer(2));
+	}
+
+	public MainWindow(PointContainer container) {
 		setTitle("Scatterplot Matrix");
-		pointContainer = new PointContainer(2);
+		pointContainer = container;
 		clusterViewer = new ScatterPlot(this, pointContainer, true);
-		final List<String> headers = new ArrayList<String>();
-		headers.add("y");
-		headers.add("x");
+
 		scatterMatrixButton = new JButton("Matrix");
 		scatterMatrixButton.addActionListener(e -> {
 			final ScatterPlotMatrix ms = new ScatterPlotMatrix(pointContainer);// XXX for testing
@@ -69,18 +72,14 @@ public class MainWindow extends JFrame implements IClickHandler {
 			importerFrame.setSize(new Dimension(400, 400));
 			importerFrame.setLocationRelativeTo(null);
 			importerFrame.setVisible(true);
-
-			// http://algo.uni-konstanz.de/software/mdsj/
-			// XXX TESTING
-			// double[][] data = new double[pointContainer.getPoints().size()][];
-			// data = pointContainer.getPoints().toArray(data);
-			// final double[][] output = MDSJ.classicalScaling(data, 4);
-			// for (int i = 0; i < output.length; i++)
-			// System.out.println(output[0][i] + " " + output[1][i]);
 		});
 		activationButton = new JButton();
 		activationButton.addActionListener(e -> {
-			final boolean done = activeGenerator.generate(pointContainer);
+			boolean done = false;
+			if (activeGenerator != null)
+				done = activeGenerator.generate(pointContainer);
+			if (activeReducer != null)
+				done = activeReducer.reduce(pointContainer);
 			if (done) {
 				clusterViewer.autoAdjust();
 				update();
@@ -88,7 +87,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 				// TODO:error
 			}
 		});
-		pointContainer.setHeaders(headers);
+
 		mainFrame = new JLayeredPane();
 		generators = new ArrayList<IGenerator>();
 		reducers = new ArrayList<IDimensionalityReduction>();
@@ -195,6 +194,11 @@ public class MainWindow extends JFrame implements IClickHandler {
 		if (activeGenerator != null) {
 			mainFrame.remove(activeGenerator.getOptionsPanel());
 			activeGenerator.getOptionsPanel().setVisible(false);
+			activeGenerator = null;
+		}
+		if (activeReducer != null) {
+			mainFrame.remove(activeReducer.getOptionsPanel());
+			activeReducer.getOptionsPanel().setVisible(false);
 		}
 		activeReducer = newReducer;
 
@@ -205,8 +209,8 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainLayout.putConstraint(SpringLayout.WEST, activeReducer.getOptionsPanel(), -INNER_SPACE - OPTIONS_WIDTH,
 				SpringLayout.EAST, mainFrame);
 
-		mainFrame.add(activeGenerator.getOptionsPanel(), new Integer(1));
-		activeGenerator.getOptionsPanel().setVisible(true);
+		mainFrame.add(activeReducer.getOptionsPanel(), new Integer(1));
+		activeReducer.getOptionsPanel().setVisible(true);
 		activationButton.setText("Reduce");
 		activationButton.setVisible(true);
 
@@ -222,6 +226,11 @@ public class MainWindow extends JFrame implements IClickHandler {
 		if (activeGenerator != null) {
 			mainFrame.remove(activeGenerator.getOptionsPanel());
 			activeGenerator.getOptionsPanel().setVisible(false);
+		}
+		if (activeReducer != null) {
+			mainFrame.remove(activeReducer.getOptionsPanel());
+			activeReducer.getOptionsPanel().setVisible(false);
+			activeReducer = null;
 		}
 		activeGenerator = newGenerator;
 
@@ -248,7 +257,8 @@ public class MainWindow extends JFrame implements IClickHandler {
 	}
 
 	private void initReducers() {
-		// TODO add Reducers
+		final IDimensionalityReduction reducer1 = new PCAReducer();
+		reducers.add(reducer1);
 
 	}
 

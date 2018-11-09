@@ -1,7 +1,10 @@
 package clusterproject.clustergenerator.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.apache.spark.mllib.linalg.Vector;
 
 public class PointContainer {
 	private List<double[]> points = new ArrayList<double[]>();
@@ -11,6 +14,9 @@ public class PointContainer {
 
 	public PointContainer(int dim) {
 		this.dim = dim;
+		headers = new ArrayList<String>(dim);
+		for (int i = 0; i < dim; i++)
+			headers.add(Integer.toString(i));
 	}
 
 	public List<double[]> getPoints() {
@@ -79,8 +85,23 @@ public class PointContainer {
 		return minMax;
 	}
 
-	public void addPointList(List<double[]> newPoints) {
+	public void addPoints(Collection<double[]> newPoints) {
 		points.addAll(newPoints);
+	}
+
+	public void addPoints(double[][] output) {
+		for (int i = 0; i < output.length; ++i) {
+			points.add(output[i]);
+
+		}
+
+	}
+
+	public void addPoints(Vector[] vectors) {
+		for (int i = 0; i < vectors.length; ++i) {
+			points.add(vectors[i].toArray());
+		}
+
 	}
 
 	public List<String> getHeaders() {
