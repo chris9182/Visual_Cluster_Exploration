@@ -182,7 +182,10 @@ public class MainWindow extends JFrame implements IClickHandler {
 			if (activeGenerator != null)
 				activeGenerator.getOptionsPanel().setVisible(false);
 		}
-		SwingUtilities.invokeLater(() -> repaint());
+		SwingUtilities.invokeLater(() -> {
+			revalidate();
+			repaint();
+		});
 	}
 
 	private void setActiveDimReduction(String name) {
@@ -194,7 +197,6 @@ public class MainWindow extends JFrame implements IClickHandler {
 			return;
 		if (activeGenerator != null) {
 			mainFrame.remove(activeGenerator.getOptionsPanel());
-			activeGenerator.getOptionsPanel().setVisible(false);
 			activeGenerator = null;
 		}
 		if (activeReducer != null) {
@@ -230,7 +232,6 @@ public class MainWindow extends JFrame implements IClickHandler {
 		}
 		if (activeReducer != null) {
 			mainFrame.remove(activeReducer.getOptionsPanel());
-			activeReducer.getOptionsPanel().setVisible(false);
 			activeReducer = null;
 		}
 		activeGenerator = newGenerator;
@@ -267,7 +268,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 	@Override
 	public void handleClick(double[] point) {
-		if (activeGenerator.canClickGenerate()) {
+		if (activeGenerator != null && activeGenerator.canClickGenerate()) {
 			final boolean done = activeGenerator.generate(point, pointContainer);
 			if (done) {
 				// special case, here we don't want auto-adjust of axies

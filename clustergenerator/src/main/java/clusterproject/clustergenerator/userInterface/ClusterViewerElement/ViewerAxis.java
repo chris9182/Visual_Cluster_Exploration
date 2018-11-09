@@ -134,6 +134,7 @@ public class ViewerAxis extends JPanel {
 		}
 		// TODO: maybe auto change interval?
 		SwingUtilities.invokeLater(() -> {
+			clusterViewer.autoAdjust();
 			clusterViewer.update();
 			repaint();
 		});

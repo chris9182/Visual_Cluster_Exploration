@@ -40,8 +40,8 @@ public class TSNEReducer implements IDimensionalityReduction {
 		} else {
 			tsne = new BHTSne();
 		}
-		final TSneConfiguration config = TSneUtils.buildConfig(data, 2, container.getDim(), tSNEOptions.getPerplexity(),
-				tSNEOptions.getMaxIterations());
+		final TSneConfiguration config = TSneUtils.buildConfig(data, tSNEOptions.getDim(), container.getDim(),
+				tSNEOptions.getPerplexity(), tSNEOptions.getMaxIterations());
 		config.setSilent(true);
 		final double[][] Y = tsne.tsne(config);
 
