@@ -13,7 +13,12 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-
+<repositories>
+<repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+</repository>
+</repositories>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -26,6 +31,19 @@
     <artifactId>commons-csv</artifactId>
     <version>1.6</version>
 </dependency>
+<!-- https://mvnrepository.com/artifact/com.github.fommil.netlib/all -->
+<dependency>
+    <groupId>com.github.fommil.netlib</groupId>
+    <artifactId>all</artifactId>
+    <version>1.1.2</version>
+    <type>pom</type>
+</dependency>
+<!-- https://mvnrepository.com/artifact/com.github.lejon.T-SNE-Java/tsne -->
+<dependency>
+    <groupId>com.github.lejon.T-SNE-Java</groupId>
+    <artifactId>tsne</artifactId>
+    <version>v2.5.0</version>
+</dependency>
 <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-mllib -->
 <dependency>
     <groupId>org.apache.spark</groupId>
@@ -34,6 +52,7 @@
     <scope>runtime</scope>
 </dependency>
 <!-- these dependencies are needed because of a bug with java 1.8 -->
+<!-- https://github.com/serenity-bdd/serenity-jbehave/pull/36 -->
 <dependency> 
         <groupId>com.thoughtworks.xstream</groupId>
         <artifactId>xstream</artifactId>

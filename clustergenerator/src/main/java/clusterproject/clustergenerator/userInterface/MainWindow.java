@@ -18,6 +18,7 @@ import clusterproject.clustergenerator.userInterface.ComboBox.BlockComboListener
 import clusterproject.clustergenerator.userInterface.ComboBox.ComboBoxRenderer;
 import clusterproject.clustergenerator.userInterface.DimensionalityReduction.IDimensionalityReduction;
 import clusterproject.clustergenerator.userInterface.DimensionalityReduction.PCAReducer;
+import clusterproject.clustergenerator.userInterface.DimensionalityReduction.TSNEReducer;
 import clusterproject.clustergenerator.userInterface.Generator.ELKIGenerator;
 import clusterproject.clustergenerator.userInterface.Generator.IGenerator;
 import clusterproject.clustergenerator.userInterface.Generator.SinglePointGenerator;
@@ -258,7 +259,9 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 	private void initReducers() {
 		final IDimensionalityReduction reducer1 = new PCAReducer();
+		final IDimensionalityReduction reducer2 = new TSNEReducer();
 		reducers.add(reducer1);
+		reducers.add(reducer2);
 
 	}
 

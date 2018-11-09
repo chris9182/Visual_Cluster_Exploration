@@ -92,16 +92,13 @@ public class PointContainer {
 	public void addPoints(double[][] output) {
 		for (int i = 0; i < output.length; ++i) {
 			points.add(output[i]);
-
 		}
-
 	}
 
 	public void addPoints(Vector[] vectors) {
 		for (int i = 0; i < vectors.length; ++i) {
 			points.add(vectors[i].toArray());
 		}
-
 	}
 
 	public List<String> getHeaders() {
@@ -134,7 +131,5 @@ public class PointContainer {
 		if (headers.isEmpty())
 			for (int i = 0; i < dim; i++)
 				headers.add(Integer.toString(i));
-
 	}
-
 }
