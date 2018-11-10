@@ -15,7 +15,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -44,19 +44,10 @@ public class ImporterWindow extends JFrame {
 		final BoxLayout layout = new BoxLayout(thisPanel, BoxLayout.Y_AXIS);
 		thisPanel.setLayout(layout);
 		fileChooser = new JFileChooser();
+		final FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV-Files", "csv");
+		fileChooser.setFileFilter(filter);
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fileChooser.setBorder(null);
-		fileChooser.setFileFilter(new FileFilter() {
-
-			@Override
-			public String getDescription() {
-				return "CSV File";
-			}
-
-			@Override
-			public boolean accept(File f) {
-				return f.getName().endsWith(".csv");
-			}
-		});
 		thisPanel.add(fileChooser);
 		fileChooser.addActionListener(e -> {
 			if (e.getActionCommand().equals(JFileChooser.CANCEL_SELECTION)) {
