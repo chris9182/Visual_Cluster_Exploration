@@ -211,6 +211,8 @@ public class MainWindow extends JFrame implements IClickHandler {
 				mainFrame);
 		mainLayout.putConstraint(SpringLayout.WEST, activeReducer.getOptionsPanel(), -INNER_SPACE - OPTIONS_WIDTH,
 				SpringLayout.EAST, mainFrame);
+		mainLayout.putConstraint(SpringLayout.SOUTH, activeReducer.getOptionsPanel(), -INNER_SPACE, SpringLayout.NORTH,
+				activationButton);
 
 		mainFrame.add(activeReducer.getOptionsPanel(), new Integer(1));
 		activeReducer.getOptionsPanel().setVisible(true);
@@ -242,6 +244,8 @@ public class MainWindow extends JFrame implements IClickHandler {
 				mainFrame);
 		mainLayout.putConstraint(SpringLayout.WEST, activeGenerator.getOptionsPanel(), -INNER_SPACE - OPTIONS_WIDTH,
 				SpringLayout.EAST, mainFrame);
+		mainLayout.putConstraint(SpringLayout.SOUTH, activeGenerator.getOptionsPanel(), -INNER_SPACE,
+				SpringLayout.NORTH, activationButton);
 
 		mainFrame.add(activeGenerator.getOptionsPanel(), new Integer(1));
 		activeGenerator.getOptionsPanel().setVisible(true);

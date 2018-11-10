@@ -34,7 +34,7 @@ public class TSNEReducer implements IDimensionalityReduction {
 		double[][] data = new double[container.getPoints().size()][];
 		data = container.getPoints().toArray(data);
 		BarnesHutTSne tsne;
-		final boolean parallel = false;
+		final boolean parallel = tSNEOptions.getIsParallel();
 		if (parallel) {
 			tsne = new ParallelBHTsne();
 		} else {
