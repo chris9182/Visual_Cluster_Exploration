@@ -43,10 +43,12 @@ public class TSNEReducer implements IDimensionalityReduction {
 		final TSneConfiguration config = TSneUtils.buildConfig(data, tSNEOptions.getDim(), container.getDim(),
 				tSNEOptions.getPerplexity(), tSNEOptions.getMaxIterations());
 		config.setSilent(true);
-		final double[][] Y = tsne.tsne(config);
-
-		// XXX this may be changed for release
-
+		double[][] Y;
+		try {
+			Y = tsne.tsne(config);
+		} catch (final Exception e) {
+			return false;// TODO possibly error
+		}
 		final PointContainer newContainer = new PointContainer(tSNEOptions.getDim());
 		newContainer.addPoints(Y);
 		;
@@ -55,8 +57,6 @@ public class TSNEReducer implements IDimensionalityReduction {
 		newWindow.setLocationRelativeTo(null);
 		newWindow.setVisible(true);
 		newWindow.update();
-		// for (int i = 0; i < output.length; i++)
-		// System.out.println(output[0][i] + " " + output[1][i]);
 		return true;
 	}
 
