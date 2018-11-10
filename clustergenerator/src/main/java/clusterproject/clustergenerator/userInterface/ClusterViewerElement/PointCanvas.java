@@ -46,7 +46,7 @@ public class PointCanvas extends JPanel {
 		IntStream.range(0, xCoordinates.length).forEach(i -> xCoordinates[i] = clusterViewer.getPixelX(points.get(i)));
 
 		for (int i = 0; i < pointCount; ++i) {
-			if (xCoordinates[i] == Double.NaN || yCoordinates[i] == Double.NaN)
+			if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]))
 				continue;
 			g2.setColor(Color.GRAY);
 			g2.fillOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,

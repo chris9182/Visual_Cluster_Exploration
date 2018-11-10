@@ -22,6 +22,8 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import clusterproject.clustergenerator.data.PointContainer;
+import weka.core.Instances;
+import weka.core.converters.ArffLoader.ArffReader;
 
 public class ImporterWindow extends JFrame {
 
@@ -45,7 +47,9 @@ public class ImporterWindow extends JFrame {
 		thisPanel.setLayout(layout);
 		fileChooser = new JFileChooser();
 		final FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV-Files", "csv");
-		fileChooser.setFileFilter(filter);
+		fileChooser.addChoosableFileFilter(filter);
+		final FileNameExtensionFilter filter2 = new FileNameExtensionFilter("Arff-Files", "arff");
+		fileChooser.addChoosableFileFilter(filter2);
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fileChooser.setBorder(null);
 		thisPanel.add(fileChooser);
@@ -59,14 +63,68 @@ public class ImporterWindow extends JFrame {
 			if (selectedFile == null)
 				return;
 
-			importFile();
+			if (filter.accept(selectedFile))
+				importCSVFile();
+			else if (filter2.accept(selectedFile))
+				importARFFFile();
 		});
 		addBox = new JCheckBox("Add");
 		thisPanel.add(addBox);
 
 	}
 
-	protected boolean importFile() {
+	private boolean importARFFFile() {
+		Reader in = null;
+		if (selectedFile == null)
+			return false;
+		try {
+			in = new FileReader(selectedFile);
+			final ArffReader reader = new ArffReader(in);
+			final Instances data = reader.getData();
+
+			final int size = data.numInstances();
+			final List<String> headers = new ArrayList<String>();
+			for (int i = 0; i < data.numAttributes(); i++) {
+				headers.add(data.attribute(i).name());
+			}
+
+			final int newDim = headers.size();
+			if (newDim != pointContainer.getDim() && !replacePoints()) {
+				return false;// TODO set error
+			}
+
+			if (replacePoints())
+				pointContainer.empty();
+
+			pointContainer.setHeaders(headers);
+			for (int i = 0; i < data.numInstances(); i++) {
+				final double[] point = data.instance(i).toDoubleArray();
+				pointContainer.addPoint(point);
+			}
+
+		} catch (final FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (final IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (in != null)
+					in.close();
+			} catch (final IOException e) {
+				e.printStackTrace();
+			}
+
+		}
+		pointContainer.rebuild();
+		update.update();
+		SwingUtilities.invokeLater(() -> update.repaint());
+		setVisible(false);
+		dispose();
+		return true;
+
+	}
+
+	private boolean importCSVFile() {
 		final NumberFormat format = NumberFormat.getInstance();
 		Reader in = null;
 		try {
@@ -117,7 +175,6 @@ public class ImporterWindow extends JFrame {
 		SwingUtilities.invokeLater(() -> update.repaint());
 		setVisible(false);
 		dispose();
-		// TODO: check container.getPoints().size()<1 and do something
 		return true;
 
 	}
