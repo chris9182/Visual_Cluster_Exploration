@@ -62,7 +62,8 @@ public class MainWindow extends JFrame implements IClickHandler {
 		scatterMatrixButton = new JButton("Matrix");
 		scatterMatrixButton.addActionListener(e -> {
 			final ScatterPlotMatrix ms = new ScatterPlotMatrix(pointContainer);// XXX for testing
-			ms.setSize(new Dimension(400, 400));
+			// ms.setSize(new Dimension(400, 400));
+			ms.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			ms.setLocationRelativeTo(null);
 			ms.setVisible(true);
 		});
