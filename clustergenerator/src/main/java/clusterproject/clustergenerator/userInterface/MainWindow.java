@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -28,7 +29,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 	/**
 	 *
 	 */
-	private static final int INNER_SPACE = 4;
+	public static final int INNER_SPACE = 4;
 	public static final int OPTIONS_WIDTH = 200;
 
 	private static final int ADJUST_BUTTON_DIM = 20;
@@ -47,6 +48,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 	private final JButton activationButton;
 	private final JButton importButton;
 	private final JButton scatterMatrixButton;
+	private final JButton clusterButton;
 
 	private static final long serialVersionUID = 1L;
 
@@ -58,10 +60,20 @@ public class MainWindow extends JFrame implements IClickHandler {
 		setTitle("Scatterplot Matrix");
 		pointContainer = container;
 		clusterViewer = new ScatterPlot(this, pointContainer, true);
+		clusterViewer.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.gray));
+
+		clusterButton = new JButton("Clustering");
+		clusterButton.addActionListener(e -> {
+			final ClusterWorkflow cw = new ClusterWorkflow(pointContainer);
+			// ms.setSize(new Dimension(400, 400));
+			cw.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			cw.setLocationRelativeTo(null);
+			cw.setVisible(true);
+		});
 
 		scatterMatrixButton = new JButton("Matrix");
 		scatterMatrixButton.addActionListener(e -> {
-			final ScatterPlotMatrix ms = new ScatterPlotMatrix(pointContainer);// XXX for testing
+			final ScatterPlotMatrix ms = new ScatterPlotMatrix(pointContainer);
 			// ms.setSize(new Dimension(400, 400));
 			ms.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			ms.setLocationRelativeTo(null);
@@ -139,9 +151,14 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainLayout.putConstraint(SpringLayout.NORTH, scatterMatrixButton, INNER_SPACE, SpringLayout.NORTH, mainFrame);
 		mainLayout.putConstraint(SpringLayout.EAST, scatterMatrixButton, -INNER_SPACE, SpringLayout.WEST, selector);
 
-		mainLayout.putConstraint(SpringLayout.SOUTH, importButton, -INNER_SPACE, SpringLayout.SOUTH, mainFrame);
+		mainLayout.putConstraint(SpringLayout.SOUTH, importButton, -INNER_SPACE, SpringLayout.NORTH, clusterButton);
 		mainLayout.putConstraint(SpringLayout.EAST, importButton, -INNER_SPACE, SpringLayout.EAST, mainFrame);
 		mainLayout.putConstraint(SpringLayout.WEST, importButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
+				mainFrame);
+
+		mainLayout.putConstraint(SpringLayout.SOUTH, clusterButton, -INNER_SPACE, SpringLayout.SOUTH, mainFrame);
+		mainLayout.putConstraint(SpringLayout.EAST, clusterButton, -INNER_SPACE, SpringLayout.EAST, mainFrame);
+		mainLayout.putConstraint(SpringLayout.WEST, clusterButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
 				mainFrame);
 
 		mainLayout.putConstraint(SpringLayout.SOUTH, activationButton, -INNER_SPACE, SpringLayout.NORTH, importButton);
@@ -152,6 +169,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainFrame.add(selector, new Integer(100));
 		mainFrame.add(importButton, new Integer(101));
 		mainFrame.add(scatterMatrixButton, new Integer(101));
+		mainFrame.add(clusterButton, new Integer(101));
 		mainFrame.add(activationButton, new Integer(101));
 		mainFrame.add(clusterViewer, new Integer(1));
 
@@ -256,19 +274,14 @@ public class MainWindow extends JFrame implements IClickHandler {
 	}
 
 	private void initGenerators() {
-		final IGenerator generator1 = new SinglePointGenerator();
-		final IGenerator generator2 = new ELKIGenerator();
-		generators.add(generator1);
-		generators.add(generator2);
+		generators.add(new SinglePointGenerator());
+		generators.add(new ELKIGenerator());
 
 	}
 
 	private void initReducers() {
-		final IDimensionalityReduction reducer1 = new PCAReducer();
-		final IDimensionalityReduction reducer2 = new TSNEReducer();
-		reducers.add(reducer1);
-		reducers.add(reducer2);
-
+		reducers.add(new PCAReducer());
+		reducers.add(new TSNEReducer());
 	}
 
 	@Override
