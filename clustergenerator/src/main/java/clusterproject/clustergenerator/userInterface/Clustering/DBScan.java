@@ -35,17 +35,18 @@ public class DBScan implements IClusterer {
 	@Override
 	public List<ClusteringResult> cluster(Database db) {
 		final List<ClusteringResult> clusterings = new ArrayList<ClusteringResult>();
-
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
 		double eps = optionsPanel.getLBEps();
 		final double epsStep = optionsPanel.getStepEps();
 		final double epsBound = optionsPanel.getUBEps();
-		int minPTS = optionsPanel.getLBMinPTS();
+
+		int minPTS;
 		final int minPTSStep = optionsPanel.getStepMinPTS();
 		final int minPTSBound = optionsPanel.getUBMinPTS();
 
 		while (eps <= epsBound) {
+			minPTS = optionsPanel.getLBMinPTS();
 			while (minPTS <= minPTSBound) {
 				final ListParameterization params = new ListParameterization();
 				params.addParameter(DBSCAN.Parameterizer.EPSILON_ID, eps);
@@ -55,6 +56,7 @@ public class DBScan implements IClusterer {
 				final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
 				result.getAllClusters().forEach(cluster -> {
 					final List<NumberVector> pointList = new ArrayList<NumberVector>();
+
 					for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
 						pointList.add(rel.get(it));
 						// ArrayLikeUtil.toPrimitiveDoubleArray(v)
@@ -65,7 +67,7 @@ public class DBScan implements IClusterer {
 				});
 				NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 				clustersArr = clusterList.toArray(clustersArr);
-				clusterings.add(new ClusteringResult(clustersArr));
+				clusterings.add(new ClusteringResult(clustersArr, "minPTS:" + minPTS + " Epsilon:" + eps));
 				minPTS += minPTSStep;
 			}
 			eps += epsStep;
@@ -90,7 +92,8 @@ public class DBScan implements IClusterer {
 			});
 			NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 			clustersArr = clusterList.toArray(clustersArr);
-			clusterings.add(new ClusteringResult(clustersArr));
+			clusterings.add(new ClusteringResult(clustersArr,
+					"minPTS:" + optionsPanel.getLBMinPTS() + " Epsilon:" + optionsPanel.getLBEps()));
 		}
 		return clusterings;
 	}

@@ -4,10 +4,12 @@ import de.lmu.ifi.dbs.elki.data.NumberVector;
 import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
 
 public class ClusteringResult {
-	NumberVector[][] clusterPoints;
+	private final NumberVector[][] clusterPoints;
+	private final String description;
 
-	public ClusteringResult(NumberVector[][] clusterPoints) {
+	public ClusteringResult(NumberVector[][] clusterPoints, String description) {
 		this.clusterPoints = clusterPoints;
+		this.description = description;
 	}
 
 	public NumberVector[][] getData() {
@@ -25,4 +27,9 @@ public class ClusteringResult {
 		container.rebuild();
 		return container;
 	}
+
+	public String getDescription() {
+		return description;
+	}
+
 }

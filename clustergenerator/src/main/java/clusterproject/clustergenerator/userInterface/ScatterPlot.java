@@ -1,9 +1,11 @@
 package clusterproject.clustergenerator.userInterface;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JButton;
 import javax.swing.JLayeredPane;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
@@ -82,6 +84,22 @@ public class ScatterPlot extends JLayeredPane {
 		layout.putConstraint(SpringLayout.EAST, canvas, 0, SpringLayout.EAST, this);
 		layout.putConstraint(SpringLayout.WEST, canvas, 0, SpringLayout.WEST, this);
 		layout.putConstraint(SpringLayout.SOUTH, canvas, 0, SpringLayout.SOUTH, this);
+	}
+
+	public void addAutoAdjust() {
+		final JButton autoAdjust = new JButton("");
+		autoAdjust.setToolTipText("Auto-Adjust Axies");
+		autoAdjust.setPreferredSize(new Dimension(MainWindow.ADJUST_BUTTON_DIM, MainWindow.ADJUST_BUTTON_DIM));
+		autoAdjust.addActionListener(e -> {
+			autoAdjust();
+			SwingUtilities.invokeLater(() -> repaint());
+
+		});
+
+		layout.putConstraint(SpringLayout.SOUTH, autoAdjust, 0, SpringLayout.SOUTH, this);
+		layout.putConstraint(SpringLayout.WEST, autoAdjust, 0, SpringLayout.WEST, this);
+
+		add(autoAdjust, new Integer(100));
 	}
 
 	public double[] getCoordinates(Point point) {

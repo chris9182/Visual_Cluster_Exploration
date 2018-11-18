@@ -10,7 +10,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
@@ -32,11 +31,11 @@ public class MainWindow extends JFrame implements IClickHandler {
 	public static final int INNER_SPACE = 4;
 	public static final int OPTIONS_WIDTH = 200;
 
-	private static final int ADJUST_BUTTON_DIM = 20;
+	public static final int ADJUST_BUTTON_DIM = 16;
 	public static final int GENERATOR_BUTTON_HEIGHT = 200;
 	public static final Color BACKGROUND_COLOR = Color.white;
 
-	private final JLayeredPane mainFrame;
+	private final JLayeredPane mainPanel;
 	private final SpringLayout mainLayout;
 	private final List<IGenerator> generators;
 	private final List<IDimensionalityReduction> reducers;
@@ -102,22 +101,14 @@ public class MainWindow extends JFrame implements IClickHandler {
 			}
 		});
 
-		mainFrame = new JLayeredPane();
+		mainPanel = new JLayeredPane();
 		generators = new ArrayList<IGenerator>();
 		reducers = new ArrayList<IDimensionalityReduction>();
-		add(mainFrame);
+		add(mainPanel);
 		mainLayout = new SpringLayout();
-		mainFrame.setLayout(mainLayout);
+		mainPanel.setLayout(mainLayout);
 
-		final JPanel background = new JPanel();
-		background.setBackground(BACKGROUND_COLOR);
-
-		mainLayout.putConstraint(SpringLayout.NORTH, background, 0, SpringLayout.NORTH, mainFrame);
-		mainLayout.putConstraint(SpringLayout.EAST, background, 0, SpringLayout.EAST, mainFrame);
-		mainLayout.putConstraint(SpringLayout.WEST, background, 0, SpringLayout.WEST, mainFrame);
-		mainLayout.putConstraint(SpringLayout.SOUTH, background, 0, SpringLayout.SOUTH, mainFrame);
-
-		mainFrame.add(background, new Integer(0));
+		getContentPane().setBackground(BACKGROUND_COLOR);
 
 		initGenerators();
 		initReducers();
@@ -139,53 +130,41 @@ public class MainWindow extends JFrame implements IClickHandler {
 		selector.addActionListener(new BlockComboListener(selector));
 		selector.addActionListener(e -> setActiveElement());
 
-		mainLayout.putConstraint(SpringLayout.NORTH, selector, INNER_SPACE, SpringLayout.NORTH, mainFrame);
-		mainLayout.putConstraint(SpringLayout.EAST, selector, -INNER_SPACE, SpringLayout.EAST, mainFrame);
+		mainLayout.putConstraint(SpringLayout.NORTH, selector, INNER_SPACE, SpringLayout.NORTH, mainPanel);
+		mainLayout.putConstraint(SpringLayout.EAST, selector, -INNER_SPACE, SpringLayout.EAST, mainPanel);
 
-		mainLayout.putConstraint(SpringLayout.NORTH, clusterViewer, INNER_SPACE, SpringLayout.NORTH, mainFrame);
+		mainLayout.putConstraint(SpringLayout.NORTH, clusterViewer, INNER_SPACE, SpringLayout.NORTH, mainPanel);
 		mainLayout.putConstraint(SpringLayout.EAST, clusterViewer, 2 * -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
-				mainFrame);
-		mainLayout.putConstraint(SpringLayout.WEST, clusterViewer, INNER_SPACE, SpringLayout.WEST, mainFrame);
-		mainLayout.putConstraint(SpringLayout.SOUTH, clusterViewer, -INNER_SPACE, SpringLayout.SOUTH, mainFrame);
+				mainPanel);
+		mainLayout.putConstraint(SpringLayout.WEST, clusterViewer, INNER_SPACE, SpringLayout.WEST, mainPanel);
+		mainLayout.putConstraint(SpringLayout.SOUTH, clusterViewer, -INNER_SPACE, SpringLayout.SOUTH, mainPanel);
 
-		mainLayout.putConstraint(SpringLayout.NORTH, scatterMatrixButton, INNER_SPACE, SpringLayout.NORTH, mainFrame);
+		mainLayout.putConstraint(SpringLayout.NORTH, scatterMatrixButton, INNER_SPACE, SpringLayout.NORTH, mainPanel);
 		mainLayout.putConstraint(SpringLayout.EAST, scatterMatrixButton, -INNER_SPACE, SpringLayout.WEST, selector);
 
 		mainLayout.putConstraint(SpringLayout.SOUTH, importButton, -INNER_SPACE, SpringLayout.NORTH, clusterButton);
-		mainLayout.putConstraint(SpringLayout.EAST, importButton, -INNER_SPACE, SpringLayout.EAST, mainFrame);
+		mainLayout.putConstraint(SpringLayout.EAST, importButton, -INNER_SPACE, SpringLayout.EAST, mainPanel);
 		mainLayout.putConstraint(SpringLayout.WEST, importButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
-				mainFrame);
+				mainPanel);
 
-		mainLayout.putConstraint(SpringLayout.SOUTH, clusterButton, -INNER_SPACE, SpringLayout.SOUTH, mainFrame);
-		mainLayout.putConstraint(SpringLayout.EAST, clusterButton, -INNER_SPACE, SpringLayout.EAST, mainFrame);
+		mainLayout.putConstraint(SpringLayout.SOUTH, clusterButton, -INNER_SPACE, SpringLayout.SOUTH, mainPanel);
+		mainLayout.putConstraint(SpringLayout.EAST, clusterButton, -INNER_SPACE, SpringLayout.EAST, mainPanel);
 		mainLayout.putConstraint(SpringLayout.WEST, clusterButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
-				mainFrame);
+				mainPanel);
 
 		mainLayout.putConstraint(SpringLayout.SOUTH, activationButton, -INNER_SPACE, SpringLayout.NORTH, importButton);
-		mainLayout.putConstraint(SpringLayout.EAST, activationButton, -INNER_SPACE, SpringLayout.EAST, mainFrame);
+		mainLayout.putConstraint(SpringLayout.EAST, activationButton, -INNER_SPACE, SpringLayout.EAST, mainPanel);
 		mainLayout.putConstraint(SpringLayout.WEST, activationButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
-				mainFrame);
+				mainPanel);
 
-		mainFrame.add(selector, new Integer(100));
-		mainFrame.add(importButton, new Integer(101));
-		mainFrame.add(scatterMatrixButton, new Integer(101));
-		mainFrame.add(clusterButton, new Integer(101));
-		mainFrame.add(activationButton, new Integer(101));
-		mainFrame.add(clusterViewer, new Integer(1));
+		mainPanel.add(selector, new Integer(100));
+		mainPanel.add(importButton, new Integer(101));
+		mainPanel.add(scatterMatrixButton, new Integer(101));
+		mainPanel.add(clusterButton, new Integer(101));
+		mainPanel.add(activationButton, new Integer(101));
+		mainPanel.add(clusterViewer, new Integer(1));
 
-		final JButton autoAdjust = new JButton("");
-		autoAdjust.setToolTipText("Auto-Adjust Axies");
-		autoAdjust.setPreferredSize(new Dimension(ADJUST_BUTTON_DIM, ADJUST_BUTTON_DIM));
-		autoAdjust.addActionListener(e -> {
-			clusterViewer.autoAdjust();
-			SwingUtilities.invokeLater(() -> clusterViewer.repaint());
-
-		});
-
-		mainLayout.putConstraint(SpringLayout.SOUTH, autoAdjust, -1, SpringLayout.SOUTH, mainFrame);
-		mainLayout.putConstraint(SpringLayout.WEST, autoAdjust, 1, SpringLayout.WEST, mainFrame);
-
-		mainFrame.add(autoAdjust, new Integer(100));
+		clusterViewer.addAutoAdjust();
 
 		setActiveElement();
 
@@ -215,11 +194,11 @@ public class MainWindow extends JFrame implements IClickHandler {
 		if (newReducer == null)
 			return;
 		if (activeGenerator != null) {
-			mainFrame.remove(activeGenerator.getOptionsPanel());
+			mainPanel.remove(activeGenerator.getOptionsPanel());
 			activeGenerator = null;
 		}
 		if (activeReducer != null) {
-			mainFrame.remove(activeReducer.getOptionsPanel());
+			mainPanel.remove(activeReducer.getOptionsPanel());
 			activeReducer.getOptionsPanel().setVisible(false);
 		}
 		activeReducer = newReducer;
@@ -227,13 +206,13 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainLayout.putConstraint(SpringLayout.NORTH, activeReducer.getOptionsPanel(), INNER_SPACE, SpringLayout.SOUTH,
 				selector);
 		mainLayout.putConstraint(SpringLayout.EAST, activeReducer.getOptionsPanel(), -INNER_SPACE, SpringLayout.EAST,
-				mainFrame);
+				mainPanel);
 		mainLayout.putConstraint(SpringLayout.WEST, activeReducer.getOptionsPanel(), -INNER_SPACE - OPTIONS_WIDTH,
-				SpringLayout.EAST, mainFrame);
+				SpringLayout.EAST, mainPanel);
 		mainLayout.putConstraint(SpringLayout.SOUTH, activeReducer.getOptionsPanel(), -INNER_SPACE, SpringLayout.NORTH,
 				activationButton);
 
-		mainFrame.add(activeReducer.getOptionsPanel(), new Integer(1));
+		mainPanel.add(activeReducer.getOptionsPanel(), new Integer(1));
 		activeReducer.getOptionsPanel().setVisible(true);
 		activationButton.setText("Reduce");
 		activationButton.setVisible(true);
@@ -248,11 +227,11 @@ public class MainWindow extends JFrame implements IClickHandler {
 		if (newGenerator == null)
 			return;
 		if (activeGenerator != null) {
-			mainFrame.remove(activeGenerator.getOptionsPanel());
+			mainPanel.remove(activeGenerator.getOptionsPanel());
 			activeGenerator.getOptionsPanel().setVisible(false);
 		}
 		if (activeReducer != null) {
-			mainFrame.remove(activeReducer.getOptionsPanel());
+			mainPanel.remove(activeReducer.getOptionsPanel());
 			activeReducer = null;
 		}
 		activeGenerator = newGenerator;
@@ -260,13 +239,13 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainLayout.putConstraint(SpringLayout.NORTH, activeGenerator.getOptionsPanel(), INNER_SPACE, SpringLayout.SOUTH,
 				selector);
 		mainLayout.putConstraint(SpringLayout.EAST, activeGenerator.getOptionsPanel(), -INNER_SPACE, SpringLayout.EAST,
-				mainFrame);
+				mainPanel);
 		mainLayout.putConstraint(SpringLayout.WEST, activeGenerator.getOptionsPanel(), -INNER_SPACE - OPTIONS_WIDTH,
-				SpringLayout.EAST, mainFrame);
+				SpringLayout.EAST, mainPanel);
 		mainLayout.putConstraint(SpringLayout.SOUTH, activeGenerator.getOptionsPanel(), -INNER_SPACE,
 				SpringLayout.NORTH, activationButton);
 
-		mainFrame.add(activeGenerator.getOptionsPanel(), new Integer(1));
+		mainPanel.add(activeGenerator.getOptionsPanel(), new Integer(1));
 		activeGenerator.getOptionsPanel().setVisible(true);
 		activationButton.setText("Generate");
 		activationButton.setVisible(activeGenerator.canSimpleGenerate());

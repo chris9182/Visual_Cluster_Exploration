@@ -24,7 +24,7 @@ public class ScatterPlotMatrix extends JFrame {
 	private static final int POINT_SIZE = 3;
 	private static final int TEXT_WIDTH = 20;
 
-	private final JPanel mainPane;
+	private final JLayeredPane mainPane;
 	private final PointContainer pointContainer;
 	private final List<String> headers;
 
@@ -37,8 +37,8 @@ public class ScatterPlotMatrix extends JFrame {
 		final JLayeredPane pane = new JLayeredPane();
 		pane.setLayout(springLayout);
 		add(pane);
-		mainPane = new JPanel();
-		mainPane.setBackground(MainWindow.BACKGROUND_COLOR);
+		mainPane = new JLayeredPane();
+		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 		mainPane.setBorder(null);
 		pane.add(mainPane, new Integer(20));
 
@@ -54,6 +54,7 @@ public class ScatterPlotMatrix extends JFrame {
 		final ScatterPlot[][] matr = new ScatterPlot[dim][dim];
 
 		final JPanel xTextPane = new JPanel();
+		xTextPane.setOpaque(false);
 		final GridLayout xTextPaneLayout = new GridLayout(1, dim, 0, 0);
 		xTextPane.setLayout(xTextPaneLayout);
 		pane.add(xTextPane, new Integer(21));
@@ -63,6 +64,7 @@ public class ScatterPlotMatrix extends JFrame {
 		springLayout.putConstraint(SpringLayout.SOUTH, xTextPane, TEXT_WIDTH, SpringLayout.NORTH, pane);
 
 		final JPanel yTextPane = new JPanel();
+		yTextPane.setOpaque(false);
 		final GridLayout yTextPaneLayout = new GridLayout(dim, 1, 0, 0);
 		yTextPane.setLayout(yTextPaneLayout);
 		pane.add(yTextPane, new Integer(21));

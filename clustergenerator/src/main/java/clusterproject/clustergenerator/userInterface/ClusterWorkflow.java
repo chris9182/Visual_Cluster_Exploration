@@ -47,30 +47,30 @@ public class ClusterWorkflow extends JFrame {
 
 	private final JButton confirmClustererButton;
 	private final JButton executeClusterersButton;
-	private final JLayeredPane mainFrame;
+	private final JLayeredPane mainPanel;
 	private JPanel wfPanel;
 
 	public ClusterWorkflow(PointContainer container) {
 		pointContainer = container;
-		mainFrame = new JLayeredPane();
-		add(mainFrame);
+		mainPanel = new JLayeredPane();
+		add(mainPanel);
 
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 		clusterers = new ArrayList<IClusterer>();
 		workflow = new ArrayList<IClusterer>();
 		layout = new SpringLayout();
-		mainFrame.setLayout(layout);
+		mainPanel.setLayout(layout);
 		final JLabel addLabel = new JLabel("Add");
-		mainFrame.add(addLabel, new Integer(1));
-		layout.putConstraint(SpringLayout.NORTH, addLabel, OUTER_SPACE, SpringLayout.NORTH, mainFrame);
-		layout.putConstraint(SpringLayout.WEST, addLabel, OUTER_SPACE, SpringLayout.WEST, mainFrame);
+		mainPanel.add(addLabel, new Integer(1));
+		layout.putConstraint(SpringLayout.NORTH, addLabel, OUTER_SPACE, SpringLayout.NORTH, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, addLabel, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 
 		initClusterers();
 		final String[] names = new String[clusterers.size()];
 		for (int i = 0; i < names.length; ++i)
 			names[i] = clusterers.get(i).getName();
 		clustererSelector = new JComboBox<>(names);
-		mainFrame.add(clustererSelector, new Integer(1));
+		mainPanel.add(clustererSelector, new Integer(1));
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, clustererSelector, 0, SpringLayout.VERTICAL_CENTER,
 				addLabel);
 		layout.putConstraint(SpringLayout.WEST, clustererSelector, 2 * MainWindow.INNER_SPACE, SpringLayout.EAST,
@@ -81,20 +81,20 @@ public class ClusterWorkflow extends JFrame {
 		wfLabel = new JLabel("Workflow:");
 
 		layout.putConstraint(SpringLayout.NORTH, wfLabel, OUTER_SPACE, SpringLayout.SOUTH, clustererSelector);
-		layout.putConstraint(SpringLayout.WEST, wfLabel, OUTER_SPACE, SpringLayout.WEST, mainFrame);
+		layout.putConstraint(SpringLayout.WEST, wfLabel, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 		wfLabel.setVisible(false);
-		mainFrame.add(wfLabel, new Integer(1));
+		mainPanel.add(wfLabel, new Integer(1));
 
 		executeClusterersButton = new JButton("Execute Workflow");
 		executeClusterersButton.addActionListener(e -> executeWorkflow());
 
 		confirmClustererButton = new JButton("Confirm");
 		confirmClustererButton.addActionListener(e -> addToWorkflow());
-		layout.putConstraint(SpringLayout.SOUTH, confirmClustererButton, -OUTER_SPACE, SpringLayout.SOUTH, mainFrame);
+		layout.putConstraint(SpringLayout.SOUTH, confirmClustererButton, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
 		layout.putConstraint(SpringLayout.WEST, confirmClustererButton, -OPTIONS_WIDTH - OUTER_SPACE, SpringLayout.EAST,
-				mainFrame);
-		layout.putConstraint(SpringLayout.EAST, confirmClustererButton, -OUTER_SPACE, SpringLayout.EAST, mainFrame);
-		mainFrame.add(confirmClustererButton, new Integer(1));
+				mainPanel);
+		layout.putConstraint(SpringLayout.EAST, confirmClustererButton, -OUTER_SPACE, SpringLayout.EAST, mainPanel);
+		mainPanel.add(confirmClustererButton, new Integer(1));
 		openClustererSettings(clusterers.get(0).getName());
 
 	}
@@ -128,7 +128,7 @@ public class ClusterWorkflow extends JFrame {
 	private void openClustererSettings(String name) {
 		// confirmClustererButton.setVisible(false);
 		if (selectedClusterer != null) {
-			mainFrame.remove(selectedClusterer.getOptionsPanel());
+			mainPanel.remove(selectedClusterer.getOptionsPanel());
 			selectedClusterer.getOptionsPanel().setVisible(false);
 		}
 		selectedClusterer = null;
@@ -140,15 +140,15 @@ public class ClusterWorkflow extends JFrame {
 		confirmClustererButton.setVisible(true);
 		final JPanel options = selectedClusterer.getOptionsPanel();
 
-		layout.putConstraint(SpringLayout.NORTH, options, OUTER_SPACE, SpringLayout.NORTH, mainFrame);
-		layout.putConstraint(SpringLayout.EAST, options, -OUTER_SPACE, SpringLayout.EAST, mainFrame);
-		layout.putConstraint(SpringLayout.WEST, options, -OUTER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST, mainFrame);
+		layout.putConstraint(SpringLayout.NORTH, options, OUTER_SPACE, SpringLayout.NORTH, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, options, -OUTER_SPACE, SpringLayout.EAST, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, options, -OUTER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST, mainPanel);
 		layout.putConstraint(SpringLayout.SOUTH, options, -MainWindow.INNER_SPACE, SpringLayout.NORTH,
 				confirmClustererButton);
 
 		options.setVisible(true);
 
-		mainFrame.add(options, new Integer(1));
+		mainPanel.add(options, new Integer(1));
 		SwingUtilities.invokeLater(() -> {
 			revalidate();
 			repaint();
@@ -158,21 +158,21 @@ public class ClusterWorkflow extends JFrame {
 
 	private void showWorkflow() {
 		if (workflow.isEmpty()) {
-			mainFrame.remove(wfPanel);
+			mainPanel.remove(wfPanel);
 			wfLabel.setVisible(false);
 			return;
 		}
 		wfLabel.setVisible(true);
 		if (wfPanel != null)
-			mainFrame.remove(wfPanel);
+			mainPanel.remove(wfPanel);
 		final SpringLayout wfLayout = new SpringLayout();
 		wfPanel = new JPanel(wfLayout);
 		wfPanel.setOpaque(false);
 		layout.putConstraint(SpringLayout.NORTH, wfPanel, MainWindow.INNER_SPACE, SpringLayout.SOUTH, wfLabel);
-		layout.putConstraint(SpringLayout.SOUTH, wfPanel, -OUTER_SPACE, SpringLayout.SOUTH, mainFrame);
-		layout.putConstraint(SpringLayout.WEST, wfPanel, OUTER_SPACE, SpringLayout.WEST, mainFrame);
+		layout.putConstraint(SpringLayout.SOUTH, wfPanel, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, wfPanel, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 		layout.putConstraint(SpringLayout.EAST, wfPanel, -2 * OUTER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
-				mainFrame);
+				mainPanel);
 		Component alignment = Box.createVerticalStrut(0);
 		wfLayout.putConstraint(SpringLayout.NORTH, alignment, 0, SpringLayout.NORTH, wfPanel);
 		wfPanel.add(alignment);
@@ -196,7 +196,7 @@ public class ClusterWorkflow extends JFrame {
 		wfLayout.putConstraint(SpringLayout.EAST, executeClusterersButton, -OUTER_SPACE, SpringLayout.EAST, wfPanel);
 		wfPanel.add(executeClusterersButton, new Integer(1));
 
-		mainFrame.add(wfPanel, new Integer(1));
+		mainPanel.add(wfPanel, new Integer(1));
 
 	}
 
