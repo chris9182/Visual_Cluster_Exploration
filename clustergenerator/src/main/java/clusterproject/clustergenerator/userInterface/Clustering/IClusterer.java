@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import clusterproject.clustergenerator.data.PointContainer;
-import de.lmu.ifi.dbs.elki.data.Clustering;
+import clusterproject.clustergenerator.data.ClusteringResult;
+import de.lmu.ifi.dbs.elki.database.Database;
 
 public interface IClusterer {
 
@@ -13,7 +13,9 @@ public interface IClusterer {
 
 	String getName();
 
-	List<Clustering> cluster(PointContainer container);
+	String getSettingsString();
+
+	List<ClusteringResult> cluster(Database db);
 
 	IClusterer duplicate();
 

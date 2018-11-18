@@ -65,7 +65,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 		clusterButton = new JButton("Clustering");
 		clusterButton.addActionListener(e -> {
 			final ClusterWorkflow cw = new ClusterWorkflow(pointContainer);
-			// ms.setSize(new Dimension(400, 400));
+			cw.setSize(new Dimension(400, 400));
 			cw.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			cw.setLocationRelativeTo(null);
 			cw.setVisible(true);
@@ -74,7 +74,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 		scatterMatrixButton = new JButton("Matrix");
 		scatterMatrixButton.addActionListener(e -> {
 			final ScatterPlotMatrix ms = new ScatterPlotMatrix(pointContainer);
-			// ms.setSize(new Dimension(400, 400));
+			ms.setSize(new Dimension(400, 400));
 			ms.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			ms.setLocationRelativeTo(null);
 			ms.setVisible(true);

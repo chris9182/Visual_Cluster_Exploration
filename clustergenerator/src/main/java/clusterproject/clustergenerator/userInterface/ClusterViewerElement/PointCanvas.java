@@ -45,15 +45,28 @@ public class PointCanvas extends JPanel {
 		IntStream.range(0, yCoordinates.length).forEach(i -> yCoordinates[i] = clusterViewer.getPixelY(points.get(i)));
 		IntStream.range(0, xCoordinates.length).forEach(i -> xCoordinates[i] = clusterViewer.getPixelX(points.get(i)));
 
-		for (int i = 0; i < pointCount; ++i) {
-			if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]))
-				continue;
-			g2.setColor(Color.GRAY);
-			g2.fillOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
-					pointWidth);
-			g2.setColor(Color.BLACK);
-			g2.drawOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
-					pointWidth);
+		if (!pointContainer.hasClusters())
+			for (int i = 0; i < pointCount; ++i) {
+				if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]))
+					continue;
+				g2.setColor(Color.GRAY);
+				g2.fillOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
+						pointWidth);
+				g2.setColor(Color.BLACK);
+				g2.drawOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
+						pointWidth);
+			}
+		else {// XXX temporary
+			for (int i = 0; i < pointCount; ++i) {
+				if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]))
+					continue;
+				g2.setColor(Color.GRAY);
+				g2.fillOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
+						pointWidth);
+				g2.setColor(Color.BLACK);
+				g2.drawOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
+						pointWidth);
+			}
 		}
 	}
 

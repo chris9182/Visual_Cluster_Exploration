@@ -10,6 +10,7 @@ public class PointContainer {
 	private List<double[]> points = new ArrayList<double[]>();
 	private List<String> headers;
 	private Double[] center = null;
+	private List<Integer> clusterIDs;
 	private int dim;
 
 	public PointContainer(int dim) {
@@ -120,6 +121,7 @@ public class PointContainer {
 	public void empty() {
 		points.clear();
 		headers.clear();
+		clusterIDs = null;
 		dim = -1;
 	}
 
@@ -131,5 +133,17 @@ public class PointContainer {
 		if (headers.isEmpty())
 			for (int i = 0; i < dim; i++)
 				headers.add(Integer.toString(i));
+	}
+
+	public void setUpClusters() {
+		clusterIDs = new ArrayList<Integer>();
+	}
+
+	public void addClusterID(Integer id) {
+		clusterIDs.add(id);
+	}
+
+	public boolean hasClusters() {
+		return clusterIDs != null && clusterIDs.size() == points.size();
 	}
 }
