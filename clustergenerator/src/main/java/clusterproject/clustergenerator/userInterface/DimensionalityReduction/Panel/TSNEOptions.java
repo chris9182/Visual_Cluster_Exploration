@@ -1,4 +1,4 @@
-package clusterproject.clustergenerator.userInterface.DimensionalityReduction;
+package clusterproject.clustergenerator.userInterface.DimensionalityReduction.Panel;
 
 import java.text.NumberFormat;
 import java.text.ParseException;

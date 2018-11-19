@@ -12,6 +12,7 @@ import com.jujutsu.utils.TSneUtils;
 
 import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.userInterface.MainWindow;
+import clusterproject.clustergenerator.userInterface.DimensionalityReduction.Panel.TSNEOptions;
 
 public class TSNEReducer implements IDimensionalityReduction {
 

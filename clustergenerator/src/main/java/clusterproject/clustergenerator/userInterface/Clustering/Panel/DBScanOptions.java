@@ -1,4 +1,4 @@
-package clusterproject.clustergenerator.userInterface.Clustering;
+package clusterproject.clustergenerator.userInterface.Clustering.Panel;
 
 import java.text.NumberFormat;
 import java.text.ParseException;

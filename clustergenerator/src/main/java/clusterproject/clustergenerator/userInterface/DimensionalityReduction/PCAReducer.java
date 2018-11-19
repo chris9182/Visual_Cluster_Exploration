@@ -15,6 +15,7 @@ import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 
 import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.userInterface.MainWindow;
+import clusterproject.clustergenerator.userInterface.DimensionalityReduction.Panel.PCAOptions;
 
 public class PCAReducer implements IDimensionalityReduction {
 

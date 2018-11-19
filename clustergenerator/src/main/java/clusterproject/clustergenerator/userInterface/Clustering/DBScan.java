@@ -6,6 +6,7 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import clusterproject.clustergenerator.data.ClusteringResult;
+import clusterproject.clustergenerator.userInterface.Clustering.Panel.DBScanOptions;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.DBSCAN;
 import de.lmu.ifi.dbs.elki.data.Clustering;
 import de.lmu.ifi.dbs.elki.data.DoubleVector;
