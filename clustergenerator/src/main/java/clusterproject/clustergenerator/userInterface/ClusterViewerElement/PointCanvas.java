@@ -4,11 +4,14 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import javax.swing.JPanel;
 
+import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.userInterface.ScatterPlot;
 
@@ -57,10 +60,18 @@ public class PointCanvas extends JPanel {
 						pointWidth);
 			}
 		else {// XXX temporary
+
+			final List<Integer> clusterIDs = pointContainer.getClusterIDs();
+			final long distinct = clusterIDs.stream().distinct().count();
+			final Map<Integer, Color> colorMap = new HashMap<Integer, Color>();
+
+			for (int i = 0; i < distinct; ++i)
+				colorMap.put(i, Util.getColor(i + 2));
+
 			for (int i = 0; i < pointCount; ++i) {
 				if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]))
 					continue;
-				g2.setColor(Color.GRAY);
+				g2.setColor(colorMap.get(clusterIDs.get(i)));
 				g2.fillOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
 						pointWidth);
 				g2.setColor(Color.BLACK);

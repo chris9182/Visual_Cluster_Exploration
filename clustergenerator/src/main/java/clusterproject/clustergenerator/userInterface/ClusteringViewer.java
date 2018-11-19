@@ -10,6 +10,7 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import clusterproject.clustergenerator.data.ClusteringResult;
+import clusterproject.clustergenerator.data.PointContainer;
 
 public class ClusteringViewer extends JFrame {
 
@@ -29,7 +30,7 @@ public class ClusteringViewer extends JFrame {
 	private final JLayeredPane mainPanel;
 	private final SpringLayout layout;
 
-	public ClusteringViewer(List<ClusteringResult> clusterings) {
+	public ClusteringViewer(List<ClusteringResult> clusterings, PointContainer pointContainer) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 		this.clusterings = clusterings;
 		mainPanel = new JLayeredPane();
@@ -38,7 +39,9 @@ public class ClusteringViewer extends JFrame {
 		add(mainPanel);
 		viewers = new ArrayList<ScatterPlot>();
 		clusterings.forEach(clustering -> {
-			final ScatterPlot plot = new ScatterPlot(null, clustering.toPointContainer(), true);
+			final PointContainer container = clustering.toPointContainer();
+			container.setHeaders(pointContainer.getHeaders());
+			final ScatterPlot plot = new ScatterPlot(null, container, true);
 			plot.addAutoAdjust();
 			viewers.add(plot);
 		});

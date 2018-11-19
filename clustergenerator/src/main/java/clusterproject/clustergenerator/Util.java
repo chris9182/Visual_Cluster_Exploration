@@ -1,6 +1,8 @@
 package clusterproject.clustergenerator;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.Arrays;
 
 public class Util {
 	public static void drawRotate(Graphics2D g2d, double x, double y, int angle, String text) {
@@ -21,6 +23,49 @@ public class Util {
 			}
 		}
 		return temp;
+	}
+
+	// https://stackoverflow.com/questions/309149/generate-distinctly-different-rgb-colors-in-graphs
+	public static Color getColor(int i) {
+		return new Color(getRGB(i));
+	}
+
+	public static int getRGB(int index) {
+		final int[] p = getPattern(index);
+		return getElement(p[0]) << 16 | getElement(p[1]) << 8 | getElement(p[2]);
+	}
+
+	public static int getElement(int index) {
+		int value = index - 1;
+		int v = 0;
+		for (int i = 0; i < 8; i++) {
+			v = v | (value & 1);
+			v <<= 1;
+			value >>= 1;
+		}
+		v >>= 1;
+		return v & 0xFF;
+	}
+
+	public static int[] getPattern(int index) {
+		final int n = (int) Math.cbrt(index);
+		index -= (n * n * n);
+		final int[] p = new int[3];
+		Arrays.fill(p, n);
+		if (index == 0) {
+			return p;
+		}
+		index--;
+		int v = index % 3;
+		index = index / 3;
+		if (index < n) {
+			p[v] = index % n;
+			return p;
+		}
+		index -= n;
+		p[v] = index / n;
+		p[++v % 3] = index % n;
+		return p;
 	}
 
 }

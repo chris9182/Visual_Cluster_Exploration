@@ -24,6 +24,7 @@ public class ClusteringResult {
 				container.addPoint(ArrayLikeUtil.toPrimitiveDoubleArray(clusterPoints[i][j]));
 				container.addClusterID(i);
 			}
+
 		container.rebuild();
 		return container;
 	}

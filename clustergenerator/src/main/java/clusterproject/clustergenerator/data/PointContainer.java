@@ -146,4 +146,9 @@ public class PointContainer {
 	public boolean hasClusters() {
 		return clusterIDs != null && clusterIDs.size() == points.size();
 	}
+
+	public List<Integer> getClusterIDs() {
+		// TODO Auto-generated method stub
+		return clusterIDs;
+	}
 }

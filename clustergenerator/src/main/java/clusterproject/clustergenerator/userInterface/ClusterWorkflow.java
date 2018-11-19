@@ -117,7 +117,8 @@ public class ClusterWorkflow extends JFrame {
 			final List<ClusteringResult> results = clusterer.cluster(db);
 			clusterings.addAll(results);
 		}
-		final ClusteringViewer cv = new ClusteringViewer(clusterings);
+
+		final ClusteringViewer cv = new ClusteringViewer(clusterings, pointContainer);
 		cv.setSize(new Dimension(400, 400));
 		cv.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		cv.setLocationRelativeTo(null);
