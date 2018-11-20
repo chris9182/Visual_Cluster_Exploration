@@ -17,7 +17,8 @@ public class OpticsMetaClustering {
 		this.minPTS = minPTS;
 		this.eps = eps;
 		this.clusterings = new ArrayList<ClusteringWithDistance>();
-		clusterings.forEach(t -> OpticsMetaClustering.this.clusterings.add(new ClusteringWithDistance(t)));
+		for (int i = 0; i < clusterings.size(); ++i)
+			this.clusterings.add(new ClusteringWithDistance(clusterings.get(i), i));
 	}
 
 	public List<ClusteringWithDistance> runOptics() {

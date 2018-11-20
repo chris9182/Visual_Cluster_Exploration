@@ -50,8 +50,9 @@ public class ClusteringWithDistance {
 		return Arrays.stream(a).distinct().filter(x -> Arrays.stream(b).anyMatch(y -> y == x)).toArray();
 	}
 
-	public ClusteringWithDistance(ClusteringResult clustering) {
+	public ClusteringWithDistance(ClusteringResult clustering, int inIndex) {
 		this.clustering = clustering;
+		this.inIndex = inIndex;
 	}
 
 	public float distanceto(ClusteringWithDistance other) {
