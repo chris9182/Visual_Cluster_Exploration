@@ -29,6 +29,13 @@ public class ClusteringResult {
 		return container;
 	}
 
+	public int getPointCount() {
+		int count = 0;
+		for (int i = 0; i < clusterPoints.length; ++i)
+			count += clusterPoints[i].length;
+		return count;
+	}
+
 	public String getDescription() {
 		return description;
 	}

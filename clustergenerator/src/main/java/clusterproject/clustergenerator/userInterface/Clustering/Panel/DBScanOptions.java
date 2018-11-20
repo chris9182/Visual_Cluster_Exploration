@@ -74,7 +74,7 @@ public class DBScanOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, uminplbl, 0, SpringLayout.WEST, this);
 		add(uminplbl);
 
-		integerFieldFormatter = NumberFormat.getIntegerInstance();
+		integerFieldFormatter = NumberFormat.getNumberInstance();
 		// EPS
 		final JLabel epsLbl = new JLabel("epsilon");
 		layout.putConstraint(SpringLayout.NORTH, epsLbl, 5 * INNER_PAD, SpringLayout.SOUTH, upperMinPTSField);
@@ -83,7 +83,7 @@ public class DBScanOptions extends JPanel {
 
 		// lowerBound
 		lowerEpsField = new JFormattedTextField(integerFieldFormatter);
-		lowerEpsField.setValue(1);
+		lowerEpsField.setValue(new Double(1.0));
 		lowerEpsField.setColumns(5);
 		layout.putConstraint(SpringLayout.NORTH, lowerEpsField, INNER_PAD, SpringLayout.SOUTH, epsLbl);
 		layout.putConstraint(SpringLayout.EAST, lowerEpsField, 0, SpringLayout.EAST, this);
@@ -95,7 +95,7 @@ public class DBScanOptions extends JPanel {
 
 		// step
 		stepEpsField = new JFormattedTextField(integerFieldFormatter);
-		stepEpsField.setValue(1);
+		stepEpsField.setValue(new Double(1.0));
 		stepEpsField.setColumns(5);
 		layout.putConstraint(SpringLayout.NORTH, stepEpsField, INNER_PAD, SpringLayout.SOUTH, lowerEpsField);
 		layout.putConstraint(SpringLayout.EAST, stepEpsField, 0, SpringLayout.EAST, this);
@@ -107,7 +107,7 @@ public class DBScanOptions extends JPanel {
 
 		// upperBound
 		upperEpsField = new JFormattedTextField(integerFieldFormatter);
-		upperEpsField.setValue(1);
+		upperEpsField.setValue(new Double(1.0));
 		upperEpsField.setColumns(5);
 		layout.putConstraint(SpringLayout.NORTH, upperEpsField, INNER_PAD, SpringLayout.SOUTH, stepEpsField);
 		layout.putConstraint(SpringLayout.EAST, upperEpsField, 0, SpringLayout.EAST, this);

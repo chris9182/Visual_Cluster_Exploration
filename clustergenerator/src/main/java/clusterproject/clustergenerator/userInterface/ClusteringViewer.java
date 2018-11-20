@@ -11,6 +11,8 @@ import javax.swing.SwingUtilities;
 
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.PointContainer;
+import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringWithDistance;
+import clusterproject.clustergenerator.userInterface.MetaClustering.OpticsMetaClustering;
 
 public class ClusteringViewer extends JFrame {
 
@@ -64,6 +66,10 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, clustereringSelector, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 		mainPanel.add(clustereringSelector, new Integer(1));
 		showViewer(0);
+
+		final OpticsMetaClustering test = new OpticsMetaClustering(clusterings, 1, 2);
+		final List<ClusteringWithDistance> list = test.runOptics();
+		list.forEach(t -> System.err.println(t.distance));
 
 	}
 
