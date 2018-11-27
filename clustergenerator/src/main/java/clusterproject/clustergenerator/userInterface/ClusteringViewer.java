@@ -74,7 +74,12 @@ public class ClusteringViewer extends JFrame {
 	}
 
 	private void showViewer(int i) {
+		final ScatterPlot newViewer = viewers.get(i);
 		if (visibleViewer != null) {
+			newViewer.setSelectedDimX(visibleViewer.getSelectedDimX());
+			newViewer.setSelectedDimY(visibleViewer.getSelectedDimY());
+			newViewer.setIntervalX(visibleViewer.getIntervalX());
+			newViewer.setIntervalY(visibleViewer.getIntervalY());
 			mainPanel.remove(visibleViewer);
 			visibleViewer = null;
 		}

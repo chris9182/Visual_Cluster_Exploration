@@ -158,6 +158,14 @@ public class ScatterPlot extends JLayeredPane {
 		yAxis.setInterval(interval);
 	};
 
+	public double[] getIntervalX() {
+		return xAxis.getInterval();
+	};
+
+	public double[] getIntervalY() {
+		return yAxis.getInterval();
+	};
+
 	public void update() {
 		update(true);
 	}
