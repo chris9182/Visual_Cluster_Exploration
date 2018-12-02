@@ -3,6 +3,7 @@ package clusterproject.clustergenerator.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.spark.mllib.linalg.Vector;
 
@@ -10,7 +11,9 @@ public class PointContainer {
 	private List<double[]> points = new ArrayList<double[]>();
 	private List<String> headers;
 	private Double[] center = null;
+	private List<Integer> originalClusterIDs;
 	private List<Integer> clusterIDs;
+	Map<Integer, Integer> idMap = null;
 	private int dim;
 
 	public PointContainer(int dim) {
@@ -122,6 +125,7 @@ public class PointContainer {
 		points.clear();
 		headers.clear();
 		clusterIDs = null;
+		originalClusterIDs = null;
 		dim = -1;
 	}
 
@@ -137,10 +141,12 @@ public class PointContainer {
 
 	public void setUpClusters() {
 		clusterIDs = new ArrayList<Integer>();
+		originalClusterIDs = new ArrayList<Integer>();
 	}
 
 	public void addClusterID(Integer id) {
 		clusterIDs.add(id);
+		originalClusterIDs.add(id);
 	}
 
 	public boolean hasClusters() {
@@ -148,7 +154,24 @@ public class PointContainer {
 	}
 
 	public List<Integer> getClusterIDs() {
-		// TODO Auto-generated method stub
 		return clusterIDs;
+	}
+
+	public void setClusterIDs(List<Integer> clusterIDs) {
+		this.clusterIDs = clusterIDs;
+
+	}
+
+	public List<Integer> getOriginalClusterIDs() {
+		return originalClusterIDs;
+	}
+
+	public void saveIDMap(Map<Integer, Integer> idMap) {
+		this.idMap = idMap;
+
+	}
+
+	public Map<Integer, Integer> getIDMap() {
+		return idMap;
 	}
 }

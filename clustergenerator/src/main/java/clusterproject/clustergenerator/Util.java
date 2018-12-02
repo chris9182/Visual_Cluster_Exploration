@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.Arrays;
 
+import de.lmu.ifi.dbs.elki.data.NumberVector;
+
 public class Util {
 	public static void drawRotate(Graphics2D g2d, double x, double y, int angle, String text) {
 		g2d.translate((float) x, (float) y);
@@ -66,6 +68,10 @@ public class Util {
 		p[v] = index / n;
 		p[++v % 3] = index % n;
 		return p;
+	}
+
+	public static Object[] intersection(NumberVector[] a, NumberVector[] b) {
+		return Arrays.stream(a).distinct().filter(x -> Arrays.stream(b).anyMatch(y -> y == x)).toArray();
 	}
 
 }

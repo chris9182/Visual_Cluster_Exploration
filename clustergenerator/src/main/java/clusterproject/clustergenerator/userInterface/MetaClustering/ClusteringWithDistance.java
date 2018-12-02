@@ -1,9 +1,7 @@
 package clusterproject.clustergenerator.userInterface.MetaClustering;
 
-import java.util.Arrays;
-
+import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.ClusteringResult;
-import de.lmu.ifi.dbs.elki.data.NumberVector;
 
 public class ClusteringWithDistance {
 	public long inIndex;
@@ -23,7 +21,7 @@ public class ClusteringWithDistance {
 			for (int i = 0; i < clustering.getData().length; ++i)
 				for (int j = 0; j < clustering2.getData().length; ++j) {
 					try {
-						confusion[i][j] = -intersection(clustering.getData()[i], clustering2.getData()[j]).length;
+						confusion[i][j] = -Util.intersection(clustering.getData()[i], clustering2.getData()[j]).length;
 						// System.err.println(confusion[i][j]);
 					} catch (final ArrayIndexOutOfBoundsException e) {
 						confusion[i][j] = 0;
@@ -35,7 +33,7 @@ public class ClusteringWithDistance {
 			int dMaxSum = 0;
 			for (int i = 0; i < assignment.length; ++i) {
 				try {
-					dMaxSum += intersection(clustering.getData()[assignment[i][1]],
+					dMaxSum += Util.intersection(clustering.getData()[assignment[i][1]],
 							clustering2.getData()[assignment[i][0]]).length;// XXX indexes?
 				} catch (final ArrayIndexOutOfBoundsException e) {
 
@@ -44,10 +42,6 @@ public class ClusteringWithDistance {
 			final int pointCount = clustering.getPointCount();// TODO this should be the union
 			return ((float) pointCount - dMaxSum) / pointCount;
 		};
-	}
-
-	public static Object[] intersection(NumberVector[] a, NumberVector[] b) {
-		return Arrays.stream(a).distinct().filter(x -> Arrays.stream(b).anyMatch(y -> y == x)).toArray();
 	}
 
 	public ClusteringWithDistance(ClusteringResult clustering, int inIndex) {

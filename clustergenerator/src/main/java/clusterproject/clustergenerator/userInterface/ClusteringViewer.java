@@ -1,7 +1,10 @@
 package clusterproject.clustergenerator.userInterface;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -9,9 +12,11 @@ import javax.swing.JLayeredPane;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
+import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringWithDistance;
+import clusterproject.clustergenerator.userInterface.MetaClustering.HungarianAlgorithm;
 import clusterproject.clustergenerator.userInterface.MetaClustering.OpticsMetaClustering;
 
 public class ClusteringViewer extends JFrame {
@@ -29,6 +34,7 @@ public class ClusteringViewer extends JFrame {
 	private ScatterPlot visibleViewer;
 
 	private final JComboBox clustereringSelector;
+	private int currentClustering = -1;
 	private final JLayeredPane mainPanel;
 	private final SpringLayout layout;
 
@@ -76,6 +82,8 @@ public class ClusteringViewer extends JFrame {
 	private void showViewer(int i) {
 		final ScatterPlot newViewer = viewers.get(i);
 		if (visibleViewer != null) {
+			final List<Integer> newClusterIDs = getNewColors(i);
+			newViewer.getPointContainer().setClusterIDs(newClusterIDs);
 			newViewer.setSelectedDimX(visibleViewer.getSelectedDimX());
 			newViewer.setSelectedDimY(visibleViewer.getSelectedDimY());
 			newViewer.setIntervalX(visibleViewer.getIntervalX());
@@ -83,6 +91,7 @@ public class ClusteringViewer extends JFrame {
 			mainPanel.remove(visibleViewer);
 			visibleViewer = null;
 		}
+		currentClustering = i;
 		visibleViewer = viewers.get(i);
 		layout.putConstraint(SpringLayout.NORTH, visibleViewer, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
 		layout.putConstraint(SpringLayout.SOUTH, visibleViewer, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
@@ -94,6 +103,57 @@ public class ClusteringViewer extends JFrame {
 			repaint();
 		});
 
+	}
+
+	private List<Integer> getNewColors(int i) {
+		final ClusteringResult oldClustering = clusterings.get(currentClustering);
+		final ClusteringResult newClustering = clusterings.get(i);
+		final Map<Integer, Integer> oldIDMap = visibleViewer.getPointContainer().getIDMap();
+		final List<Integer> currentIDs = viewers.get(i).getPointContainer().getOriginalClusterIDs();
+		final int matrixSize = oldClustering.getData().length > newClustering.getData().length
+				? oldClustering.getData().length
+				: newClustering.getData().length;
+		final int[][] confusion = new int[matrixSize][matrixSize];
+		for (int idx = 0; idx < oldClustering.getData().length; ++idx)
+			for (int j = 0; j < newClustering.getData().length; ++j) {
+				try {
+					confusion[idx][j] = -Util.intersection(oldClustering.getData()[idx],
+							newClustering.getData()[j]).length;
+					// System.err.println(confusion[i][j]);
+				} catch (final ArrayIndexOutOfBoundsException e) {
+					confusion[idx][j] = 0;
+				}
+
+			}
+		final HungarianAlgorithm hungarian = new HungarianAlgorithm(confusion);
+		final int[][] assignment = hungarian.findOptimalAssignment();
+		final List<Integer> newIDs = new ArrayList<Integer>();
+
+		final Map<Integer, Integer> idMap = new HashMap<Integer, Integer>();
+
+		for (int idx = 0; idx < matrixSize; ++idx) {
+			if (oldIDMap != null) {
+				if (oldIDMap.get(assignment[idx][1]) == null)
+					oldIDMap.put(assignment[idx][1], getNextFree(oldIDMap));
+				idMap.put(idx, oldIDMap.get(assignment[idx][1]));
+			} else
+				idMap.put(idx, assignment[idx][1]);
+		}
+
+		viewers.get(i).getPointContainer().saveIDMap(idMap);
+
+		for (int idx = 0; idx < currentIDs.size(); ++idx) {
+			newIDs.add(idMap.get(currentIDs.get(idx)));
+		}
+		return newIDs;
+	}
+
+	private Integer getNextFree(Map<Integer, Integer> map) {
+		int i = 0;
+		final HashSet<Integer> vals = new HashSet<Integer>(map.values());
+		while (vals.contains(i))
+			i++;
+		return i;
 	}
 
 }

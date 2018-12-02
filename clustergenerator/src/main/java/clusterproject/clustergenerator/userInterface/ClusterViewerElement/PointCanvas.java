@@ -5,9 +5,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.swing.JPanel;
 
@@ -59,14 +61,15 @@ public class PointCanvas extends JPanel {
 				g2.drawOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
 						pointWidth);
 			}
-		else {// XXX temporary
-
+		else {
 			final List<Integer> clusterIDs = pointContainer.getClusterIDs();
-			final long distinct = clusterIDs.stream().distinct().count();
+			final Stream<Integer> stream = clusterIDs.stream().distinct();
 			final Map<Integer, Color> colorMap = new HashMap<Integer, Color>();
-
-			for (int i = 0; i < distinct; ++i)
+			final Iterator<Integer> iter = stream.iterator();
+			while (iter.hasNext()) {
+				final int i = iter.next();
 				colorMap.put(i, Util.getColor(i + 2));
+			}
 
 			for (int i = 0; i < pointCount; ++i) {
 				if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]))

@@ -39,5 +39,4 @@ public class ClusteringResult {
 	public String getDescription() {
 		return description;
 	}
-
 }
