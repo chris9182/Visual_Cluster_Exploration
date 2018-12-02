@@ -46,9 +46,9 @@ public class DBScan implements IClusterer {
 		final int minPTSStep = optionsPanel.getStepMinPTS();
 		final int minPTSBound = optionsPanel.getUBMinPTS();
 
-		while (eps <= epsBound) {
+		do {
 			minPTS = optionsPanel.getLBMinPTS();
-			while (minPTS <= minPTSBound) {
+			do {
 				final ListParameterization params = new ListParameterization();
 				params.addParameter(DBSCAN.Parameterizer.EPSILON_ID, eps);
 				params.addParameter(DBSCAN.Parameterizer.MINPTS_ID, minPTS);
@@ -70,32 +70,9 @@ public class DBScan implements IClusterer {
 				clustersArr = clusterList.toArray(clustersArr);
 				clusterings.add(new ClusteringResult(clustersArr, "minPTS:" + minPTS + " Epsilon:" + eps));
 				minPTS += minPTSStep;
-			}
+			} while (minPTS <= minPTSBound);
 			eps += epsStep;
-		}
-
-		if (clusterings.size() == 0) {
-			final ListParameterization params0 = new ListParameterization();
-			params0.addParameter(DBSCAN.Parameterizer.EPSILON_ID, optionsPanel.getLBEps());
-			params0.addParameter(DBSCAN.Parameterizer.MINPTS_ID, optionsPanel.getLBMinPTS());
-			final DBSCAN<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(DBSCAN.class, params0);
-			final Clustering<Model> result = dbscan.run(db);
-			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
-			result.getAllClusters().forEach(cluster -> {
-				final List<NumberVector> pointList = new ArrayList<NumberVector>();
-				for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
-					pointList.add(rel.get(it));
-					// ArrayLikeUtil.toPrimitiveDoubleArray(v)
-				}
-				NumberVector[] clusterArr = new NumberVector[pointList.size()];
-				clusterArr = pointList.toArray(clusterArr);
-				clusterList.add(clusterArr);
-			});
-			NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
-			clustersArr = clusterList.toArray(clustersArr);
-			clusterings.add(new ClusteringResult(clustersArr,
-					"minPTS:" + optionsPanel.getLBMinPTS() + " Epsilon:" + optionsPanel.getLBEps()));
-		}
+		} while (eps <= epsBound);
 		return clusterings;
 	}
 
