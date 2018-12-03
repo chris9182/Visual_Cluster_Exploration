@@ -129,15 +129,18 @@ public class ClusteringViewer extends JFrame {
 		final int[][] assignment = hungarian.findOptimalAssignment();
 		final List<Integer> newIDs = new ArrayList<Integer>();
 
+		// for (int idx = 0; idx < assignment.length; ++idx)
+		// System.err.println(assignment[idx][0] + " " + assignment[idx][1]);
+
 		final Map<Integer, Integer> idMap = new HashMap<Integer, Integer>();
 
 		for (int idx = 0; idx < matrixSize; ++idx) {
 			if (oldIDMap != null) {
 				if (oldIDMap.get(assignment[idx][1]) == null)
 					oldIDMap.put(assignment[idx][1], getNextFree(oldIDMap));
-				idMap.put(idx, oldIDMap.get(assignment[idx][1]));
+				idMap.put(assignment[idx][0], oldIDMap.get(assignment[idx][1]));
 			} else
-				idMap.put(idx, assignment[idx][1]);
+				idMap.put(assignment[idx][0], assignment[idx][1]);
 		}
 
 		viewers.get(i).getPointContainer().saveIDMap(idMap);
