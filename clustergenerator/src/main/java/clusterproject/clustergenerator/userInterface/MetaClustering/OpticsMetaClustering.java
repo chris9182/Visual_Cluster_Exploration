@@ -10,12 +10,14 @@ public class OpticsMetaClustering {
 	private final List<ClusteringWithDistance> clusterings;
 	private List<ClusteringWithDistance> seedlist;
 	private List<ClusteringWithDistance> clusterOrder;
+	private final float[][] distanceMatrix;
 	private final int minPTS;
 	private final float eps;
 
-	public OpticsMetaClustering(List<ClusteringResult> clusterings, int minPTS, float eps) {
+	public OpticsMetaClustering(List<ClusteringResult> clusterings, float[][] distanceMatrix, int minPTS, float eps) {
 		this.minPTS = minPTS;
 		this.eps = eps;
+		this.distanceMatrix = distanceMatrix;
 		this.clusterings = new ArrayList<ClusteringWithDistance>();
 		for (int i = 0; i < clusterings.size(); ++i)
 			this.clusterings.add(new ClusteringWithDistance(clusterings.get(i), i));
@@ -77,10 +79,11 @@ public class OpticsMetaClustering {
 	private List<ClusteringWithDistance> query(float range, ClusteringWithDistance start, List<Float> distances) {
 		// TODO this can maybe be improved?
 		final List<ClusteringWithDistance> result = new ArrayList<ClusteringWithDistance>();
-		for (final ClusteringWithDistance p : clusterings) {
-			final float distance = p.distanceto(start);
-			if (distance <= range && !p.equals(start)) {
-				result.add(p);
+		final int startID = clusterings.indexOf(start);
+		for (int i = 0; i < clusterings.size(); ++i) {
+			final float distance = distanceMatrix[i][startID];
+			if (distance <= range && i != startID) {
+				result.add(clusterings.get(i));
 				distances.add(distance);
 			}
 		}

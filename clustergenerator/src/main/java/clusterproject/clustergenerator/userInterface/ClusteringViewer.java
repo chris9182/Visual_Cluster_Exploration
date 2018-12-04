@@ -15,8 +15,11 @@ import javax.swing.SwingUtilities;
 import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.PointContainer;
+import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringError;
 import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringWithDistance;
+import clusterproject.clustergenerator.userInterface.MetaClustering.DistanceCalculation;
 import clusterproject.clustergenerator.userInterface.MetaClustering.HungarianAlgorithm;
+import clusterproject.clustergenerator.userInterface.MetaClustering.IDistanceMeasure;
 import clusterproject.clustergenerator.userInterface.MetaClustering.OpticsMetaClustering;
 
 public class ClusteringViewer extends JFrame {
@@ -37,6 +40,8 @@ public class ClusteringViewer extends JFrame {
 	private int currentClustering = -1;
 	private final JLayeredPane mainPanel;
 	private final SpringLayout layout;
+
+	private final IDistanceMeasure metaDistance = new ClusteringError();
 
 	public ClusteringViewer(List<ClusteringResult> clusterings, PointContainer pointContainer) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
@@ -73,7 +78,8 @@ public class ClusteringViewer extends JFrame {
 		mainPanel.add(clustereringSelector, new Integer(1));
 		showViewer(0);
 
-		final OpticsMetaClustering test = new OpticsMetaClustering(clusterings, 1, 2);
+		final OpticsMetaClustering test = new OpticsMetaClustering(clusterings,
+				DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance), 1, 2);
 		final List<ClusteringWithDistance> list = test.runOptics();
 		list.forEach(t -> System.err.println(t.distance));
 

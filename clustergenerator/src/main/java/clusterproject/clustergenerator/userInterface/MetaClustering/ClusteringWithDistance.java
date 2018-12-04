@@ -7,22 +7,22 @@ public class ClusteringWithDistance {
 	public float distance = Float.MAX_VALUE;
 	public boolean flag;
 	private final ClusteringResult clustering;
-	public static IDistanceMeasure measure;
-
-	static {
-		measure = new ClusteringError();
-	}
+	// public static IDistanceMeasure measure;
+	//
+	// static {
+	// measure = new ClusteringError();
+	// }
 
 	public ClusteringWithDistance(ClusteringResult clustering, int inIndex) {
 		this.clustering = clustering;
 		this.inIndex = inIndex;
 	}
 
-	public float distanceto(ClusteringWithDistance other) {
-		return distanceTo(other);
-	}
-
-	public float distanceTo(ClusteringWithDistance other) {
-		return measure.distanceBetween(this.clustering, other.clustering);
-	}
+	// public float distanceto(ClusteringWithDistance other) {
+	// return distanceTo(other);
+	// }
+	//
+	// public float distanceTo(ClusteringWithDistance other) {
+	// return measure.distanceBetween(this.clustering, other.clustering);
+	// }
 }

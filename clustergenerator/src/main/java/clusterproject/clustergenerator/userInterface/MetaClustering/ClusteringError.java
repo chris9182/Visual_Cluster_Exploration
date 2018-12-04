@@ -25,8 +25,8 @@ public class ClusteringError implements IDistanceMeasure {
 		int dMaxSum = 0;
 		for (int i = 0; i < assignment.length; ++i) {
 			try {
-				dMaxSum += Util.intersection(clustering.getData()[assignment[i][0]],
-						clustering2.getData()[assignment[i][1]]).length;// XXX indexes?
+				dMaxSum += Util.intersection(clustering.getData()[assignment[i][1]],
+						clustering2.getData()[assignment[i][0]]).length;// XXX indexes?
 			} catch (final ArrayIndexOutOfBoundsException e) {
 
 			}
