@@ -1,6 +1,7 @@
 package clusterproject.clustergenerator.userInterface;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +50,8 @@ public class ClusteringViewer extends JFrame {
 
 	private final double[][] distanceMatrix;
 
+	private final ScatterPlot mdsPlot;
+
 	public ClusteringViewer(List<ClusteringResult> clusterings, PointContainer pointContainer) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 		this.clusterings = clusterings;
@@ -84,21 +87,12 @@ public class ClusteringViewer extends JFrame {
 		mainPanel.add(clustereringSelector, new Integer(1));
 		showViewer(0);
 		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
-		final OpticsMetaClustering optics = new OpticsMetaClustering(clusterings, distanceMatrix, 1, 2);
-		final List<ClusteringWithDistance> list = optics.runOptics();
 
-		oPlot = new OpticsPlot(this, list);
-		layout.putConstraint(SpringLayout.NORTH, oPlot, OUTER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
-		layout.putConstraint(SpringLayout.WEST, oPlot, OUTER_SPACE, SpringLayout.WEST, mainPanel);
-		layout.putConstraint(SpringLayout.SOUTH, oPlot, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
-		layout.putConstraint(SpringLayout.EAST, oPlot, -OUTER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
-		mainPanel.add(oPlot, new Integer(10));
-
-		final MDS mds = new MDS(distanceMatrix);
+		final MDS mds = new MDS(distanceMatrix, 2);
 		final double[][] coords = mds.getCoordinates();
-		final PointContainer mdsContainer = new PointContainer(2);
+		final PointContainer mdsContainer = new PointContainer(coords[0].length);
 		mdsContainer.addPoints(coords);
-		final ScatterPlot mdsPlot = new ScatterPlot(null, mdsContainer, true);
+		mdsPlot = new ScatterPlot(null, mdsContainer, true);
 		mdsPlot.autoAdjust();
 		layout.putConstraint(SpringLayout.NORTH, mdsPlot, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
 		layout.putConstraint(SpringLayout.WEST, mdsPlot, VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
@@ -111,6 +105,24 @@ public class ClusteringViewer extends JFrame {
 				clustereringSelector);
 		layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, mdsLabel, 0, SpringLayout.HORIZONTAL_CENTER, mdsPlot);
 		mainPanel.add(mdsLabel, new Integer(11));
+
+		final OpticsMetaClustering optics = new OpticsMetaClustering(clusterings, distanceMatrix, 1, 2);
+		final List<ClusteringWithDistance> list = optics.runOptics();
+		oPlot = new OpticsPlot(this, list);
+		layout.putConstraint(SpringLayout.NORTH, oPlot, OUTER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, oPlot, OUTER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.SOUTH, oPlot, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, oPlot, -OUTER_SPACE, SpringLayout.EAST, mainPanel);
+		mainPanel.add(oPlot, new Integer(10));
+
+	}
+
+	public void updateMDSPlot(List<ClusteringWithDistance> list) {
+		final Integer[] clusterIDs = new Integer[list.size()];
+		for (final ClusteringWithDistance clustering : list)
+			clusterIDs[clustering.inIndex] = clustering.tag;
+		mdsPlot.getPointContainer().setClusterIDs(new ArrayList<Integer>(Arrays.asList(clusterIDs)));
+		SwingUtilities.invokeLater(() -> mdsPlot.repaint());
 	}
 
 	public void showViewer(int i) {
@@ -194,6 +206,11 @@ public class ClusteringViewer extends JFrame {
 		while (vals.contains(i))
 			i++;
 		return i;
+	}
+
+	public void highlight(int i) {
+		mdsPlot.getPointContainer().setHighlighted(i);
+
 	}
 
 }

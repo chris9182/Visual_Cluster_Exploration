@@ -15,6 +15,7 @@ public class PointContainer {
 	private List<Integer> clusterIDs;
 	Map<Integer, Integer> idMap = null;
 	private int dim;
+	private int highlighted = -1;
 
 	public PointContainer(int dim) {
 		this.dim = dim;
@@ -173,5 +174,13 @@ public class PointContainer {
 
 	public Map<Integer, Integer> getIDMap() {
 		return idMap;
+	}
+
+	public int getHighlighted() {
+		return highlighted;
+	}
+
+	public void setHighlighted(int highlighted) {
+		this.highlighted = highlighted;
 	}
 }

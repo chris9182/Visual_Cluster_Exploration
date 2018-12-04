@@ -6,6 +6,7 @@ public class ClusteringWithDistance {
 	public int inIndex;
 	public double distance = Float.MAX_VALUE;
 	public boolean flag;
+	public int tag;
 	private final ClusteringResult clustering;
 	// public static IDistanceMeasure measure;
 	//

@@ -24,6 +24,10 @@ public class PointCanvas extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	private static final int HIGHLIGHT_FACTOR = 2;
+
+	private static final Color HIGHLIGHT_COLOR = Color.ORANGE;
+
 	private final PointContainer pointContainer;
 	private final ScatterPlot clusterViewer;
 
@@ -54,12 +58,14 @@ public class PointCanvas extends JPanel {
 			for (int i = 0; i < pointCount; ++i) {
 				if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]))
 					continue;
+
 				g2.setColor(Color.GRAY);
 				g2.fillOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
 						pointWidth);
 				g2.setColor(Color.BLACK);
 				g2.drawOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
 						pointWidth);
+
 			}
 		else {
 			final List<Integer> clusterIDs = pointContainer.getClusterIDs();
@@ -75,12 +81,25 @@ public class PointCanvas extends JPanel {
 				if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]))
 					continue;
 				g2.setColor(colorMap.get(clusterIDs.get(i)));
+
 				g2.fillOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
 						pointWidth);
 				g2.setColor(Color.BLACK);
 				g2.drawOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
 						pointWidth);
+
 			}
+		}
+		final int highlighted = pointContainer.getHighlighted();
+		if (highlighted != -1) {
+			g2.setColor(HIGHLIGHT_COLOR);
+			g2.fillOval((int) (xCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
+					(int) (yCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
+					pointWidth * HIGHLIGHT_FACTOR, pointWidth * HIGHLIGHT_FACTOR);
+			g2.setColor(Color.BLACK);
+			g2.drawOval((int) (xCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
+					(int) (yCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
+					pointWidth * HIGHLIGHT_FACTOR, pointWidth * HIGHLIGHT_FACTOR);
 		}
 	}
 
