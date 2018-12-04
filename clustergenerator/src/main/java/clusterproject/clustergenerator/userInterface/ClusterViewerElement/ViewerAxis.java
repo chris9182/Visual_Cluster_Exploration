@@ -8,6 +8,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
@@ -32,12 +33,12 @@ public class ViewerAxis extends JPanel {
 	private final boolean isHorizontal;
 	private final double[] interval;
 
-	private final ScatterPlot clusterViewer;
+	private final ScatterPlot scatterPlot;
 
-	public ViewerAxis(boolean horizontal, final double[] defaultInterval, ScatterPlot clusterViewer) {
+	public ViewerAxis(boolean horizontal, final double[] defaultInterval, ScatterPlot scatterPlot) {
 		this.isHorizontal = horizontal;
 		this.interval = defaultInterval;
-		this.clusterViewer = clusterViewer;
+		this.scatterPlot = scatterPlot;
 		setOpaque(false);
 		addMouseListener(new MouseAdapter() {
 			@Override
@@ -67,7 +68,8 @@ public class ViewerAxis extends JPanel {
 	private void editBound(Point point, final int boundary) {
 		final JFrame editFrame = new JFrame();
 		editFrame.setUndecorated(true);
-		final JFormattedTextField amountField = new JFormattedTextField(NumberFormat.getNumberInstance());
+		final DecimalFormat df = new DecimalFormat("#.##########");
+		final JFormattedTextField amountField = new JFormattedTextField(df);
 		editFrame.addWindowFocusListener(new WindowAdapter() {
 			@Override
 			public void windowLostFocus(WindowEvent e) {
@@ -99,17 +101,17 @@ public class ViewerAxis extends JPanel {
 		if (newVal == interval[boundary])
 			return;
 		interval[boundary] = newVal;
-		SwingUtilities.invokeLater(() -> clusterViewer.repaint());
+		SwingUtilities.invokeLater(() -> scatterPlot.repaint());
 
 	}
 
 	private void changeDimension(Point point) {
 		final JFrame editFrame = new JFrame();
 		editFrame.setUndecorated(true);
-		final List<String> names = clusterViewer.getPointContainer().getHeaders();
+		final List<String> names = scatterPlot.getPointContainer().getHeaders();
 		final JComboBox selector = new JComboBox<String>(names.toArray(new String[names.size()]));
 		selector.setSelectedItem(
-				names.get(isHorizontal ? clusterViewer.getSelectedDimX() : clusterViewer.getSelectedDimY()));
+				names.get(isHorizontal ? scatterPlot.getSelectedDimX() : scatterPlot.getSelectedDimY()));
 		editFrame.addWindowFocusListener(new WindowAdapter() {
 			@Override
 			public void windowLostFocus(WindowEvent e) {
@@ -128,14 +130,18 @@ public class ViewerAxis extends JPanel {
 
 	private void changeAxis(String string) {
 		if (isHorizontal) {
-			clusterViewer.setSelectedDimX(clusterViewer.getPointContainer().getHeaders().indexOf(string));
+			if (scatterPlot.getSelectedDimX() == scatterPlot.getPointContainer().getHeaders().indexOf(string))
+				return;
+			scatterPlot.setSelectedDimX(scatterPlot.getPointContainer().getHeaders().indexOf(string));
 		} else {
-			clusterViewer.setSelectedDimY(clusterViewer.getPointContainer().getHeaders().indexOf(string));
+			if (scatterPlot.getSelectedDimY() == scatterPlot.getPointContainer().getHeaders().indexOf(string))
+				return;
+			scatterPlot.setSelectedDimY(scatterPlot.getPointContainer().getHeaders().indexOf(string));
 		}
 		// TODO: maybe auto change interval?
 		SwingUtilities.invokeLater(() -> {
-			clusterViewer.autoAdjust();
-			clusterViewer.update();
+			scatterPlot.autoAdjust();
+			scatterPlot.update();
 			repaint();
 		});
 	}
@@ -153,27 +159,26 @@ public class ViewerAxis extends JPanel {
 	public void paint(Graphics g) {
 
 		super.paint(g);
-		final PointContainer container = clusterViewer.getPointContainer();
+		final PointContainer container = scatterPlot.getPointContainer();
 		final String header = container.getHeaders()
-				.get(isHorizontal ? clusterViewer.getSelectedDimX() : clusterViewer.getSelectedDimY());
+				.get(isHorizontal ? scatterPlot.getSelectedDimX() : scatterPlot.getSelectedDimY());
 		final Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		final DecimalFormat df = new DecimalFormat("#.##");
 		if (isHorizontal) {
 			g2.drawLine(0, 0, getWidth(), 0);
 
-			g2.drawString(Double.toString(interval[0]), LABLE_OFFSET, getHeight() - LABLE_OFFSET);
-			final int endTickWidth = g.getFontMetrics().stringWidth(Double.toString(interval[1]));
-			g2.drawString(Double.toString(interval[1]), getWidth() - LABLE_OFFSET - endTickWidth,
-					getHeight() - LABLE_OFFSET);
+			g2.drawString(df.format(interval[0]), LABLE_OFFSET, getHeight() - LABLE_OFFSET);
+			final int endTickWidth = g.getFontMetrics().stringWidth(df.format(interval[1]));
+			g2.drawString(df.format(interval[1]), getWidth() - LABLE_OFFSET - endTickWidth, getHeight() - LABLE_OFFSET);
 			final int headerWidth = g.getFontMetrics().stringWidth(header);
 			g2.drawString(header, getWidth() / 2 - headerWidth, getHeight() - LABLE_OFFSET);
 		} else {
 			g.drawLine(getWidth() - 1, 0, getWidth() - 1, getHeight());
-			Util.drawRotate(g2, LABLE_OFFSET, LABLE_OFFSET, 90, Double.toString(interval[1]));
-			final int endTickWidth = g.getFontMetrics().stringWidth(Double.toString(interval[0]));
-			Util.drawRotate(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90,
-					Double.toString(interval[0]));
+			Util.drawRotate(g2, LABLE_OFFSET, LABLE_OFFSET, 90, df.format(interval[1]));
+			final int endTickWidth = g.getFontMetrics().stringWidth(df.format(interval[0]));
+			Util.drawRotate(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90, df.format(interval[0]));
 			final int headerWidth = g.getFontMetrics().stringWidth(header);
 			Util.drawRotate(g2, LABLE_OFFSET, getHeight() / 2 - headerWidth, 90, header);
 		}

@@ -3,8 +3,8 @@ package clusterproject.clustergenerator.userInterface.MetaClustering;
 import clusterproject.clustergenerator.data.ClusteringResult;
 
 public class ClusteringWithDistance {
-	public long inIndex;
-	public float distance = Float.MAX_VALUE;
+	public int inIndex;
+	public double distance = Float.MAX_VALUE;
 	public boolean flag;
 	private final ClusteringResult clustering;
 	// public static IDistanceMeasure measure;
@@ -16,6 +16,10 @@ public class ClusteringWithDistance {
 	public ClusteringWithDistance(ClusteringResult clustering, int inIndex) {
 		this.clustering = clustering;
 		this.inIndex = inIndex;
+	}
+
+	public ClusteringResult getClustering() {
+		return clustering;
 	}
 
 	// public float distanceto(ClusteringWithDistance other) {

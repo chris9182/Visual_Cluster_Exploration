@@ -10,14 +10,15 @@ public class OpticsMetaClustering {
 	private final List<ClusteringWithDistance> clusterings;
 	private List<ClusteringWithDistance> seedlist;
 	private List<ClusteringWithDistance> clusterOrder;
-	private final float[][] distanceMatrix;
+	private final double[][] distanceMatrix;
 	private final int minPTS;
-	private final float eps;
+	private final double eps;
 
-	public OpticsMetaClustering(List<ClusteringResult> clusterings, float[][] distanceMatrix, int minPTS, float eps) {
+	public OpticsMetaClustering(List<ClusteringResult> clusterings, double[][] distanceMatrix2, int minPTS,
+			double eps) {
 		this.minPTS = minPTS;
 		this.eps = eps;
-		this.distanceMatrix = distanceMatrix;
+		this.distanceMatrix = distanceMatrix2;
 		this.clusterings = new ArrayList<ClusteringWithDistance>();
 		for (int i = 0; i < clusterings.size(); ++i)
 			this.clusterings.add(new ClusteringWithDistance(clusterings.get(i), i));
@@ -45,14 +46,14 @@ public class OpticsMetaClustering {
 			if (current != null) {
 				clusterOrder.add(current);
 				current.flag = true;
-				final List<Float> distances = new ArrayList<Float>();
+				final List<Double> distances = new ArrayList<Double>();
 				final List<ClusteringWithDistance> neighbours = query(eps, current, distances);
 				if (neighbours.size() + 1 >= minPTS) {
-					final float coredistance = coredist(distances, minPTS);
+					final double coredistance = coredist(distances, minPTS);
 					for (int j = 0; j < neighbours.size(); j++) {
 						final ClusteringWithDistance neighbour = neighbours.get(j);
 						if (!neighbour.flag) {
-							final float dist = Math.max(distances.get(j), coredistance);
+							final double dist = Math.max(distances.get(j), coredistance);
 							if ((neighbour.distance) > dist)
 								neighbour.distance = dist;
 							if (!seedlist.contains(neighbour))
@@ -62,7 +63,7 @@ public class OpticsMetaClustering {
 				}
 			}
 			if (seedlist.size() > 1) {
-				float minval = Float.MAX_VALUE;
+				double minval = Float.MAX_VALUE;
 				int index = -1;
 				for (int y = 0; y < seedlist.size(); y++) {
 					if (seedlist.get(y).distance < minval) {
@@ -76,13 +77,13 @@ public class OpticsMetaClustering {
 		return clusterOrder;
 	}
 
-	private List<ClusteringWithDistance> query(float range, ClusteringWithDistance start, List<Float> distances) {
+	private List<ClusteringWithDistance> query(double eps2, ClusteringWithDistance start, List<Double> distances) {
 		// TODO this can maybe be improved?
 		final List<ClusteringWithDistance> result = new ArrayList<ClusteringWithDistance>();
 		final int startID = clusterings.indexOf(start);
 		for (int i = 0; i < clusterings.size(); ++i) {
-			final float distance = distanceMatrix[i][startID];
-			if (distance <= range && i != startID) {
+			final double distance = distanceMatrix[i][startID];
+			if (distance <= eps2 && i != startID) {
 				result.add(clusterings.get(i));
 				distances.add(distance);
 			}
@@ -90,13 +91,13 @@ public class OpticsMetaClustering {
 		return result;
 	}
 
-	private float coredist(List<Float> distances, int minPTS) {
-		float lowerbound = -1;
-		float smalest = distances.get(0);
+	private double coredist(List<Double> distances, int minPTS) {
+		double lowerbound = -1;
+		double smalest = distances.get(0);
 		int count = 1;
 		for (int i = 0; i < minPTS - 1; i++) {
 			for (int j = 0; j < distances.size(); j++) {
-				final float distance = distances.get(j);
+				final double distance = distances.get(j);
 				if (distance < smalest && distance > lowerbound) {
 					smalest = distance;
 					count = 1;

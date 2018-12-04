@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
@@ -21,6 +22,7 @@ import clusterproject.clustergenerator.userInterface.MetaClustering.DistanceCalc
 import clusterproject.clustergenerator.userInterface.MetaClustering.HungarianAlgorithm;
 import clusterproject.clustergenerator.userInterface.MetaClustering.IDistanceMeasure;
 import clusterproject.clustergenerator.userInterface.MetaClustering.OpticsMetaClustering;
+import smile.mds.MDS;
 
 public class ClusteringViewer extends JFrame {
 
@@ -42,6 +44,10 @@ public class ClusteringViewer extends JFrame {
 	private final SpringLayout layout;
 
 	private final IDistanceMeasure metaDistance = new ClusteringError();
+
+	private final OpticsPlot oPlot;
+
+	private final double[][] distanceMatrix;
 
 	public ClusteringViewer(List<ClusteringResult> clusterings, PointContainer pointContainer) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
@@ -77,15 +83,38 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, clustereringSelector, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 		mainPanel.add(clustereringSelector, new Integer(1));
 		showViewer(0);
+		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
+		final OpticsMetaClustering optics = new OpticsMetaClustering(clusterings, distanceMatrix, 1, 2);
+		final List<ClusteringWithDistance> list = optics.runOptics();
 
-		final OpticsMetaClustering test = new OpticsMetaClustering(clusterings,
-				DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance), 1, 2);
-		final List<ClusteringWithDistance> list = test.runOptics();
-		list.forEach(t -> System.err.println(t.distance));
+		oPlot = new OpticsPlot(this, list);
+		layout.putConstraint(SpringLayout.NORTH, oPlot, OUTER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, oPlot, OUTER_SPACE, SpringLayout.WEST, mainPanel);
+		layout.putConstraint(SpringLayout.SOUTH, oPlot, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, oPlot, -OUTER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
+		mainPanel.add(oPlot, new Integer(10));
 
+		final MDS mds = new MDS(distanceMatrix);
+		final double[][] coords = mds.getCoordinates();
+		final PointContainer mdsContainer = new PointContainer(2);
+		mdsContainer.addPoints(coords);
+		final ScatterPlot mdsPlot = new ScatterPlot(null, mdsContainer, true);
+		mdsPlot.autoAdjust();
+		layout.putConstraint(SpringLayout.NORTH, mdsPlot, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
+		layout.putConstraint(SpringLayout.WEST, mdsPlot, VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.SOUTH, mdsPlot, -VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, mdsPlot, -VIEWER_SPACE, SpringLayout.EAST, mainPanel);
+		mainPanel.add(mdsPlot, new Integer(9));
+
+		final JLabel mdsLabel = new JLabel("MDS Plot");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, mdsLabel, 0, SpringLayout.VERTICAL_CENTER,
+				clustereringSelector);
+		layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, mdsLabel, 0, SpringLayout.HORIZONTAL_CENTER, mdsPlot);
+		mainPanel.add(mdsLabel, new Integer(11));
 	}
 
-	private void showViewer(int i) {
+	public void showViewer(int i) {
+		clustereringSelector.setSelectedIndex(i);
 		final ScatterPlot newViewer = viewers.get(i);
 		if (visibleViewer != null) {
 			final List<Integer> newClusterIDs = getNewColors(i);
@@ -95,14 +124,16 @@ public class ClusteringViewer extends JFrame {
 			newViewer.setIntervalX(visibleViewer.getIntervalX());
 			newViewer.setIntervalY(visibleViewer.getIntervalY());
 			mainPanel.remove(visibleViewer);
+			layout.removeLayoutComponent(visibleViewer);
 			visibleViewer = null;
 		}
 		currentClustering = i;
 		visibleViewer = viewers.get(i);
 		layout.putConstraint(SpringLayout.NORTH, visibleViewer, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
-		layout.putConstraint(SpringLayout.SOUTH, visibleViewer, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.SOUTH, visibleViewer, -VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
 		layout.putConstraint(SpringLayout.WEST, visibleViewer, VIEWER_SPACE, SpringLayout.WEST, mainPanel);
-		layout.putConstraint(SpringLayout.EAST, visibleViewer, -VIEWER_SPACE, SpringLayout.EAST, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, visibleViewer, -VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER,
+				mainPanel);
 		mainPanel.add(visibleViewer, new Integer(2));
 		SwingUtilities.invokeLater(() -> {
 			revalidate();

@@ -119,7 +119,7 @@ public class ClusterWorkflow extends JFrame {
 		}
 
 		final ClusteringViewer cv = new ClusteringViewer(clusterings, pointContainer);
-		cv.setSize(new Dimension(400, 400));
+		cv.setSize(new Dimension(800, 600));
 		cv.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		cv.setLocationRelativeTo(null);
 		cv.setVisible(true);

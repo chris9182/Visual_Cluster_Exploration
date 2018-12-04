@@ -6,7 +6,7 @@ import clusterproject.clustergenerator.data.ClusteringResult;
 public class ClusteringError implements IDistanceMeasure {
 
 	@Override
-	public float distanceBetween(ClusteringResult clustering, ClusteringResult clustering2) {
+	public double distanceBetween(ClusteringResult clustering, ClusteringResult clustering2) {
 		final int matrixSize = clustering.getData().length > clustering2.getData().length ? clustering.getData().length
 				: clustering2.getData().length;
 		final int[][] confusion = new int[matrixSize][matrixSize];
@@ -32,7 +32,7 @@ public class ClusteringError implements IDistanceMeasure {
 			}
 		}
 		final int pointCount = clustering.getPointCount();// TODO this should be the union
-		return ((float) pointCount - dMaxSum) / pointCount;
+		return ((double) pointCount - dMaxSum) / pointCount;
 	}
 
 }

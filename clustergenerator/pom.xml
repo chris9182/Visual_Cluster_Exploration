@@ -30,7 +30,13 @@
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-csv</artifactId>
     <version>1.6</version>
+    <!-- https://github.com/haifengl/smile -->
 </dependency>
+    <dependency>
+      <groupId>com.github.haifengl</groupId>
+      <artifactId>smile-plot</artifactId>
+      <version>1.5.2</version>
+    </dependency>
 <!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable -->
 <dependency>
     <groupId>nz.ac.waikato.cms.weka</groupId>
@@ -76,4 +82,5 @@
     <version>0.7.1</version>
 </dependency>
   </dependencies>
+  <description> </description>
 </project>

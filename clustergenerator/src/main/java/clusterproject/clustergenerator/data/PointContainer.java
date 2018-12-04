@@ -93,9 +93,9 @@ public class PointContainer {
 		points.addAll(newPoints);
 	}
 
-	public void addPoints(double[][] output) {
-		for (int i = 0; i < output.length; ++i) {
-			points.add(output[i]);
+	public void addPoints(double[][] pointArr) {
+		for (int i = 0; i < pointArr.length; ++i) {
+			points.add(pointArr[i]);
 		}
 	}
 
