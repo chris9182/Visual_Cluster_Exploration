@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
@@ -48,7 +49,7 @@ public class ClusterWorkflow extends JFrame {
 	private final JButton confirmClustererButton;
 	private final JButton executeClusterersButton;
 	private final JLayeredPane mainPanel;
-	private JPanel wfPanel;
+	private JScrollPane wfScrollPane;
 
 	public ClusterWorkflow(PointContainer container) {
 		pointContainer = container;
@@ -87,6 +88,12 @@ public class ClusterWorkflow extends JFrame {
 
 		executeClusterersButton = new JButton("Execute Workflow");
 		executeClusterersButton.addActionListener(e -> executeWorkflow());
+		executeClusterersButton.setVisible(false);
+
+		layout.putConstraint(SpringLayout.SOUTH, executeClusterersButton, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, executeClusterersButton, -OPTIONS_WIDTH - 3 * OUTER_SPACE,
+				SpringLayout.EAST, mainPanel);
+		mainPanel.add(executeClusterersButton, new Integer(1));
 
 		confirmClustererButton = new JButton("Confirm");
 		confirmClustererButton.addActionListener(e -> addToWorkflow());
@@ -159,21 +166,38 @@ public class ClusterWorkflow extends JFrame {
 
 	private void showWorkflow() {
 		if (workflow.isEmpty()) {
-			mainPanel.remove(wfPanel);
+			mainPanel.remove(wfScrollPane);
 			wfLabel.setVisible(false);
+			executeClusterersButton.setVisible(false);
 			return;
 		}
 		wfLabel.setVisible(true);
-		if (wfPanel != null)
-			mainPanel.remove(wfPanel);
+		executeClusterersButton.setVisible(true);
+		if (wfScrollPane != null)
+			mainPanel.remove(wfScrollPane);
 		final SpringLayout wfLayout = new SpringLayout();
-		wfPanel = new JPanel(wfLayout);
+		final JPanel wfPanel = new JPanel(wfLayout);
+		wfScrollPane = new JScrollPane(wfPanel);
+		wfScrollPane.setBorder(null);
+		wfScrollPane.setOpaque(false);
+		wfScrollPane.getViewport().setOpaque(false);
 		wfPanel.setOpaque(false);
-		layout.putConstraint(SpringLayout.NORTH, wfPanel, MainWindow.INNER_SPACE, SpringLayout.SOUTH, wfLabel);
-		layout.putConstraint(SpringLayout.SOUTH, wfPanel, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
-		layout.putConstraint(SpringLayout.WEST, wfPanel, OUTER_SPACE, SpringLayout.WEST, mainPanel);
-		layout.putConstraint(SpringLayout.EAST, wfPanel, -2 * OUTER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
+
+		layout.putConstraint(SpringLayout.NORTH, wfScrollPane, MainWindow.INNER_SPACE, SpringLayout.SOUTH, wfLabel);
+		layout.putConstraint(SpringLayout.SOUTH, wfScrollPane, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, wfScrollPane, OUTER_SPACE, SpringLayout.WEST, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, wfScrollPane, -2 * OUTER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
 				mainPanel);
+
+		// layout.putConstraint(SpringLayout.NORTH, wfPanel, 0, SpringLayout.NORTH,
+		// wfScrollPane);
+		// layout.putConstraint(SpringLayout.SOUTH, wfPanel, 0, SpringLayout.SOUTH,
+		// wfScrollPane);
+		// layout.putConstraint(SpringLayout.WEST, wfPanel, 0, SpringLayout.WEST,
+		// wfScrollPane);
+		// layout.putConstraint(SpringLayout.EAST, wfPanel, 0, SpringLayout.EAST,
+		// wfScrollPane);
+
 		Component alignment = Box.createVerticalStrut(0);
 		wfLayout.putConstraint(SpringLayout.NORTH, alignment, 0, SpringLayout.NORTH, wfPanel);
 		wfPanel.add(alignment);
@@ -191,13 +215,11 @@ public class ClusterWorkflow extends JFrame {
 			alignment = remove;
 		}
 
-		wfLayout.putConstraint(SpringLayout.SOUTH, executeClusterersButton, -OUTER_SPACE, SpringLayout.SOUTH, wfPanel);
-		wfLayout.putConstraint(SpringLayout.WEST, executeClusterersButton, -OPTIONS_WIDTH - OUTER_SPACE,
-				SpringLayout.EAST, wfPanel);
-		wfLayout.putConstraint(SpringLayout.EAST, executeClusterersButton, -OUTER_SPACE, SpringLayout.EAST, wfPanel);
-		wfPanel.add(executeClusterersButton, new Integer(1));
+		wfPanel.setPreferredSize(new Dimension(0, MainWindow.INNER_SPACE
+				+ workflow.size() * (MainWindow.INNER_SPACE + executeClusterersButton.getHeight())));
+		System.err.println(wfPanel.getPreferredSize().getHeight());
 
-		mainPanel.add(wfPanel, new Integer(1));
+		mainPanel.add(wfScrollPane, new Integer(1));
 
 	}
 
