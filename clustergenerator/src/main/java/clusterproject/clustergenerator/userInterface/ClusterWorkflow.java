@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities;
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.userInterface.Clustering.DBScan;
+import clusterproject.clustergenerator.userInterface.Clustering.DiSHClustering;
 import clusterproject.clustergenerator.userInterface.Clustering.IClusterer;
 import de.lmu.ifi.dbs.elki.database.Database;
 import de.lmu.ifi.dbs.elki.database.StaticArrayDatabase;
@@ -217,8 +218,6 @@ public class ClusterWorkflow extends JFrame {
 
 		wfPanel.setPreferredSize(new Dimension(0, MainWindow.INNER_SPACE
 				+ workflow.size() * (MainWindow.INNER_SPACE + executeClusterersButton.getHeight())));
-		System.err.println(wfPanel.getPreferredSize().getHeight());
-
 		mainPanel.add(wfScrollPane, new Integer(1));
 
 	}
@@ -235,6 +234,7 @@ public class ClusterWorkflow extends JFrame {
 
 	private void initClusterers() {
 		clusterers.add(new DBScan());
+		clusterers.add(new DiSHClustering());
 	}
 
 }

@@ -8,15 +8,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
-public class DBScanOptions extends JPanel {
+public class DiSHOptions extends JPanel {
 
 	/**
 	 *
 	 */
 
-	private final JFormattedTextField lowerMinPTSField;
-	private final JFormattedTextField stepMinPTSField;
-	private final JFormattedTextField upperMinPTSField;
+	private final JFormattedTextField lowerMuField;
+	private final JFormattedTextField stepMuField;
+	private final JFormattedTextField upperMuField;
 
 	private final JFormattedTextField lowerEpsField;
 	private final JFormattedTextField stepEpsField;
@@ -25,59 +25,59 @@ public class DBScanOptions extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final int INNER_PAD = 2;
 
-	public DBScanOptions() {
+	public DiSHOptions() {
 		setOpaque(false);
 		final SpringLayout layout = new SpringLayout();
 		setLayout(layout);
 		final NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
 		integerFieldFormatter.setGroupingUsed(false);
 
-		// MINPTS
-		final JLabel minPtsLbl = new JLabel("minPTS");
-		layout.putConstraint(SpringLayout.NORTH, minPtsLbl, 0, SpringLayout.NORTH, this);
-		layout.putConstraint(SpringLayout.WEST, minPtsLbl, 0, SpringLayout.WEST, this);
-		add(minPtsLbl);
+		// Mu
+		final JLabel MuLbl = new JLabel("Mu");
+		layout.putConstraint(SpringLayout.NORTH, MuLbl, 0, SpringLayout.NORTH, this);
+		layout.putConstraint(SpringLayout.WEST, MuLbl, 0, SpringLayout.WEST, this);
+		add(MuLbl);
 
 		// lowerBound
-		lowerMinPTSField = new JFormattedTextField(integerFieldFormatter);
-		lowerMinPTSField.setValue(1);
-		lowerMinPTSField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, lowerMinPTSField, INNER_PAD, SpringLayout.SOUTH, minPtsLbl);
-		layout.putConstraint(SpringLayout.EAST, lowerMinPTSField, 0, SpringLayout.EAST, this);
-		add(lowerMinPTSField);
+		lowerMuField = new JFormattedTextField(integerFieldFormatter);
+		lowerMuField.setValue(1);
+		lowerMuField.setColumns(5);
+		layout.putConstraint(SpringLayout.NORTH, lowerMuField, INNER_PAD, SpringLayout.SOUTH, MuLbl);
+		layout.putConstraint(SpringLayout.EAST, lowerMuField, 0, SpringLayout.EAST, this);
+		add(lowerMuField);
 		final JLabel lminplbl = new JLabel("lower bound:");
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, lminplbl, 0, SpringLayout.VERTICAL_CENTER, lowerMinPTSField);
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, lminplbl, 0, SpringLayout.VERTICAL_CENTER, lowerMuField);
 		layout.putConstraint(SpringLayout.WEST, lminplbl, 0, SpringLayout.WEST, this);
 		add(lminplbl);
 
 		// step
-		stepMinPTSField = new JFormattedTextField(integerFieldFormatter);
-		stepMinPTSField.setValue(1);
-		stepMinPTSField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, stepMinPTSField, INNER_PAD, SpringLayout.SOUTH, lowerMinPTSField);
-		layout.putConstraint(SpringLayout.EAST, stepMinPTSField, 0, SpringLayout.EAST, this);
-		add(stepMinPTSField);
+		stepMuField = new JFormattedTextField(integerFieldFormatter);
+		stepMuField.setValue(1);
+		stepMuField.setColumns(5);
+		layout.putConstraint(SpringLayout.NORTH, stepMuField, INNER_PAD, SpringLayout.SOUTH, lowerMuField);
+		layout.putConstraint(SpringLayout.EAST, stepMuField, 0, SpringLayout.EAST, this);
+		add(stepMuField);
 		final JLabel sminplbl = new JLabel("step size:");
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sminplbl, 0, SpringLayout.VERTICAL_CENTER, stepMinPTSField);
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sminplbl, 0, SpringLayout.VERTICAL_CENTER, stepMuField);
 		layout.putConstraint(SpringLayout.WEST, sminplbl, 0, SpringLayout.WEST, this);
 		add(sminplbl);
 
 		// upperBound
-		upperMinPTSField = new JFormattedTextField(integerFieldFormatter);
-		upperMinPTSField.setValue(1);
-		upperMinPTSField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, upperMinPTSField, INNER_PAD, SpringLayout.SOUTH, stepMinPTSField);
-		layout.putConstraint(SpringLayout.EAST, upperMinPTSField, 0, SpringLayout.EAST, this);
-		add(upperMinPTSField);
+		upperMuField = new JFormattedTextField(integerFieldFormatter);
+		upperMuField.setValue(1);
+		upperMuField.setColumns(5);
+		layout.putConstraint(SpringLayout.NORTH, upperMuField, INNER_PAD, SpringLayout.SOUTH, stepMuField);
+		layout.putConstraint(SpringLayout.EAST, upperMuField, 0, SpringLayout.EAST, this);
+		add(upperMuField);
 		final JLabel uminplbl = new JLabel("upper bound:");
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, uminplbl, 0, SpringLayout.VERTICAL_CENTER, upperMinPTSField);
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, uminplbl, 0, SpringLayout.VERTICAL_CENTER, upperMuField);
 		layout.putConstraint(SpringLayout.WEST, uminplbl, 0, SpringLayout.WEST, this);
 		add(uminplbl);
 
 		final NumberFormat doubleFieldFormatter = NumberFormat.getNumberInstance();
 		// EPS
 		final JLabel epsLbl = new JLabel("epsilon");
-		layout.putConstraint(SpringLayout.NORTH, epsLbl, 5 * INNER_PAD, SpringLayout.SOUTH, upperMinPTSField);
+		layout.putConstraint(SpringLayout.NORTH, epsLbl, 5 * INNER_PAD, SpringLayout.SOUTH, upperMuField);
 		layout.putConstraint(SpringLayout.WEST, epsLbl, 0, SpringLayout.WEST, this);
 		add(epsLbl);
 
@@ -119,16 +119,16 @@ public class DBScanOptions extends JPanel {
 
 	}
 
-	public int getLBMinPTS() {
-		return Integer.parseInt(lowerMinPTSField.getText());
+	public int getLBMu() {
+		return Integer.parseInt(lowerMuField.getText());
 	}
 
-	public int getStepMinPTS() {
-		return Integer.parseInt(stepMinPTSField.getText());
+	public int getStepMu() {
+		return Integer.parseInt(stepMuField.getText());
 	}
 
-	public int getUBMinPTS() {
-		return Integer.parseInt(upperMinPTSField.getText());
+	public int getUBMu() {
+		return Integer.parseInt(upperMuField.getText());
 	}
 
 	public double getLBEps() {
