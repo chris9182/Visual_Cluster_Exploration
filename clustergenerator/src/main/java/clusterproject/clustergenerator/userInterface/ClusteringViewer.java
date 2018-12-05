@@ -39,7 +39,7 @@ public class ClusteringViewer extends JFrame {
 	private final List<ScatterPlot> viewers;
 	private ScatterPlot visibleViewer;
 
-	private final JComboBox clustereringSelector;
+	private final JComboBox<String> clustereringSelector;
 	private int currentClustering = -1;
 	private final JLayeredPane mainPanel;
 	private final SpringLayout layout;
@@ -51,6 +51,8 @@ public class ClusteringViewer extends JFrame {
 	private final double[][] distanceMatrix;
 
 	private final ScatterPlot mdsPlot;
+
+	private int highlighted = -1;
 
 	public ClusteringViewer(List<ClusteringResult> clusterings, PointContainer pointContainer) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
@@ -77,15 +79,10 @@ public class ClusteringViewer extends JFrame {
 		String[] idArr = new String[clusteringIDs.size()];
 		idArr = clusteringIDs.toArray(idArr);
 		clustereringSelector = new JComboBox<>(idArr);
-		clustereringSelector.addActionListener(e -> {
-			final String selected = (String) clustereringSelector.getSelectedItem();
-			showViewer(Integer.parseInt(selected.split(":")[0]));
-		});
 
 		layout.putConstraint(SpringLayout.NORTH, clustereringSelector, OUTER_SPACE, SpringLayout.NORTH, mainPanel);
 		layout.putConstraint(SpringLayout.WEST, clustereringSelector, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 		mainPanel.add(clustereringSelector, new Integer(1));
-		showViewer(0);
 
 		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
 
@@ -111,13 +108,19 @@ public class ClusteringViewer extends JFrame {
 		final OpticsMetaClustering optics = new OpticsMetaClustering(clusterings, distanceMatrix, 1, 2);
 		final List<ClusteringWithDistance> list = optics.runOptics();
 		oPlot = new OpticsPlot(this, list);
-		layout.putConstraint(SpringLayout.NORTH, oPlot, OUTER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
-		layout.putConstraint(SpringLayout.WEST, oPlot, OUTER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
-		layout.putConstraint(SpringLayout.SOUTH, oPlot, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
-		layout.putConstraint(SpringLayout.EAST, oPlot, -OUTER_SPACE, SpringLayout.EAST, mainPanel);
+		layout.putConstraint(SpringLayout.NORTH, oPlot, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, oPlot, VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.SOUTH, oPlot, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, oPlot, -VIEWER_SPACE, SpringLayout.EAST, mainPanel);
 		mainPanel.add(oPlot, new Integer(10));
 
 		mdsPlot.setClickHandler(oPlot);
+		clustereringSelector.addActionListener(e -> {
+			final String selected = (String) clustereringSelector.getSelectedItem();
+			final int selection = Integer.parseInt(selected.split(":")[0]);
+			highlight(selection);
+		});
+		showViewer(0);
 
 	}
 
@@ -132,6 +135,9 @@ public class ClusteringViewer extends JFrame {
 	public void showViewer(int i) {
 		clustereringSelector.setSelectedIndex(i);
 		final ScatterPlot newViewer = viewers.get(i);
+		if (i == highlighted)
+			return;
+		highlighted = i;
 		if (visibleViewer != null) {
 			final List<Integer> newClusterIDs = getNewColors(i);
 			newViewer.getPointContainer().setClusterIDs(newClusterIDs);
@@ -152,6 +158,7 @@ public class ClusteringViewer extends JFrame {
 				mainPanel);
 		mainPanel.add(visibleViewer, new Integer(2));
 		visibleViewer.setVisible(false);
+
 		SwingUtilities.invokeLater(() -> {
 			revalidate();
 			visibleViewer.setVisible(true);
@@ -219,7 +226,11 @@ public class ClusteringViewer extends JFrame {
 
 	public void highlight(int i) {
 		mdsPlot.getPointContainer().setHighlighted(i);
+		showViewer(i);
+	}
 
+	public int getHighlighted() {
+		return highlighted;
 	}
 
 	public int getClosestPoint(double[] point) {

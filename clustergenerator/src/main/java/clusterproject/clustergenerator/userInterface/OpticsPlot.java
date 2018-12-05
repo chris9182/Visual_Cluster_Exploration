@@ -36,7 +36,6 @@ public class OpticsPlot extends JLayeredPane implements IClickHandler {
 	private final List<OpticsBar> bars;
 	private double threshhold = 0.5;
 	private double max = 0;
-	private int highlighted = -1;
 
 	private final ClusteringViewer clusteringViewer;
 	private final int NOISE_TAG = -2;
@@ -53,9 +52,9 @@ public class OpticsPlot extends JLayeredPane implements IClickHandler {
 		opticsBars.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.gray));
 		layout = new SpringLayout();
 		setLayout(layout);
-		layout.putConstraint(SpringLayout.NORTH, opticsBars, BAR_OFFSET, SpringLayout.NORTH, this);
-		layout.putConstraint(SpringLayout.EAST, opticsBars, -BAR_OFFSET, SpringLayout.EAST, this);
-		layout.putConstraint(SpringLayout.SOUTH, opticsBars, -BAR_OFFSET, SpringLayout.SOUTH, this);
+		layout.putConstraint(SpringLayout.NORTH, opticsBars, 0, SpringLayout.NORTH, this);
+		layout.putConstraint(SpringLayout.EAST, opticsBars, 0, SpringLayout.EAST, this);
+		layout.putConstraint(SpringLayout.SOUTH, opticsBars, 0, SpringLayout.SOUTH, this);
 		layout.putConstraint(SpringLayout.WEST, opticsBars, BAR_OFFSET, SpringLayout.WEST, this);
 
 		for (int i = 1; i < clusteringList.size(); ++i) {
@@ -95,9 +94,9 @@ public class OpticsPlot extends JLayeredPane implements IClickHandler {
 			}
 		};
 		threshholdClicker.setBackground(Color.LIGHT_GRAY);
-		layout.putConstraint(SpringLayout.NORTH, threshholdClicker, BAR_OFFSET, SpringLayout.NORTH, this);
+		layout.putConstraint(SpringLayout.NORTH, threshholdClicker, 0, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.EAST, threshholdClicker, 0, SpringLayout.WEST, opticsBars);
-		layout.putConstraint(SpringLayout.SOUTH, threshholdClicker, -BAR_OFFSET, SpringLayout.SOUTH, this);
+		layout.putConstraint(SpringLayout.SOUTH, threshholdClicker, 0, SpringLayout.SOUTH, this);
 		layout.putConstraint(SpringLayout.WEST, threshholdClicker, 0, SpringLayout.WEST, this);
 		add(threshholdClicker, new Integer(20));
 		final MouseAdapter adapter = new MouseAdapter() {
@@ -118,21 +117,29 @@ public class OpticsPlot extends JLayeredPane implements IClickHandler {
 
 	}
 
+	public int getHighlighted() {
+		return clusteringViewer.getHighlighted();
+	}
+
 	void adaptThreshhold(double newthreshhold) {
+
+		if (newthreshhold < 0)
+			newthreshhold = -0.0000000001;// TODO: nicer way for "epsilon"
+		if (newthreshhold > max)
+			newthreshhold = max;
+		if (newthreshhold == threshhold)
+			return;
 		threshhold = newthreshhold;
-		if (threshhold < 0)
-			threshhold = -0.0000000001;// TODO: nicer way for "epsilon"
-		if (threshhold > max)
-			threshhold = max;
 		calculateClusters(threshhold);
+		clusteringViewer.updateMDSPlot(clusteringList);
 		SwingUtilities.invokeLater(() -> repaint());
 	}
 
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
-		final double height = (getHeight() - 2 * BAR_OFFSET) * (1 - threshhold / max);
-		g.drawLine(0, (int) height + BAR_OFFSET, getWidth(), (int) height + BAR_OFFSET);
+		final double height = (getHeight()) * (1 - threshhold / max);
+		g.drawLine(0, (int) height, getWidth(), (int) height);
 
 	}
 
@@ -153,7 +160,6 @@ public class OpticsPlot extends JLayeredPane implements IClickHandler {
 		for (int i = 0; i < datalength; ++i) {
 			bars.get(i).setColor(Util.getColor(clusterOrder.get(i).tag + 2));
 		}
-		clusteringViewer.updateMDSPlot(clusterOrder);
 	}
 
 	private void tag(List<ClusteringWithDistance> clusterOrder, int[] clusterer) {
@@ -172,15 +178,8 @@ public class OpticsPlot extends JLayeredPane implements IClickHandler {
 		}
 	}
 
-	public int getHighlighted() {
-		return highlighted;
-	}
-
-	private void highlight(int selection) {
+	public void highlight(int selection) {
 		clusteringViewer.highlight(selection);
-		highlighted = selection;
-		clusteringViewer.showViewer(selection);
-
 	}
 
 	@Override
@@ -250,5 +249,4 @@ public class OpticsPlot extends JLayeredPane implements IClickHandler {
 			return heightPercent;
 		}
 	}
-
 }
