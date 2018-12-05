@@ -86,6 +86,7 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, clustereringSelector, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 		mainPanel.add(clustereringSelector, new Integer(1));
 		showViewer(0);
+
 		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
 
 		final MDS mds = new MDS(distanceMatrix, 2);
@@ -114,6 +115,8 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.SOUTH, oPlot, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
 		layout.putConstraint(SpringLayout.EAST, oPlot, -OUTER_SPACE, SpringLayout.EAST, mainPanel);
 		mainPanel.add(oPlot, new Integer(10));
+
+		mdsPlot.setClickHandler(oPlot);
 
 	}
 
@@ -147,9 +150,14 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.EAST, visibleViewer, -VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER,
 				mainPanel);
 		mainPanel.add(visibleViewer, new Integer(2));
+		visibleViewer.setVisible(false);
 		SwingUtilities.invokeLater(() -> {
 			revalidate();
-			repaint();
+			visibleViewer.setVisible(true);
+			visibleViewer.repaint();
+
+			oPlot.repaint();
+			mdsPlot.repaint();
 		});
 
 	}
@@ -211,6 +219,25 @@ public class ClusteringViewer extends JFrame {
 	public void highlight(int i) {
 		mdsPlot.getPointContainer().setHighlighted(i);
 
+	}
+
+	public int getClosestPoint(double[] point) {
+		double distance = Double.MAX_VALUE;
+		int closest = -1;
+		final List<double[]> points = mdsPlot.getPointContainer().getPoints();
+		final int x = mdsPlot.getSelectedDimX();
+		final int y = mdsPlot.getSelectedDimY();
+		for (int i = 0; i < points.size(); ++i) {
+			final double offsetx = (points.get(i)[x] - point[x]);
+			final double offsety = (points.get(i)[y] - point[y]);
+			final double curDistance = offsetx * offsetx + offsety * offsety;
+			if (curDistance < distance) {
+				distance = curDistance;
+				closest = i;
+			}
+		}
+
+		return closest;
 	}
 
 }

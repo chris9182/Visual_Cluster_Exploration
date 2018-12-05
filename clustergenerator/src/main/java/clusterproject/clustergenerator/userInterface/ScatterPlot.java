@@ -26,7 +26,7 @@ public class ScatterPlot extends JLayeredPane {
 	private static final int AXIS_PADDING_NONE = 5;
 	private PointContainer pointContainer;
 	private final SpringLayout layout;
-	private final IClickHandler clickHandler;
+	private IClickHandler clickHandler;
 	final ViewerAxis xAxis;
 	final ViewerAxis yAxis;
 	final PointCanvas canvas;
@@ -218,6 +218,19 @@ public class ScatterPlot extends JLayeredPane {
 
 	public void setPointDiameter(int pointDiameter) {
 		this.pointDiameter = pointDiameter;
+	}
+
+	public void setClickHandler(IClickHandler oPlot) {
+		this.clickHandler = oPlot;
+		if (clickHandler != null)
+			addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					final double[] translation = getCoordinates(e.getPoint());
+					clickHandler.handleClick(translation);
+				}
+			});
+
 	}
 
 }

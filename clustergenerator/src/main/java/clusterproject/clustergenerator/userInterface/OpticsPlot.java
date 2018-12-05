@@ -21,7 +21,7 @@ import javax.swing.SwingUtilities;
 import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringWithDistance;
 
-public class OpticsPlot extends JLayeredPane {
+public class OpticsPlot extends JLayeredPane implements IClickHandler {
 
 	/**
 	 *
@@ -72,10 +72,8 @@ public class OpticsPlot extends JLayeredPane {
 			bar.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
+					highlight(selection);
 
-					clusteringViewer.highlight(selection);
-					highlighted = selection;
-					clusteringViewer.showViewer(selection);
 				}
 			});
 			bars.add(bar);
@@ -176,6 +174,21 @@ public class OpticsPlot extends JLayeredPane {
 
 	public int getHighlighted() {
 		return highlighted;
+	}
+
+	private void highlight(int selection) {
+		clusteringViewer.highlight(selection);
+		highlighted = selection;
+		clusteringViewer.showViewer(selection);
+
+	}
+
+	@Override
+	public void handleClick(double[] point) {
+		final int closest = clusteringViewer.getClosestPoint(point);
+		if (closest != -1)
+			highlight(closest);
+
 	}
 
 	private class OpticsBar extends JComponent {
