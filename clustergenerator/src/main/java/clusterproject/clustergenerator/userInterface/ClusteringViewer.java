@@ -94,6 +94,7 @@ public class ClusteringViewer extends JFrame {
 		final PointContainer mdsContainer = new PointContainer(coords[0].length);
 		mdsContainer.addPoints(coords);
 		mdsPlot = new ScatterPlot(null, mdsContainer, true);
+		mdsPlot.addAutoAdjust();
 		mdsPlot.autoAdjust();
 		layout.putConstraint(SpringLayout.NORTH, mdsPlot, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
 		layout.putConstraint(SpringLayout.WEST, mdsPlot, VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
