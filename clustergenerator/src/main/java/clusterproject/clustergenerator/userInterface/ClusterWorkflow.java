@@ -18,6 +18,7 @@ import javax.swing.SwingUtilities;
 
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.PointContainer;
+import clusterproject.clustergenerator.userInterface.Clustering.CLIQUEClustering;
 import clusterproject.clustergenerator.userInterface.Clustering.DBScan;
 import clusterproject.clustergenerator.userInterface.Clustering.DiSHClustering;
 import clusterproject.clustergenerator.userInterface.Clustering.IClusterer;
@@ -235,6 +236,7 @@ public class ClusterWorkflow extends JFrame {
 	private void initClusterers() {
 		clusterers.add(new DBScan());
 		clusterers.add(new DiSHClustering());
+		clusterers.add(new CLIQUEClustering());
 	}
 
 }

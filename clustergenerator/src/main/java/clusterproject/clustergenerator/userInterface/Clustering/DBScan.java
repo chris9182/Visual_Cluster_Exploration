@@ -68,11 +68,12 @@ public class DBScan implements IClusterer {
 				});
 				NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 				clustersArr = clusterList.toArray(clustersArr);
-				clusterings.add(new ClusteringResult(clustersArr, "minPTS:" + minPTS + " Epsilon:" + eps));
+				clusterings
+						.add(new ClusteringResult(clustersArr, getName() + ": minPTS:" + minPTS + " Epsilon:" + eps));
 				minPTS += minPTSStep;
-			} while (minPTS <= minPTSBound);
+			} while (minPTS < minPTSBound);
 			eps += epsStep;
-		} while (eps <= epsBound);
+		} while (eps < epsBound);
 		return clusterings;
 	}
 

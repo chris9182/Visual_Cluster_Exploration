@@ -68,11 +68,11 @@ public class DiSHClustering implements IClusterer {
 				});
 				NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 				clustersArr = clusterList.toArray(clustersArr);
-				clusterings.add(new ClusteringResult(clustersArr, "Mu:" + Mu + " Epsilon:" + eps));
+				clusterings.add(new ClusteringResult(clustersArr, getName() + ": Mu:" + Mu + " Epsilon:" + eps));
 				Mu += MuStep;
-			} while (Mu <= MuBound);
+			} while (Mu < MuBound);
 			eps += epsStep;
-		} while (eps <= epsBound);
+		} while (eps < epsBound);
 		return clusterings;
 	}
 
