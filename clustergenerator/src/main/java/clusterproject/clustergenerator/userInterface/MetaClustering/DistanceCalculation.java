@@ -13,7 +13,11 @@ public class DistanceCalculation {
 		IntStream.range(0, size * size).parallel().forEach(i -> {
 			final int x = i % size;
 			final int y = i / size;
+			if (x < y)
+				return;
 			distances[x][y] = measure.distanceBetween(clusterings.get(x), clusterings.get(y));
+			if (x != y)
+				distances[y][x] = distances[x][y];
 		});
 		return distances;
 	}

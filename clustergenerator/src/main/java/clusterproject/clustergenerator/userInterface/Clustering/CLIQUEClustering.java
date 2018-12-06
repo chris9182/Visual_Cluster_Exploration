@@ -69,9 +69,10 @@ public class CLIQUEClustering implements IClusterer {
 					});
 					NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 					clustersArr = clusterList.toArray(clustersArr);
-					clusterings.add(new ClusteringResult(clustersArr, getName() + ": xsi:" + xsi + " tauilon:" + tau));// TODO:
-																														// show
-																														// pruning
+					clusterings.add(new ClusteringResult(clustersArr,
+							getName() + ": xsi:" + xsi + " tauilon:" + tau + " prune:" + Boolean.toString(i % 2 == 0)));// TODO:
+					// show
+					// pruning
 					xsi += xsiStep;
 				} while (xsi < xsiBound);
 				tau += tauStep;
