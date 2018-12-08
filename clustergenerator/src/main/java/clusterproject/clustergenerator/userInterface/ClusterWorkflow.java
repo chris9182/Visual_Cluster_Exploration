@@ -22,6 +22,7 @@ import clusterproject.clustergenerator.userInterface.Clustering.CLIQUEClustering
 import clusterproject.clustergenerator.userInterface.Clustering.DBScan;
 import clusterproject.clustergenerator.userInterface.Clustering.DiSHClustering;
 import clusterproject.clustergenerator.userInterface.Clustering.IClusterer;
+import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringError;
 import clusterproject.clustergenerator.userInterface.MetaClustering.IDistanceMeasure;
 import clusterproject.clustergenerator.userInterface.MetaClustering.VariationOfInformation;
 import de.lmu.ifi.dbs.elki.database.Database;
@@ -44,10 +45,11 @@ public class ClusterWorkflow extends JFrame {
 	private IClusterer selectedClusterer;
 
 	private final List<IClusterer> clusterers;
-
+	private final JComboBox<String> clustererSelector;
 	private final List<IClusterer> workflow;
 
-	private final JComboBox<String> clustererSelector;
+	private final List<IDistanceMeasure> distances;
+	private final JComboBox<String> distanceSelector;
 	private final JLabel wfLabel;
 
 	private final JButton confirmClustererButton;
@@ -62,6 +64,7 @@ public class ClusterWorkflow extends JFrame {
 
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 		clusterers = new ArrayList<IClusterer>();
+		distances = new ArrayList<IDistanceMeasure>();
 		workflow = new ArrayList<IClusterer>();
 		layout = new SpringLayout();
 		mainPanel.setLayout(layout);
@@ -71,6 +74,7 @@ public class ClusterWorkflow extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, addLabel, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 
 		initClusterers();
+		initDistances();
 		final String[] names = new String[clusterers.size()];
 		for (int i = 0; i < names.length; ++i)
 			names[i] = clusterers.get(i).getName();
@@ -83,6 +87,12 @@ public class ClusterWorkflow extends JFrame {
 
 		clustererSelector.addActionListener(e -> openClustererSettings((String) clustererSelector.getSelectedItem()));
 
+		final String[] names2 = new String[distances.size()];
+		for (int i = 0; i < names2.length; ++i)
+			names2[i] = distances.get(i).getName();
+		distanceSelector = new JComboBox<>(names2);
+		// XXX add selector
+
 		wfLabel = new JLabel("Workflow:");
 
 		layout.putConstraint(SpringLayout.NORTH, wfLabel, OUTER_SPACE, SpringLayout.SOUTH, clustererSelector);
@@ -93,11 +103,16 @@ public class ClusterWorkflow extends JFrame {
 		executeClusterersButton = new JButton("Execute Workflow");
 		executeClusterersButton.addActionListener(e -> executeWorkflow());
 		executeClusterersButton.setVisible(false);
-
 		layout.putConstraint(SpringLayout.SOUTH, executeClusterersButton, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
 		layout.putConstraint(SpringLayout.EAST, executeClusterersButton, -OPTIONS_WIDTH - 3 * OUTER_SPACE,
 				SpringLayout.EAST, mainPanel);
 		mainPanel.add(executeClusterersButton, new Integer(1));
+
+		layout.putConstraint(SpringLayout.SOUTH, distanceSelector, -MainWindow.INNER_SPACE, SpringLayout.NORTH,
+				executeClusterersButton);
+		layout.putConstraint(SpringLayout.EAST, distanceSelector, 0, SpringLayout.EAST, executeClusterersButton);
+		distanceSelector.setVisible(false);
+		mainPanel.add(distanceSelector, new Integer(1));
 
 		confirmClustererButton = new JButton("Confirm");
 		confirmClustererButton.addActionListener(e -> addToWorkflow());
@@ -138,8 +153,10 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private IDistanceMeasure getDistanceMeasure() {
-		return new VariationOfInformation();
-		// return new ClusteringError();// XXX make editable
+		for (final IDistanceMeasure dist : distances)
+			if (dist.getName().equals(distanceSelector.getSelectedItem()))
+				return dist;
+		return null;
 	}
 
 	private void openClustererSettings(String name) {
@@ -178,10 +195,12 @@ public class ClusterWorkflow extends JFrame {
 			mainPanel.remove(wfScrollPane);
 			wfLabel.setVisible(false);
 			executeClusterersButton.setVisible(false);
+			distanceSelector.setVisible(false);
 			return;
 		}
 		wfLabel.setVisible(true);
 		executeClusterersButton.setVisible(true);
+		distanceSelector.setVisible(true);
 		if (wfScrollPane != null)
 			mainPanel.remove(wfScrollPane);
 		final SpringLayout wfLayout = new SpringLayout();
@@ -238,6 +257,11 @@ public class ClusterWorkflow extends JFrame {
 			repaint();
 		});
 
+	}
+
+	private void initDistances() {
+		distances.add(new ClusteringError());
+		distances.add(new VariationOfInformation());
 	}
 
 	private void initClusterers() {

@@ -4,4 +4,6 @@ import clusterproject.clustergenerator.data.ClusteringResult;
 
 public interface IDistanceMeasure {
 	public double distanceBetween(ClusteringResult clustering, ClusteringResult clustering2);
+
+	public String getName();
 }

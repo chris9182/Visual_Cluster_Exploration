@@ -85,6 +85,12 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, clustereringSelector, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 		mainPanel.add(clustereringSelector, new Integer(1));
 
+		final JLabel distLabel = new JLabel("Measure: " + metaDistance.getName());
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, distLabel, 0, SpringLayout.VERTICAL_CENTER,
+				clustereringSelector);
+		layout.putConstraint(SpringLayout.WEST, distLabel, OUTER_SPACE, SpringLayout.EAST, clustereringSelector);
+		mainPanel.add(distLabel, new Integer(1));
+
 		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
 
 		final MDS mds = new MDS(distanceMatrix, 2);

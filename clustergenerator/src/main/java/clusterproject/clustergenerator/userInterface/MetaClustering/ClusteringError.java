@@ -35,4 +35,10 @@ public class ClusteringError implements IDistanceMeasure {
 		return ((double) pointCount - dMaxSum) / pointCount;
 	}
 
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "Clustering Error";
+	}
+
 }

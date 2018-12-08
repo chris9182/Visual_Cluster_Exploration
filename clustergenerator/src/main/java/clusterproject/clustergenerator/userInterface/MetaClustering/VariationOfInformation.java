@@ -23,4 +23,10 @@ public class VariationOfInformation implements IDistanceMeasure {
 
 		return -sum;
 	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "Variation of Information";
+	}
 }
