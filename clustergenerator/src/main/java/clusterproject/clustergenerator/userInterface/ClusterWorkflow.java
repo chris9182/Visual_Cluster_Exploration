@@ -22,6 +22,8 @@ import clusterproject.clustergenerator.userInterface.Clustering.CLIQUEClustering
 import clusterproject.clustergenerator.userInterface.Clustering.DBScan;
 import clusterproject.clustergenerator.userInterface.Clustering.DiSHClustering;
 import clusterproject.clustergenerator.userInterface.Clustering.IClusterer;
+import clusterproject.clustergenerator.userInterface.MetaClustering.IDistanceMeasure;
+import clusterproject.clustergenerator.userInterface.MetaClustering.VariationOfInformation;
 import de.lmu.ifi.dbs.elki.database.Database;
 import de.lmu.ifi.dbs.elki.database.StaticArrayDatabase;
 import de.lmu.ifi.dbs.elki.datasource.ArrayAdapterDatabaseConnection;
@@ -127,12 +129,17 @@ public class ClusterWorkflow extends JFrame {
 			clusterings.addAll(results);
 		}
 
-		final ClusteringViewer cv = new ClusteringViewer(clusterings, pointContainer);
+		final ClusteringViewer cv = new ClusteringViewer(clusterings, pointContainer, getDistanceMeasure());
 		cv.setSize(new Dimension(800, 600));
 		cv.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		cv.setLocationRelativeTo(null);
 		cv.setVisible(true);
 
+	}
+
+	private IDistanceMeasure getDistanceMeasure() {
+		return new VariationOfInformation();
+		// return new ClusteringError();// XXX make editable
 	}
 
 	private void openClustererSettings(String name) {

@@ -17,7 +17,6 @@ import javax.swing.SwingUtilities;
 import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.PointContainer;
-import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringError;
 import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringWithDistance;
 import clusterproject.clustergenerator.userInterface.MetaClustering.DistanceCalculation;
 import clusterproject.clustergenerator.userInterface.MetaClustering.HungarianAlgorithm;
@@ -44,7 +43,7 @@ public class ClusteringViewer extends JFrame {
 	private final JLayeredPane mainPanel;
 	private final SpringLayout layout;
 
-	private final IDistanceMeasure metaDistance = new ClusteringError();
+	private final IDistanceMeasure metaDistance;
 
 	private final OpticsPlot oPlot;
 
@@ -54,8 +53,10 @@ public class ClusteringViewer extends JFrame {
 
 	private int highlighted = -1;
 
-	public ClusteringViewer(List<ClusteringResult> clusterings, PointContainer pointContainer) {
+	public ClusteringViewer(List<ClusteringResult> clusterings, PointContainer pointContainer,
+			IDistanceMeasure metaDistance) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
+		this.metaDistance = metaDistance;
 		this.clusterings = clusterings;
 		mainPanel = new JLayeredPane();
 		layout = new SpringLayout();
