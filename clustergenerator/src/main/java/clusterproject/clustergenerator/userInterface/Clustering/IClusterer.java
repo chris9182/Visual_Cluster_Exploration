@@ -8,7 +8,6 @@ import clusterproject.clustergenerator.data.ClusteringResult;
 import de.lmu.ifi.dbs.elki.database.Database;
 
 public interface IClusterer {
-
 	JPanel getOptionsPanel();
 
 	String getName();
@@ -18,5 +17,4 @@ public interface IClusterer {
 	List<ClusteringResult> cluster(Database db);
 
 	IClusterer duplicate();
-
 }
