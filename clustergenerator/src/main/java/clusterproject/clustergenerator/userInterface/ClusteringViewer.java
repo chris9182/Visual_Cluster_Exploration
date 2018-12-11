@@ -42,16 +42,14 @@ public class ClusteringViewer extends JFrame {
 	private int currentClustering = -1;
 	private final JLayeredPane mainPanel;
 	private final SpringLayout layout;
-
 	private final IDistanceMeasure metaDistance;
-
 	private final OpticsPlot oPlot;
-
 	private final double[][] distanceMatrix;
-
 	private final ScatterPlot mdsPlot;
-
 	private int highlighted = -1;
+
+	private final int minPTS = 1;
+	private final double eps = 2;// TODO settings
 
 	public ClusteringViewer(List<ClusteringResult> clusterings, PointContainer pointContainer,
 			IDistanceMeasure metaDistance) {
@@ -112,7 +110,7 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, mdsLabel, 0, SpringLayout.HORIZONTAL_CENTER, mdsPlot);
 		mainPanel.add(mdsLabel, new Integer(11));
 
-		final OpticsMetaClustering optics = new OpticsMetaClustering(clusterings, distanceMatrix, 1, 2);
+		final OpticsMetaClustering optics = new OpticsMetaClustering(clusterings, distanceMatrix, minPTS, eps);
 		final List<ClusteringWithDistance> list = optics.runOptics();
 		oPlot = new OpticsPlot(this, list);
 		layout.putConstraint(SpringLayout.NORTH, oPlot, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
@@ -191,7 +189,6 @@ public class ClusteringViewer extends JFrame {
 				try {
 					confusion[idx][j] = -Util.intersection(oldClustering.getData()[idx],
 							newClustering.getData()[j]).length;
-					// System.err.println(confusion[i][j]);
 				} catch (final ArrayIndexOutOfBoundsException e) {
 					confusion[idx][j] = 0;
 				}
@@ -200,9 +197,6 @@ public class ClusteringViewer extends JFrame {
 		final HungarianAlgorithm hungarian = new HungarianAlgorithm(confusion);
 		final int[][] assignment = hungarian.findOptimalAssignment();
 		final List<Integer> newIDs = new ArrayList<Integer>();
-
-		// for (int idx = 0; idx < assignment.length; ++idx)
-		// System.err.println(assignment[idx][0] + " " + assignment[idx][1]);
 
 		final Map<Integer, Integer> idMap = new HashMap<Integer, Integer>();
 
@@ -214,9 +208,7 @@ public class ClusteringViewer extends JFrame {
 			} else
 				idMap.put(assignment[idx][0], assignment[idx][1]);
 		}
-
 		viewers.get(i).getPointContainer().saveIDMap(idMap);
-
 		for (int idx = 0; idx < currentIDs.size(); ++idx) {
 			newIDs.add(idMap.get(currentIDs.get(idx)));
 		}

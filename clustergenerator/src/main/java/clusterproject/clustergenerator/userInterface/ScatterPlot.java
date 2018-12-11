@@ -88,9 +88,13 @@ public class ScatterPlot extends JLayeredPane {
 
 	public void addAutoAdjust() {
 		final JButton autoAdjust = new JButton("");
+
 		autoAdjust.setToolTipText("Auto-Adjust Axies");
 		autoAdjust.setPreferredSize(new Dimension(MainWindow.ADJUST_BUTTON_DIM, MainWindow.ADJUST_BUTTON_DIM));
 		autoAdjust.addActionListener(e -> {
+			// if (pointContainer.hasClusters())
+			// pointContainer.setClusterIDs(pointContainer.getOriginalClusterIDs()); //TODO
+			// recolor like this
 			autoAdjust();
 			SwingUtilities.invokeLater(() -> repaint());
 
@@ -105,10 +109,9 @@ public class ScatterPlot extends JLayeredPane {
 	public double[] getCoordinates(Point point) {
 		final double[] position = new double[pointContainer.getDim()];
 		for (int i = 0; i < position.length; ++i)
-			position[i] = Double.NaN;// TODO: set NaN
+			position[i] = Double.NaN;
 		position[selectedDimX] = xAxis.getCoordinate(point.getX() - axisWidth);
 		position[selectedDimY] = yAxis.getCoordinate(point.getY() - axisPadding);
-		// System.err.println(position[0] + " " + position[1]);
 		return position;
 	}
 
