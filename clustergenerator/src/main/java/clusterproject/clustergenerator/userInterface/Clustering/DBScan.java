@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import clusterproject.clustergenerator.data.ClusteringResult;
+import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.userInterface.Clustering.Panel.DBScanOptions;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.DBSCAN;
 import de.lmu.ifi.dbs.elki.data.Clustering;
@@ -34,8 +34,8 @@ public class DBScan implements IClusterer {
 	}
 
 	@Override
-	public List<ClusteringResult> cluster(Database db) {
-		final List<ClusteringResult> clusterings = new ArrayList<ClusteringResult>();
+	public List<NumberVectorClusteringResult> cluster(Database db) {
+		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
 		double eps = optionsPanel.getLBEps();
@@ -69,7 +69,7 @@ public class DBScan implements IClusterer {
 				NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 				clustersArr = clusterList.toArray(clustersArr);
 				clusterings
-						.add(new ClusteringResult(clustersArr, getName() + ": minPTS:" + minPTS + " Epsilon:" + eps));
+						.add(new NumberVectorClusteringResult(clustersArr, getName() + ": minPTS:" + minPTS + " Epsilon:" + eps));
 				minPTS += minPTSStep;
 			} while (minPTS < minPTSBound);
 			eps += epsStep;

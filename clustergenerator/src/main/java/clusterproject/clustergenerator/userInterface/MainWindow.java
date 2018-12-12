@@ -56,7 +56,6 @@ public class MainWindow extends JFrame implements IClickHandler {
 	}
 
 	public MainWindow(PointContainer container) {
-		setTitle("Scatterplot Matrix");
 		pointContainer = container;
 		clusterViewer = new ScatterPlot(this, pointContainer, true);
 		clusterViewer.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.gray));

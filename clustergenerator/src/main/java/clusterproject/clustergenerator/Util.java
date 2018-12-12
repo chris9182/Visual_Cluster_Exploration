@@ -2,9 +2,16 @@ package clusterproject.clustergenerator;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
+import clusterproject.clustergenerator.data.ClusteringResult;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
+import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
 
 public class Util {
 	public static void drawRotate(Graphics2D g2d, double x, double y, int angle, String text) {
@@ -70,8 +77,49 @@ public class Util {
 		return p;
 	}
 
-	public static Object[] intersection(NumberVector[] a, NumberVector[] b) {
+	public static Object[] intersection(Object[] a, Object[] b) {
 		return Arrays.stream(a).distinct().filter(x -> Arrays.stream(b).anyMatch(y -> y == x)).toArray();
+	}
+
+	public static List<ClusteringResult> convertClusterings(List<NumberVectorClusteringResult> clusterings) {
+		final List<ClusteringResult> sClusterings = new ArrayList<ClusteringResult>();
+		final Map<NumberVector, double[]> pointMap = new HashMap<NumberVector, double[]>();
+		final NumberVectorClusteringResult first = clusterings.get(0);
+		double[][][] data = new double[first.getData().length][][];
+		int i = 0;
+		for (final NumberVector[] vecArr : first.getData()) {
+			final double[][] cluster = new double[vecArr.length][];
+			int j = 0;
+			for (final NumberVector vec : vecArr) {
+				final double[] point = ArrayLikeUtil.toPrimitiveDoubleArray(vec);
+				pointMap.put(vec, point);
+				cluster[j] = point;
+				j++;
+			}
+
+			data[i] = cluster;
+			i++;
+		}
+		sClusterings.add(new ClusteringResult(data, first.getDescription()));
+
+		for (int k = 1; k < clusterings.size(); ++k) {
+			data = new double[clusterings.get(k).getData().length][][];
+			i = 0;
+			for (final NumberVector[] vecArr : clusterings.get(k).getData()) {
+				final double[][] cluster = new double[vecArr.length][];
+				int j = 0;
+				for (final NumberVector vec : vecArr) {
+					cluster[j] = pointMap.get(vec);
+					j++;
+				}
+
+				data[i] = cluster;
+				i++;
+			}
+			sClusterings.add(new ClusteringResult(data, clusterings.get(k).getDescription()));
+		}
+
+		return sClusterings;
 	}
 
 }

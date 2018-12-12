@@ -31,6 +31,7 @@ public class ScatterPlotMatrix extends JFrame {
 	// XXX this could be improved to calculate the points WAY smarter
 	// each scatterplot calculates each coordinate by itself for now
 	public ScatterPlotMatrix(PointContainer pointContainer) {
+		setTitle("Scatterplot Matrix");
 		this.pointContainer = pointContainer;
 		final SpringLayout springLayout = new SpringLayout();
 		headers = pointContainer.getHeaders();

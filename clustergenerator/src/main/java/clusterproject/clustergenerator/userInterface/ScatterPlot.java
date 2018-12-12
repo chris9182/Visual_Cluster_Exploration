@@ -92,9 +92,6 @@ public class ScatterPlot extends JLayeredPane {
 		autoAdjust.setToolTipText("Auto-Adjust Axies");
 		autoAdjust.setPreferredSize(new Dimension(MainWindow.ADJUST_BUTTON_DIM, MainWindow.ADJUST_BUTTON_DIM));
 		autoAdjust.addActionListener(e -> {
-			// if (pointContainer.hasClusters())
-			// pointContainer.setClusterIDs(pointContainer.getOriginalClusterIDs()); //TODO
-			// recolor like this
 			autoAdjust();
 			SwingUtilities.invokeLater(() -> repaint());
 
@@ -104,6 +101,26 @@ public class ScatterPlot extends JLayeredPane {
 		layout.putConstraint(SpringLayout.WEST, autoAdjust, 0, SpringLayout.WEST, this);
 
 		add(autoAdjust, new Integer(100));
+	}
+
+	public void addAutoColor() {
+		final JButton autoColor = new JButton("");
+		autoColor.setToolTipText("Auto-Adjust Axies");
+		autoColor.setPreferredSize(new Dimension(MainWindow.ADJUST_BUTTON_DIM, MainWindow.ADJUST_BUTTON_DIM));
+		autoColor.addActionListener(e -> {
+			if (pointContainer.hasClusters()) {
+				pointContainer.setClusterIDs(pointContainer.getOriginalClusterIDs());
+				pointContainer.setIDMap(null);
+				// TODO: maybe something with cluster size for color selection?
+			}
+			SwingUtilities.invokeLater(() -> repaint());
+
+		});
+
+		layout.putConstraint(SpringLayout.NORTH, autoColor, 0, SpringLayout.NORTH, this);
+		layout.putConstraint(SpringLayout.EAST, autoColor, 0, SpringLayout.EAST, this);
+		add(autoColor, new Integer(100));
+
 	}
 
 	public double[] getCoordinates(Point point) {

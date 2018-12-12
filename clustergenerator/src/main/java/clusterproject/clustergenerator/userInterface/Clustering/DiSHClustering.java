@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import clusterproject.clustergenerator.data.ClusteringResult;
+import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.userInterface.Clustering.Panel.DiSHOptions;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.DiSH;
 import de.lmu.ifi.dbs.elki.data.Clustering;
@@ -18,6 +18,7 @@ import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
 import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
+import scala.collection.mutable.BitSet;
 
 public class DiSHClustering implements IClusterer {
 
@@ -34,8 +35,8 @@ public class DiSHClustering implements IClusterer {
 	}
 
 	@Override
-	public List<ClusteringResult> cluster(Database db) {
-		final List<ClusteringResult> clusterings = new ArrayList<ClusteringResult>();
+	public List<NumberVectorClusteringResult> cluster(Database db) {
+		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
 		double eps = optionsPanel.getLBEps();
@@ -56,6 +57,12 @@ public class DiSHClustering implements IClusterer {
 				final Clustering<SubspaceModel> result = dbscan.run(db);
 				final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
 				result.getAllClusters().forEach(cluster -> {
+					// XXX debug
+					// import scala.collection.mutable.BitSet;
+					final BitSet bits = new BitSet(cluster.getModel().getDimensions());
+					// System.err.println(bits);
+					// XXX debug end
+
 					final List<NumberVector> pointList = new ArrayList<NumberVector>();
 
 					for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
@@ -68,7 +75,8 @@ public class DiSHClustering implements IClusterer {
 				});
 				NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 				clustersArr = clusterList.toArray(clustersArr);
-				clusterings.add(new ClusteringResult(clustersArr, getName() + ": Mu:" + Mu + " Epsilon:" + eps));
+				clusterings.add(
+						new NumberVectorClusteringResult(clustersArr, getName() + ": Mu:" + Mu + " Epsilon:" + eps));
 				Mu += MuStep;
 			} while (Mu < MuBound);
 			eps += epsStep;

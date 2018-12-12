@@ -167,7 +167,7 @@ public class PointContainer {
 		return originalClusterIDs;
 	}
 
-	public void saveIDMap(Map<Integer, Integer> idMap) {
+	public void setIDMap(Map<Integer, Integer> idMap) {
 		this.idMap = idMap;
 
 	}

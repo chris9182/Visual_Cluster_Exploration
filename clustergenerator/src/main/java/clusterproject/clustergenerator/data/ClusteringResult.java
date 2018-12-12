@@ -1,18 +1,20 @@
 package clusterproject.clustergenerator.data;
 
-import de.lmu.ifi.dbs.elki.data.NumberVector;
-import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
+import java.io.Serializable;
 
-public class ClusteringResult {
-	private final NumberVector[][] clusterPoints;
+public class ClusteringResult implements Serializable {
+
+	private static final long serialVersionUID = -8078630305091815092L;
+
+	private final double[][][] clusterPoints;
 	private final String description;
 
-	public ClusteringResult(NumberVector[][] clusterPoints, String description) {
+	public ClusteringResult(double[][][] clusterPoints, String description) {
 		this.clusterPoints = clusterPoints;
 		this.description = description;
 	}
 
-	public NumberVector[][] getData() {
+	public double[][][] getData() {
 		return clusterPoints;
 	}
 
@@ -21,7 +23,7 @@ public class ClusteringResult {
 		container.setUpClusters();
 		for (int i = 0; i < clusterPoints.length; ++i)
 			for (int j = 0; j < clusterPoints[i].length; ++j) {
-				container.addPoint(ArrayLikeUtil.toPrimitiveDoubleArray(clusterPoints[i][j]));
+				container.addPoint(clusterPoints[i][j]);
 				container.addClusterID(i);
 			}
 

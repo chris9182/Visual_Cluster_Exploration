@@ -1,5 +1,6 @@
 package clusterproject.clustergenerator.userInterface;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -48,30 +50,35 @@ public class ClusteringViewer extends JFrame {
 	private final ScatterPlot mdsPlot;
 	private int highlighted = -1;
 
-	private final int minPTS = 1;
-	private final double eps = 2;// TODO settings
+	private int minPTS = 1;
+	private double eps = 2;// TODO settings
 
-	public ClusteringViewer(List<ClusteringResult> clusterings, PointContainer pointContainer,
-			IDistanceMeasure metaDistance) {
+	private final JButton scatterMatrixButton;
+
+	public ClusteringViewer(List<ClusteringResult> sClusterings, PointContainer pointContainer,
+			IDistanceMeasure metaDistance, int minPTS, double eps) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
+		this.minPTS = minPTS;
+		this.eps = eps;
 		this.metaDistance = metaDistance;
-		this.clusterings = clusterings;
+		this.clusterings = sClusterings;
 		mainPanel = new JLayeredPane();
 		layout = new SpringLayout();
 		mainPanel.setLayout(layout);
 		add(mainPanel);
 		viewers = new ArrayList<ScatterPlot>();
-		clusterings.forEach(clustering -> {
+		for (final ClusteringResult clustering : sClusterings) {
 			final PointContainer container = clustering.toPointContainer();
 			container.setHeaders(pointContainer.getHeaders());
 			final ScatterPlot plot = new ScatterPlot(null, container, true);
 			plot.addAutoAdjust();
+			plot.addAutoColor();
 			viewers.add(plot);
-		});
+		}
 
 		final List<String> clusteringIDs = new ArrayList<String>();
 		int i = 0;
-		for (final ClusteringResult result : clusterings) {
+		for (final ClusteringResult result : sClusterings) {
 			clusteringIDs.add(i++ + ": " + result.getDescription());
 		}
 
@@ -83,13 +90,27 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, clustereringSelector, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 		mainPanel.add(clustereringSelector, new Integer(1));
 
+		scatterMatrixButton = new JButton("Matrix");
+		scatterMatrixButton.addActionListener(e -> {
+			final ScatterPlotMatrix ms = new ScatterPlotMatrix(visibleViewer.getPointContainer());
+			ms.setSize(new Dimension(800, 600));
+			ms.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			ms.setLocationRelativeTo(null);
+			ms.setVisible(true);
+		});
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, scatterMatrixButton, 0, SpringLayout.VERTICAL_CENTER,
+				clustereringSelector);
+		layout.putConstraint(SpringLayout.WEST, scatterMatrixButton, OUTER_SPACE, SpringLayout.EAST,
+				clustereringSelector);
+		mainPanel.add(scatterMatrixButton, new Integer(1));
+
 		final JLabel distLabel = new JLabel("Measure: " + metaDistance.getName());
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, distLabel, 0, SpringLayout.VERTICAL_CENTER,
 				clustereringSelector);
-		layout.putConstraint(SpringLayout.WEST, distLabel, OUTER_SPACE, SpringLayout.EAST, clustereringSelector);
+		layout.putConstraint(SpringLayout.WEST, distLabel, OUTER_SPACE, SpringLayout.EAST, scatterMatrixButton);
 		mainPanel.add(distLabel, new Integer(1));
 
-		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
+		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(sClusterings, metaDistance);
 
 		final MDS mds = new MDS(distanceMatrix, 2);
 		final double[][] coords = mds.getCoordinates();
@@ -110,7 +131,7 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, mdsLabel, 0, SpringLayout.HORIZONTAL_CENTER, mdsPlot);
 		mainPanel.add(mdsLabel, new Integer(11));
 
-		final OpticsMetaClustering optics = new OpticsMetaClustering(clusterings, distanceMatrix, minPTS, eps);
+		final OpticsMetaClustering optics = new OpticsMetaClustering(sClusterings, distanceMatrix, minPTS, eps);
 		final List<ClusteringWithDistance> list = optics.runOptics();
 		oPlot = new OpticsPlot(this, list);
 		layout.putConstraint(SpringLayout.NORTH, oPlot, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
@@ -175,7 +196,7 @@ public class ClusteringViewer extends JFrame {
 
 	}
 
-	private List<Integer> getNewColors(int i) {
+	private List<Integer> getNewColors(int i) { // TODO: maybe something with cluster size for color selection?
 		final ClusteringResult oldClustering = clusterings.get(currentClustering);
 		final ClusteringResult newClustering = clusterings.get(i);
 		final Map<Integer, Integer> oldIDMap = visibleViewer.getPointContainer().getIDMap();
@@ -208,7 +229,7 @@ public class ClusteringViewer extends JFrame {
 			} else
 				idMap.put(assignment[idx][0], assignment[idx][1]);
 		}
-		viewers.get(i).getPointContainer().saveIDMap(idMap);
+		viewers.get(i).getPointContainer().setIDMap(idMap);
 		for (int idx = 0; idx < currentIDs.size(); ++idx) {
 			newIDs.add(idMap.get(currentIDs.get(idx)));
 		}

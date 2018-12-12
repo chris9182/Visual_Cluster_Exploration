@@ -26,6 +26,8 @@ public class PointCanvas extends JPanel {
 
 	private static final int HIGHLIGHT_FACTOR = 2;
 
+	private static final int MIN_WIDTH_FOR_BORDER = 5;
+
 	private static final Color HIGHLIGHT_COLOR = Color.ORANGE;
 
 	private final PointContainer pointContainer;
@@ -54,7 +56,7 @@ public class PointCanvas extends JPanel {
 		IntStream.range(0, yCoordinates.length).forEach(i -> yCoordinates[i] = clusterViewer.getPixelY(points.get(i)));
 		IntStream.range(0, xCoordinates.length).forEach(i -> xCoordinates[i] = clusterViewer.getPixelX(points.get(i)));
 
-		if (!pointContainer.hasClusters())
+		if (!pointContainer.hasClusters()) {
 			for (int i = 0; i < pointCount; ++i) {
 				if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]))
 					continue;
@@ -67,7 +69,7 @@ public class PointCanvas extends JPanel {
 						pointWidth);
 
 			}
-		else {
+		} else {
 			final List<Integer> clusterIDs = pointContainer.getClusterIDs();
 			final Stream<Integer> stream = clusterIDs.stream().distinct();
 			final Map<Integer, Color> colorMap = new HashMap<Integer, Color>();
@@ -84,9 +86,11 @@ public class PointCanvas extends JPanel {
 
 				g2.fillOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
 						pointWidth);
-				g2.setColor(Color.BLACK);
-				g2.drawOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
-						pointWidth);
+				if (pointWidth >= MIN_WIDTH_FOR_BORDER) {
+					g2.setColor(Color.BLACK);
+					g2.drawOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2,
+							pointWidth, pointWidth);
+				}
 
 			}
 		}
@@ -96,10 +100,12 @@ public class PointCanvas extends JPanel {
 			g2.fillOval((int) (xCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
 					(int) (yCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
 					pointWidth * HIGHLIGHT_FACTOR, pointWidth * HIGHLIGHT_FACTOR);
-			g2.setColor(Color.BLACK);
-			g2.drawOval((int) (xCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
-					(int) (yCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
-					pointWidth * HIGHLIGHT_FACTOR, pointWidth * HIGHLIGHT_FACTOR);
+			if (pointWidth >= MIN_WIDTH_FOR_BORDER) {
+				g2.setColor(Color.BLACK);
+				g2.drawOval((int) (xCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
+						(int) (yCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
+						pointWidth * HIGHLIGHT_FACTOR, pointWidth * HIGHLIGHT_FACTOR);
+			}
 		}
 	}
 

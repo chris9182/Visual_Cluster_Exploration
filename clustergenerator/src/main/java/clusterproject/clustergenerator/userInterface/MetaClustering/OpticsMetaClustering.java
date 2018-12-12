@@ -14,14 +14,14 @@ public class OpticsMetaClustering {
 	private final int minPTS;
 	private final double eps;
 
-	public OpticsMetaClustering(List<ClusteringResult> clusterings, double[][] distanceMatrix2, int minPTS,
+	public OpticsMetaClustering(List<ClusteringResult> sClusterings, double[][] distanceMatrix2, int minPTS,
 			double eps) {
 		this.minPTS = minPTS;
 		this.eps = eps;
 		this.distanceMatrix = distanceMatrix2;
 		this.clusterings = new ArrayList<ClusteringWithDistance>();
-		for (int i = 0; i < clusterings.size(); ++i)
-			this.clusterings.add(new ClusteringWithDistance(clusterings.get(i), i));
+		for (int i = 0; i < sClusterings.size(); ++i)
+			this.clusterings.add(new ClusteringWithDistance(sClusterings.get(i), i));
 	}
 
 	public List<ClusteringWithDistance> runOptics() {

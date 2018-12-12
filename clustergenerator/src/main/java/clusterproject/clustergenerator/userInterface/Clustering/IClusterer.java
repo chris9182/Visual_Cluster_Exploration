@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import clusterproject.clustergenerator.data.ClusteringResult;
+import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import de.lmu.ifi.dbs.elki.database.Database;
 
 public interface IClusterer {
@@ -14,7 +14,7 @@ public interface IClusterer {
 
 	String getSettingsString();
 
-	List<ClusteringResult> cluster(Database db);
+	List<NumberVectorClusteringResult> cluster(Database db);
 
 	IClusterer duplicate();
 }

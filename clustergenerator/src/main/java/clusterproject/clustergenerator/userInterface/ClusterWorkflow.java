@@ -16,7 +16,9 @@ import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
+import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.ClusteringResult;
+import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.userInterface.Clustering.CLIQUEClustering;
 import clusterproject.clustergenerator.userInterface.Clustering.DBScan;
@@ -133,18 +135,21 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private void executeWorkflow() {
-		final List<ClusteringResult> clusterings = new ArrayList<ClusteringResult>();
+		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		double[][] data = new double[pointContainer.getPoints().size()][];
 		data = pointContainer.getPoints().toArray(data);
 		final DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data);
 		final Database db = new StaticArrayDatabase(dbc, null);
 		db.initialize();
 		for (final IClusterer clusterer : workflow) {
-			final List<ClusteringResult> results = clusterer.cluster(db);
+			final List<NumberVectorClusteringResult> results = clusterer.cluster(db);
 			clusterings.addAll(results);
 		}
 
-		final ClusteringViewer cv = new ClusteringViewer(clusterings, pointContainer, getDistanceMeasure());
+		final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings);
+
+		final ClusteringViewer cv = new ClusteringViewer(sClusterings, pointContainer, getDistanceMeasure(), 1,
+				Double.MAX_VALUE);// TODO: editable minPTS and eps
 		cv.setSize(new Dimension(800, 600));
 		cv.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		cv.setLocationRelativeTo(null);

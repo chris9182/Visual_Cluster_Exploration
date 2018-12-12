@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import clusterproject.clustergenerator.data.ClusteringResult;
+import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.userInterface.Clustering.Panel.CLIQUEOptions;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.CLIQUE;
 import de.lmu.ifi.dbs.elki.data.Clustering;
@@ -33,8 +33,8 @@ public class CLIQUEClustering implements IClusterer {
 	}
 
 	@Override
-	public List<ClusteringResult> cluster(Database db) {
-		final List<ClusteringResult> clusterings = new ArrayList<ClusteringResult>();
+	public List<NumberVectorClusteringResult> cluster(Database db) {
+		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
 		double tau = optionsPanel.getLBtau();
@@ -69,7 +69,7 @@ public class CLIQUEClustering implements IClusterer {
 					});
 					NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 					clustersArr = clusterList.toArray(clustersArr);
-					clusterings.add(new ClusteringResult(clustersArr,
+					clusterings.add(new NumberVectorClusteringResult(clustersArr,
 							getName() + ": xsi:" + xsi + " tauilon:" + tau + " prune:" + Boolean.toString(i % 2 == 0)));// TODO:
 					// show
 					// pruning
