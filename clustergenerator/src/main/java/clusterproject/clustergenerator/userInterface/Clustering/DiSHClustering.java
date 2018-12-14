@@ -21,8 +21,15 @@ import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParamet
 import scala.collection.mutable.BitSet;
 
 public class DiSHClustering implements IClusterer {
+	private static final long serialVersionUID = -7172931268458883217L;
 
-	DiSHOptions optionsPanel = new DiSHOptions();
+	private transient DiSHOptions optionsPanel = new DiSHOptions();
+	private double eps;
+	private double epsStep;
+	private double epsBound;
+	private int Mu;
+	private int MuStep;
+	private int MuBound;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -38,21 +45,21 @@ public class DiSHClustering implements IClusterer {
 	public List<NumberVectorClusteringResult> cluster(Database db) {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
-
-		double eps = optionsPanel.getLBEps();
-		final double epsStep = optionsPanel.getStepEps();
-		final double epsBound = optionsPanel.getUBEps();
-
-		int Mu;
-		final int MuStep = optionsPanel.getStepMu();
-		final int MuBound = optionsPanel.getUBMu();
-
-		do {
+		if (optionsPanel != null) {
+			eps = optionsPanel.getLBEps();
+			epsStep = optionsPanel.getStepEps();
+			epsBound = optionsPanel.getUBEps();
 			Mu = optionsPanel.getLBMu();
+			MuStep = optionsPanel.getStepMu();
+			MuBound = optionsPanel.getUBMu();
+		}
+		double calcEps = eps;
+		do {
+			int calcMu = Mu;
 			do {
 				final ListParameterization params = new ListParameterization();
-				params.addParameter(DiSH.Parameterizer.EPSILON_ID, eps);
-				params.addParameter(DiSH.Parameterizer.MU_ID, Mu);
+				params.addParameter(DiSH.Parameterizer.EPSILON_ID, calcEps);
+				params.addParameter(DiSH.Parameterizer.MU_ID, calcMu);
 				final DiSH<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(DiSH.class, params);
 				final Clustering<SubspaceModel> result = dbscan.run(db);
 				final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
@@ -67,7 +74,6 @@ public class DiSHClustering implements IClusterer {
 
 					for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
 						pointList.add(rel.get(it));
-						// ArrayLikeUtil.toPrimitiveDoubleArray(v)
 					}
 					NumberVector[] clusterArr = new NumberVector[pointList.size()];
 					clusterArr = pointList.toArray(clusterArr);
@@ -75,12 +81,12 @@ public class DiSHClustering implements IClusterer {
 				});
 				NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 				clustersArr = clusterList.toArray(clustersArr);
-				clusterings.add(
-						new NumberVectorClusteringResult(clustersArr, getName() + ": Mu:" + Mu + " Epsilon:" + eps));
-				Mu += MuStep;
-			} while (Mu < MuBound);
-			eps += epsStep;
-		} while (eps < epsBound);
+				clusterings.add(new NumberVectorClusteringResult(clustersArr,
+						getName() + ": Mu:" + calcMu + " Epsilon:" + calcEps));
+				calcMu += MuStep;
+			} while (calcMu < MuBound);
+			calcEps += epsStep;
+		} while (calcEps < epsBound);
 		return clusterings;
 	}
 
@@ -91,12 +97,14 @@ public class DiSHClustering implements IClusterer {
 
 	@Override
 	public String getSettingsString() {
-		final double eps = optionsPanel.getLBEps();
-		final double epsStep = optionsPanel.getStepEps();
-		final double epsBound = optionsPanel.getUBEps();
-		final int Mu = optionsPanel.getLBMu();
-		final int MuStep = optionsPanel.getStepMu();
-		final int MuBound = optionsPanel.getUBMu();
+		if (optionsPanel != null) {
+			eps = optionsPanel.getLBEps();
+			epsStep = optionsPanel.getStepEps();
+			epsBound = optionsPanel.getUBEps();
+			Mu = optionsPanel.getLBMu();
+			MuStep = optionsPanel.getStepMu();
+			MuBound = optionsPanel.getUBMu();
+		}
 		return "Mu{LB:" + Mu + " Step:" + MuStep + " UB:" + MuBound + "} " + "Epsilon{LB:" + eps + " Step:" + epsStep
 				+ " UB:" + epsBound + "}";
 	}

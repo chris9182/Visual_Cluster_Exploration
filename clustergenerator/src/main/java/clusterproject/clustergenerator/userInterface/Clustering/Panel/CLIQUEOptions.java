@@ -9,10 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
 public class CLIQUEOptions extends JPanel {
-
-	/**
-	 *
-	 */
+	private static final long serialVersionUID = -3850715094627642884L;
 
 	private final JFormattedTextField lowerxsiField;
 	private final JFormattedTextField stepxsiField;
@@ -22,7 +19,6 @@ public class CLIQUEOptions extends JPanel {
 	private final JFormattedTextField steptauField;
 	private final JFormattedTextField uppertauField;
 
-	private static final long serialVersionUID = 1L;
 	private static final int INNER_PAD = 2;
 
 	public CLIQUEOptions() {

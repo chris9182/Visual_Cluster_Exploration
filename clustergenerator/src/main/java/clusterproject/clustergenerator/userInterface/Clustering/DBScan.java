@@ -20,8 +20,15 @@ import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
 public class DBScan implements IClusterer {
+	private static final long serialVersionUID = -5466140815704959353L;
 
-	DBScanOptions optionsPanel = new DBScanOptions();
+	private transient DBScanOptions optionsPanel = new DBScanOptions();
+	private double eps;
+	private double epsStep;
+	private double epsBound;
+	private int minPTS;
+	private int minPTSStep;
+	private int minPTSBound;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -38,20 +45,21 @@ public class DBScan implements IClusterer {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
-		double eps = optionsPanel.getLBEps();
-		final double epsStep = optionsPanel.getStepEps();
-		final double epsBound = optionsPanel.getUBEps();
-
-		int minPTS;
-		final int minPTSStep = optionsPanel.getStepMinPTS();
-		final int minPTSBound = optionsPanel.getUBMinPTS();
-
-		do {
+		if (optionsPanel != null) {
+			eps = optionsPanel.getLBEps();
+			epsStep = optionsPanel.getStepEps();
+			epsBound = optionsPanel.getUBEps();
+			minPTSStep = optionsPanel.getStepMinPTS();
+			minPTSBound = optionsPanel.getUBMinPTS();
 			minPTS = optionsPanel.getLBMinPTS();
+		}
+		double calcEps = eps;
+		do {
+			int calcMinPTS = minPTS;
 			do {
 				final ListParameterization params = new ListParameterization();
-				params.addParameter(DBSCAN.Parameterizer.EPSILON_ID, eps);
-				params.addParameter(DBSCAN.Parameterizer.MINPTS_ID, minPTS);
+				params.addParameter(DBSCAN.Parameterizer.EPSILON_ID, calcEps);
+				params.addParameter(DBSCAN.Parameterizer.MINPTS_ID, calcMinPTS);
 				final DBSCAN<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(DBSCAN.class, params);
 				final Clustering<Model> result = dbscan.run(db);
 				final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
@@ -68,12 +76,12 @@ public class DBScan implements IClusterer {
 				});
 				NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 				clustersArr = clusterList.toArray(clustersArr);
-				clusterings
-						.add(new NumberVectorClusteringResult(clustersArr, getName() + ": minPTS:" + minPTS + " Epsilon:" + eps));
-				minPTS += minPTSStep;
-			} while (minPTS < minPTSBound);
-			eps += epsStep;
-		} while (eps < epsBound);
+				clusterings.add(new NumberVectorClusteringResult(clustersArr,
+						getName() + ": minPTS:" + calcMinPTS + " Epsilon:" + calcEps));
+				calcMinPTS += minPTSStep;
+			} while (calcMinPTS < minPTSBound);
+			calcEps += epsStep;
+		} while (calcEps < epsBound);
 		return clusterings;
 	}
 
@@ -84,14 +92,15 @@ public class DBScan implements IClusterer {
 
 	@Override
 	public String getSettingsString() {
-		final double eps = optionsPanel.getLBEps();
-		final double epsStep = optionsPanel.getStepEps();
-		final double epsBound = optionsPanel.getUBEps();
-		final int minPTS = optionsPanel.getLBMinPTS();
-		final int minPTSStep = optionsPanel.getStepMinPTS();
-		final int minPTSBound = optionsPanel.getUBMinPTS();
+		if (optionsPanel != null) {
+			eps = optionsPanel.getLBEps();
+			epsStep = optionsPanel.getStepEps();
+			epsBound = optionsPanel.getUBEps();
+			minPTS = optionsPanel.getLBMinPTS();
+			minPTSStep = optionsPanel.getStepMinPTS();
+			minPTSBound = optionsPanel.getUBMinPTS();
+		}
 		return "minPTS{LB:" + minPTS + " Step:" + minPTSStep + " UB:" + minPTSBound + "} " + "Epsilon{LB:" + eps
 				+ " Step:" + epsStep + " UB:" + epsBound + "}";
 	}
-
 }

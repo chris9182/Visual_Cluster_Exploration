@@ -9,10 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
 public class DBScanOptions extends JPanel {
-
-	/**
-	 *
-	 */
+	private static final long serialVersionUID = 559822521256476978L;
 
 	private final JFormattedTextField lowerMinPTSField;
 	private final JFormattedTextField stepMinPTSField;
@@ -22,7 +19,6 @@ public class DBScanOptions extends JPanel {
 	private final JFormattedTextField stepEpsField;
 	private final JFormattedTextField upperEpsField;
 
-	private static final long serialVersionUID = 1L;
 	private static final int INNER_PAD = 2;
 
 	public DBScanOptions() {

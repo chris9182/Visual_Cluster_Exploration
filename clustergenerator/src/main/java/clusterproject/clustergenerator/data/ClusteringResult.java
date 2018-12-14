@@ -3,7 +3,6 @@ package clusterproject.clustergenerator.data;
 import java.io.Serializable;
 
 public class ClusteringResult implements Serializable {
-
 	private static final long serialVersionUID = -8078630305091815092L;
 
 	private final double[][][] clusterPoints;

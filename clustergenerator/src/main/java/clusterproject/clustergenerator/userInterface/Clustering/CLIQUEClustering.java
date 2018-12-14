@@ -20,7 +20,15 @@ import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParamet
 
 public class CLIQUEClustering implements IClusterer {
 
-	CLIQUEOptions optionsPanel = new CLIQUEOptions();
+	private static final long serialVersionUID = -724435821167392129L;
+
+	private transient CLIQUEOptions optionsPanel = new CLIQUEOptions();
+	private double tau;
+	private double tauStep;
+	private double tauBound;
+	private int xsi;
+	private int xsiStep;
+	private int xsiBound;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -37,21 +45,23 @@ public class CLIQUEClustering implements IClusterer {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
-		double tau = optionsPanel.getLBtau();
-		final double tauStep = optionsPanel.getSteptau();
-		final double tauBound = optionsPanel.getUBtau();
+		if (optionsPanel != null) {
+			tau = optionsPanel.getLBtau();
+			tauStep = optionsPanel.getSteptau();
+			tauBound = optionsPanel.getUBtau();
+			xsi = optionsPanel.getLBxsi();
+			xsiStep = optionsPanel.getStepxsi();
+			xsiBound = optionsPanel.getUBxsi();
+		}
 
-		int xsi;
-		final int xsiStep = optionsPanel.getStepxsi();
-		final int xsiBound = optionsPanel.getUBxsi();
-
-		for (int i = 0; i < 2; ++i)
+		for (int i = 0; i < 2; ++i) {
+			double calcTau = tau;
 			do {
-				xsi = optionsPanel.getLBxsi();
+				int calcXsi = xsi;
 				do {
 					final ListParameterization params = new ListParameterization();
-					params.addParameter(CLIQUE.TAU_ID, tau);
-					params.addParameter(CLIQUE.XSI_ID, xsi);
+					params.addParameter(CLIQUE.TAU_ID, calcTau);
+					params.addParameter(CLIQUE.XSI_ID, calcXsi);
 					params.addParameter(CLIQUE.PRUNE_ID, i % 2 == 0);// TODO: settings
 					final CLIQUE<NumberVector> clique = ClassGenericsUtil.parameterizeOrAbort(CLIQUE.class, params);
 					final Clustering<SubspaceModel> result = clique.run(rel);
@@ -69,14 +79,15 @@ public class CLIQUEClustering implements IClusterer {
 					});
 					NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 					clustersArr = clusterList.toArray(clustersArr);
-					clusterings.add(new NumberVectorClusteringResult(clustersArr,
-							getName() + ": xsi:" + xsi + " tauilon:" + tau + " prune:" + Boolean.toString(i % 2 == 0)));// TODO:
+					clusterings.add(new NumberVectorClusteringResult(clustersArr, getName() + ": xsi:" + calcXsi
+							+ " tauilon:" + calcTau + " prune:" + Boolean.toString(i % 2 == 0)));// TODO:
 					// show
 					// pruning
-					xsi += xsiStep;
-				} while (xsi < xsiBound);
-				tau += tauStep;
-			} while (tau < tauBound);
+					calcXsi += xsiStep;
+				} while (calcXsi < xsiBound);
+				calcTau += tauStep;
+			} while (calcTau < tauBound);
+		}
 		return clusterings;
 	}
 
@@ -87,12 +98,14 @@ public class CLIQUEClustering implements IClusterer {
 
 	@Override
 	public String getSettingsString() {
-		final double tau = optionsPanel.getLBtau();
-		final double tauStep = optionsPanel.getSteptau();
-		final double tauBound = optionsPanel.getUBtau();
-		final int xsi = optionsPanel.getLBxsi();
-		final int xsiStep = optionsPanel.getStepxsi();
-		final int xsiBound = optionsPanel.getUBxsi();
+		if (optionsPanel != null) {
+			tau = optionsPanel.getLBtau();
+			tauStep = optionsPanel.getSteptau();
+			tauBound = optionsPanel.getUBtau();
+			xsi = optionsPanel.getLBxsi();
+			xsiStep = optionsPanel.getStepxsi();
+			xsiBound = optionsPanel.getUBxsi();
+		}
 		return "xsi{LB:" + xsi + " Step:" + xsiStep + " UB:" + xsiBound + "} " + "tau{LB:" + tau + " Step:" + tauStep
 				+ " UB:" + tauBound + "}";// TODO: show pruning
 	}

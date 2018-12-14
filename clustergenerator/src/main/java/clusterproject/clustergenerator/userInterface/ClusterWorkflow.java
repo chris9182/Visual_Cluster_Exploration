@@ -2,12 +2,19 @@ package clusterproject.clustergenerator.userInterface;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -15,6 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.ClusteringResult;
@@ -39,6 +47,8 @@ public class ClusterWorkflow extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private static final int OUTER_SPACE = 20;
 	private static final int OPTIONS_WIDTH = 200;
+	private static final FileNameExtensionFilter filter = new FileNameExtensionFilter("Clustering Workflow Files (cwf)",
+			"cwf");
 
 	private final SpringLayout layout;
 
@@ -48,7 +58,7 @@ public class ClusterWorkflow extends JFrame {
 
 	private final List<IClusterer> clusterers;
 	private final JComboBox<String> clustererSelector;
-	private final List<IClusterer> workflow;
+	private List<IClusterer> workflow;
 
 	private final List<IDistanceMeasure> distances;
 	private final JComboBox<String> distanceSelector;
@@ -58,10 +68,12 @@ public class ClusterWorkflow extends JFrame {
 	private final JButton executeClusterersButton;
 	private final JLayeredPane mainPanel;
 	private JScrollPane wfScrollPane;
+	private final JButton saveButton;
 
 	public ClusterWorkflow(PointContainer container) {
 		pointContainer = container;
 		mainPanel = new JLayeredPane();
+
 		add(mainPanel);
 
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
@@ -116,14 +128,118 @@ public class ClusterWorkflow extends JFrame {
 		distanceSelector.setVisible(false);
 		mainPanel.add(distanceSelector, new Integer(1));
 
+		saveButton = new JButton("Save");
+		saveButton.setEnabled(false);
+		saveButton.addActionListener(e -> {
+			final JFileChooser fileChooser = new JFileChooser();
+			fileChooser.addChoosableFileFilter(filter);
+			fileChooser.setApproveButtonText("Save");
+			fileChooser.setFileFilter(filter);
+			final JFrame chooserFrame = new JFrame();
+			chooserFrame.add(fileChooser);
+			chooserFrame.setSize(new Dimension(400, 400));
+			chooserFrame.setLocationRelativeTo(null);
+			chooserFrame.setVisible(true);
+
+			fileChooser.addActionListener(ev -> {
+				if (ev.getActionCommand().equals(JFileChooser.CANCEL_SELECTION)) {
+					chooserFrame.setVisible(false);
+					chooserFrame.dispose();
+					return;
+				}
+				final File selectedFile = fileChooser.getSelectedFile();
+				if (selectedFile == null)
+					return;
+
+				if (filter.accept(selectedFile))
+					saveCWFFile(selectedFile);
+				else if (!selectedFile.getName().contains(".")) {
+					saveCWFFile(new File(selectedFile.getPath() + "." + filter.getExtensions()[0]));
+				} else {
+					return;
+				}
+				chooserFrame.setVisible(false);
+				chooserFrame.dispose();
+			});
+		});
+		layout.putConstraint(SpringLayout.SOUTH, saveButton, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, saveButton, (-OPTIONS_WIDTH + MainWindow.INNER_SPACE) / 2 - OUTER_SPACE,
+				SpringLayout.EAST, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, saveButton, -OUTER_SPACE, SpringLayout.EAST, mainPanel);
+		mainPanel.add(saveButton, new Integer(1));
+
+		final JButton loadButton = new JButton("Load");
+		loadButton.addActionListener(e -> {
+			final JFileChooser fileChooser = new JFileChooser();
+			fileChooser.addChoosableFileFilter(filter);
+			fileChooser.setFileFilter(filter);
+			final JFrame chooserFrame = new JFrame();
+			chooserFrame.add(fileChooser);
+			chooserFrame.setSize(new Dimension(400, 400));
+			chooserFrame.setLocationRelativeTo(null);
+			chooserFrame.setVisible(true);
+
+			fileChooser.addActionListener(ev -> {
+				if (ev.getActionCommand().equals(JFileChooser.CANCEL_SELECTION)) {
+					chooserFrame.setVisible(false);
+					chooserFrame.dispose();
+					return;
+				}
+				final File selectedFile = fileChooser.getSelectedFile();
+				if (selectedFile == null)
+					return;
+
+				if (filter.accept(selectedFile))
+					loadCWFFile(selectedFile);
+			});
+		});
+		layout.putConstraint(SpringLayout.SOUTH, loadButton, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, loadButton, (-OPTIONS_WIDTH - MainWindow.INNER_SPACE) / 2,
+				SpringLayout.WEST, saveButton);
+		layout.putConstraint(SpringLayout.EAST, loadButton, -MainWindow.INNER_SPACE, SpringLayout.WEST, saveButton);
+		mainPanel.add(loadButton, new Integer(1));
+
 		confirmClustererButton = new JButton("Confirm");
 		confirmClustererButton.addActionListener(e -> addToWorkflow());
-		layout.putConstraint(SpringLayout.SOUTH, confirmClustererButton, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.SOUTH, confirmClustererButton, -MainWindow.INNER_SPACE, SpringLayout.NORTH,
+				loadButton);
 		layout.putConstraint(SpringLayout.WEST, confirmClustererButton, -OPTIONS_WIDTH - OUTER_SPACE, SpringLayout.EAST,
 				mainPanel);
 		layout.putConstraint(SpringLayout.EAST, confirmClustererButton, -OUTER_SPACE, SpringLayout.EAST, mainPanel);
 		mainPanel.add(confirmClustererButton, new Integer(1));
 		openClustererSettings(clusterers.get(0).getName());
+
+	}
+
+	private void saveCWFFile(File selectedFile) {
+		for (final IClusterer clusterer : workflow)
+			clusterer.getSettingsString();
+		try {
+			final FileOutputStream fileOut = new FileOutputStream(selectedFile);
+			final ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(workflow);
+			out.close();
+			fileOut.close();
+		} catch (final IOException i) {
+			i.printStackTrace();
+		}
+	}
+
+	private void loadCWFFile(File selectedFile) {
+		try {
+			final FileInputStream fileIn = new FileInputStream(selectedFile);
+			final ObjectInputStream in = new ObjectInputStream(fileIn);
+			workflow = (List<IClusterer>) in.readObject();
+			in.close();
+			fileIn.close();
+		} catch (final IOException i) {
+			i.printStackTrace();
+			return;
+		} catch (final ClassNotFoundException c) {
+			c.printStackTrace();
+			return;
+		}
+		showWorkflow();
 
 	}
 
@@ -196,6 +312,7 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private void showWorkflow() {
+		saveButton.setEnabled(!workflow.isEmpty());
 		if (workflow.isEmpty()) {
 			mainPanel.remove(wfScrollPane);
 			wfLabel.setVisible(false);

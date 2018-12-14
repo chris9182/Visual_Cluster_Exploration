@@ -9,10 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
 public class DiSHOptions extends JPanel {
-
-	/**
-	 *
-	 */
+	private static final long serialVersionUID = 1723051853199455897L;
 
 	private final JFormattedTextField lowerMuField;
 	private final JFormattedTextField stepMuField;
@@ -22,7 +19,6 @@ public class DiSHOptions extends JPanel {
 	private final JFormattedTextField stepEpsField;
 	private final JFormattedTextField upperEpsField;
 
-	private static final long serialVersionUID = 1L;
 	private static final int INNER_PAD = 2;
 
 	public DiSHOptions() {
