@@ -104,9 +104,10 @@ public class ScatterPlot extends JLayeredPane {
 	}
 
 	public void addAutoColor() {
-		final JButton autoColor = new JButton("");
-		autoColor.setToolTipText("Auto-Adjust Axies");
-		autoColor.setPreferredSize(new Dimension(MainWindow.ADJUST_BUTTON_DIM, MainWindow.ADJUST_BUTTON_DIM));
+		final JButton autoColor = new JButton("C");
+		autoColor.setToolTipText("Base Colors");
+		// autoColor.setPreferredSize(new Dimension(MainWindow.ADJUST_BUTTON_DIM,
+		// MainWindow.ADJUST_BUTTON_DIM));
 		autoColor.addActionListener(e -> {
 			if (pointContainer.hasClusters()) {
 				pointContainer.setClusterIDs(pointContainer.getOriginalClusterIDs());
