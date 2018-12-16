@@ -122,7 +122,6 @@ public class ClusterWorkflow extends JFrame {
 
 			final JFileChooser fileChooser = new JFileChooser();
 			fileChooser.addChoosableFileFilter(crffilter);
-			fileChooser.setApproveButtonText("Save");
 			fileChooser.setFileFilter(crffilter);
 			final JFrame chooserFrame = new JFrame();
 			chooserFrame.add(fileChooser);
@@ -140,13 +139,12 @@ public class ClusterWorkflow extends JFrame {
 				if (selectedFile == null)
 					return;
 
-				if (crffilter.accept(selectedFile))
+				if (crffilter.accept(selectedFile)) {
 					loadCRFFile(selectedFile);
-				else {
-					return;
+					chooserFrame.setVisible(false);
+					chooserFrame.dispose();
 				}
-				chooserFrame.setVisible(false);
-				chooserFrame.dispose();
+
 			});
 		});
 		layout.putConstraint(SpringLayout.SOUTH, loadClusterButton, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
