@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.data.ClusteringResult;
+import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
 import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
 
@@ -81,7 +81,8 @@ public class Util {
 		return Arrays.stream(a).distinct().filter(x -> Arrays.stream(b).anyMatch(y -> y == x)).toArray();
 	}
 
-	public static List<ClusteringResult> convertClusterings(List<NumberVectorClusteringResult> clusterings) {
+	public static List<ClusteringResult> convertClusterings(List<NumberVectorClusteringResult> clusterings,
+			List<String> headers) {
 		final List<ClusteringResult> sClusterings = new ArrayList<ClusteringResult>();
 		final Map<NumberVector, double[]> pointMap = new HashMap<NumberVector, double[]>();
 		final NumberVectorClusteringResult first = clusterings.get(0);
@@ -100,7 +101,7 @@ public class Util {
 			data[i] = cluster;
 			i++;
 		}
-		sClusterings.add(new ClusteringResult(data, first.getDescription()));
+		sClusterings.add(new ClusteringResult(data, first.getDescription(), headers));
 
 		for (int k = 1; k < clusterings.size(); ++k) {
 			data = new double[clusterings.get(k).getData().length][][];
@@ -116,7 +117,7 @@ public class Util {
 				data[i] = cluster;
 				i++;
 			}
-			sClusterings.add(new ClusteringResult(data, clusterings.get(k).getDescription()));
+			sClusterings.add(new ClusteringResult(data, clusterings.get(k).getDescription(), headers));
 		}
 
 		return sClusterings;

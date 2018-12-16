@@ -88,8 +88,11 @@ public class MainWindow extends JFrame implements IClickHandler {
 		activationButton = new JButton();
 		activationButton.addActionListener(e -> {
 			boolean done = false;
-			if (activeGenerator != null)
+			if (activeGenerator != null) {
 				done = activeGenerator.generate(pointContainer);
+				if (done)
+					pointContainer.removeClusterInfo();
+			}
 			if (activeReducer != null)
 				done = activeReducer.reduce(pointContainer);
 			if (done) {
@@ -267,6 +270,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 		if (activeGenerator != null && activeGenerator.canClickGenerate()) {
 			final boolean done = activeGenerator.generate(point, pointContainer);
 			if (done) {
+				pointContainer.removeClusterInfo();
 				// special case, here we don't want auto-adjust of axies
 				if (activeGenerator instanceof SinglePointGenerator)
 					clusterViewer.update();

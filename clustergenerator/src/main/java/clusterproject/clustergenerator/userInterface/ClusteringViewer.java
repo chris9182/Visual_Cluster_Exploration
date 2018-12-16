@@ -62,8 +62,10 @@ public class ClusteringViewer extends JFrame {
 
 	private JButton saveButton;
 
-	public ClusteringViewer(List<ClusteringResult> sClusterings, PointContainer pointContainer,
-			IDistanceMeasure metaDistance, int minPTS, double eps) {
+	private JButton mainWindowButton;
+
+	public ClusteringViewer(List<ClusteringResult> sClusterings, IDistanceMeasure metaDistance, int minPTS,
+			double eps) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 		this.minPTS = minPTS;
 		this.eps = eps;
@@ -76,7 +78,7 @@ public class ClusteringViewer extends JFrame {
 		viewers = new ArrayList<ScatterPlot>();
 		for (final ClusteringResult clustering : sClusterings) {
 			final PointContainer container = clustering.toPointContainer();
-			container.setHeaders(pointContainer.getHeaders());
+			container.setHeaders(clustering.getHeaders());
 			final ScatterPlot plot = new ScatterPlot(null, container, true);
 			plot.addAutoAdjust();
 			plot.addAutoColor();
@@ -97,6 +99,20 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, clustereringSelector, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 		mainPanel.add(clustereringSelector, new Integer(1));
 
+		mainWindowButton = new JButton("Show in Main");
+		mainWindowButton.addActionListener(e -> {
+			final MainWindow newWindow = new MainWindow(visibleViewer.getPointContainer());
+			newWindow.setSize(new Dimension(1000, 800));
+			newWindow.setLocationRelativeTo(null);
+			newWindow.setVisible(true);
+			newWindow.update();
+		});
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, mainWindowButton, 0, SpringLayout.VERTICAL_CENTER,
+				clustereringSelector);
+		layout.putConstraint(SpringLayout.WEST, mainWindowButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
+				clustereringSelector);
+		mainPanel.add(mainWindowButton, new Integer(1));
+
 		scatterMatrixButton = new JButton("Matrix");
 		scatterMatrixButton.addActionListener(e -> {
 			final ScatterPlotMatrix ms = new ScatterPlotMatrix(visibleViewer.getPointContainer());
@@ -106,9 +122,9 @@ public class ClusteringViewer extends JFrame {
 			ms.setVisible(true);
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, scatterMatrixButton, 0, SpringLayout.VERTICAL_CENTER,
-				clustereringSelector);
+				mainWindowButton);
 		layout.putConstraint(SpringLayout.WEST, scatterMatrixButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
-				clustereringSelector);
+				mainWindowButton);
 		mainPanel.add(scatterMatrixButton, new Integer(1));
 
 		saveButton = new JButton("Save");

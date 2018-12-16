@@ -36,12 +36,6 @@ public class PointContainer {
 		points.add(point);
 	}
 
-	// public boolean revalidate() {
-	// final boolean old=revalidate;
-	// revalidate=true;
-	// return !old;
-	// }
-
 	public Double[] getCalculatedCenter() {
 		if (points == null || points.isEmpty())
 			return null;
@@ -167,6 +161,11 @@ public class PointContainer {
 		return originalClusterIDs;
 	}
 
+	public void setOriginalClusterID(List<Integer> originalClusterIDs) {
+		this.originalClusterIDs = originalClusterIDs;
+
+	}
+
 	public void setIDMap(Map<Integer, Integer> idMap) {
 		this.idMap = idMap;
 
@@ -182,5 +181,20 @@ public class PointContainer {
 
 	public void setHighlighted(int highlighted) {
 		this.highlighted = highlighted;
+	}
+
+	public void copyClusterInfo(PointContainer container) {
+		setOriginalClusterID(container.getOriginalClusterIDs());
+		setClusterIDs(container.getClusterIDs());
+		setIDMap(container.getIDMap());
+		setHighlighted(getHighlighted());
+	}
+
+	public void removeClusterInfo() {
+		setOriginalClusterID(null);
+		setClusterIDs(null);
+		setIDMap(null);
+		setHighlighted(-1);
+
 	}
 }

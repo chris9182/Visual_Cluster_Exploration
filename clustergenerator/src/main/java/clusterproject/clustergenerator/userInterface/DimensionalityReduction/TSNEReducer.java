@@ -52,7 +52,8 @@ public class TSNEReducer implements IDimensionalityReduction {
 		}
 		final PointContainer newContainer = new PointContainer(tSNEOptions.getDim());
 		newContainer.addPoints(Y);
-		;
+		newContainer.copyClusterInfo(container);
+
 		final MainWindow newWindow = new MainWindow(newContainer);
 		newWindow.setSize(new Dimension(1000, 800));
 		newWindow.setLocationRelativeTo(null);
