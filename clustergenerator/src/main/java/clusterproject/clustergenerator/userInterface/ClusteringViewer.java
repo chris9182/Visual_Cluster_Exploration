@@ -1,6 +1,10 @@
 package clusterproject.clustergenerator.userInterface;
 
 import java.awt.Dimension;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,6 +14,7 @@ import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -54,6 +59,8 @@ public class ClusteringViewer extends JFrame {
 	private double eps = 2;// TODO settings
 
 	private final JButton scatterMatrixButton;
+
+	private JButton saveButton;
 
 	public ClusteringViewer(List<ClusteringResult> sClusterings, PointContainer pointContainer,
 			IDistanceMeasure metaDistance, int minPTS, double eps) {
@@ -100,14 +107,53 @@ public class ClusteringViewer extends JFrame {
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, scatterMatrixButton, 0, SpringLayout.VERTICAL_CENTER,
 				clustereringSelector);
-		layout.putConstraint(SpringLayout.WEST, scatterMatrixButton, OUTER_SPACE, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.WEST, scatterMatrixButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
 				clustereringSelector);
 		mainPanel.add(scatterMatrixButton, new Integer(1));
 
+		saveButton = new JButton("Save");
+		saveButton.addActionListener(e -> {
+			final JFileChooser fileChooser = new JFileChooser();
+			fileChooser.addChoosableFileFilter(ClusterWorkflow.crffilter);
+			fileChooser.setApproveButtonText("Save");
+			fileChooser.setFileFilter(ClusterWorkflow.crffilter);
+			final JFrame chooserFrame = new JFrame();
+			chooserFrame.add(fileChooser);
+			chooserFrame.setSize(new Dimension(400, 400));
+			chooserFrame.setLocationRelativeTo(null);
+			chooserFrame.setVisible(true);
+
+			fileChooser.addActionListener(ev -> {
+				if (ev.getActionCommand().equals(JFileChooser.CANCEL_SELECTION)) {
+					chooserFrame.setVisible(false);
+					chooserFrame.dispose();
+					return;
+				}
+				final File selectedFile = fileChooser.getSelectedFile();
+				if (selectedFile == null)
+					return;
+
+				if (ClusterWorkflow.crffilter.accept(selectedFile))
+					saveCRFFile(selectedFile);
+				else if (!selectedFile.getName().contains(".")) {
+					saveCRFFile(new File(selectedFile.getPath() + "." + ClusterWorkflow.crffilter.getExtensions()[0]));
+				} else {
+					return;
+				}
+				chooserFrame.setVisible(false);
+				chooserFrame.dispose();
+			});
+		});
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, saveButton, 0, SpringLayout.VERTICAL_CENTER,
+				scatterMatrixButton);
+		layout.putConstraint(SpringLayout.WEST, saveButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
+				scatterMatrixButton);
+		mainPanel.add(saveButton, new Integer(1));
+
 		final JLabel distLabel = new JLabel("Measure: " + metaDistance.getName());
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, distLabel, 0, SpringLayout.VERTICAL_CENTER,
-				clustereringSelector);
-		layout.putConstraint(SpringLayout.WEST, distLabel, OUTER_SPACE, SpringLayout.EAST, scatterMatrixButton);
+				scatterMatrixButton);
+		layout.putConstraint(SpringLayout.WEST, distLabel, OUTER_SPACE, SpringLayout.EAST, saveButton);
 		mainPanel.add(distLabel, new Integer(1));
 
 		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(sClusterings, metaDistance);
@@ -147,6 +193,19 @@ public class ClusteringViewer extends JFrame {
 			highlight(selection);
 		});
 		showViewer(0);
+
+	}
+
+	private void saveCRFFile(File selectedFile) {
+		try {
+			final FileOutputStream fileOut = new FileOutputStream(selectedFile);
+			final ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(clusterings);
+			out.close();
+			fileOut.close();
+		} catch (final IOException i) {
+			i.printStackTrace();
+		}
 
 	}
 
