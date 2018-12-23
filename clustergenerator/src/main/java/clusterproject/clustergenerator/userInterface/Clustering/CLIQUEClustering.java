@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 
 import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.userInterface.Clustering.Panel.CLIQUEOptions;
+import clusterproject.clustergenerator.userInterface.Clustering.Parameters.Parameter;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.CLIQUE;
 import de.lmu.ifi.dbs.elki.data.Clustering;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
@@ -79,8 +80,11 @@ public class CLIQUEClustering implements IClusterer {
 					});
 					NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 					clustersArr = clusterList.toArray(clustersArr);
-					clusterings.add(new NumberVectorClusteringResult(clustersArr, getName() + ": xsi:" + calcXsi
-							+ " tauilon:" + calcTau + " prune:" + Boolean.toString(i % 2 == 0)));// TODO:
+					final Parameter param = new Parameter(getName());
+					param.addParameter("xsi", calcXsi);
+					param.addParameter("tauilon", calcTau);
+					param.addParameter("prune", i % 2 == 0);
+					clusterings.add(new NumberVectorClusteringResult(clustersArr, param));// TODO:
 					// show
 					// pruning
 					calcXsi += xsiStep;

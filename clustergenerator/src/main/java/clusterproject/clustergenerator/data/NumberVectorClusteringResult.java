@@ -1,21 +1,22 @@
 package clusterproject.clustergenerator.data;
 
+import clusterproject.clustergenerator.userInterface.Clustering.Parameters.Parameter;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
 
 public class NumberVectorClusteringResult {
 	private final NumberVector[][] clusterPoints;
-	private final String description;
+	private final Parameter parameter;
 
-	public NumberVectorClusteringResult(NumberVector[][] clusterPoints, String description) {
+	public NumberVectorClusteringResult(NumberVector[][] clusterPoints, Parameter param) {
 		this.clusterPoints = clusterPoints;
-		this.description = description;
+		this.parameter = param;
 	}
 
 	public NumberVector[][] getData() {
 		return clusterPoints;
 	}
 
-	public String getDescription() {
-		return description;
+	public Parameter getDescription() {
+		return parameter;
 	}
 }

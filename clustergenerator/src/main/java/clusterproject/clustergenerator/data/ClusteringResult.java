@@ -3,16 +3,18 @@ package clusterproject.clustergenerator.data;
 import java.io.Serializable;
 import java.util.List;
 
+import clusterproject.clustergenerator.userInterface.Clustering.Parameters.Parameter;
+
 public class ClusteringResult implements Serializable {
 	private static final long serialVersionUID = -8078630305091815092L;
 
 	private final double[][][] clusterPoints;
-	private final String description;
+	private final Parameter parameter;
 	private final List<String> headers;
 
-	public ClusteringResult(double[][][] clusterPoints, String description, List<String> headers) {
+	public ClusteringResult(double[][][] clusterPoints, Parameter parameter, List<String> headers) {
 		this.clusterPoints = clusterPoints;
-		this.description = description;
+		this.parameter = parameter;
 		this.headers = headers;
 	}
 
@@ -40,8 +42,8 @@ public class ClusteringResult implements Serializable {
 		return count;
 	}
 
-	public String getDescription() {
-		return description;
+	public Parameter getParameter() {
+		return parameter;
 	}
 
 	public List<String> getHeaders() {

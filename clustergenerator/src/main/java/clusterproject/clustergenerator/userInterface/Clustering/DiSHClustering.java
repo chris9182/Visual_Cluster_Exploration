@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 
 import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.userInterface.Clustering.Panel.DiSHOptions;
+import clusterproject.clustergenerator.userInterface.Clustering.Parameters.Parameter;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.DiSH;
 import de.lmu.ifi.dbs.elki.data.Clustering;
 import de.lmu.ifi.dbs.elki.data.DoubleVector;
@@ -63,7 +64,8 @@ public class DiSHClustering implements IClusterer {
 				final DiSH<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(DiSH.class, params);
 				final Clustering<SubspaceModel> result = dbscan.run(db);
 				final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
-				result.getAllClusters().forEach(cluster -> {
+
+				result.getAllClusters().forEach(cluster -> {// what about the hierarchy?
 					// XXX debug
 					// import scala.collection.mutable.BitSet;
 					final BitSet bits = new BitSet(cluster.getModel().getDimensions());
@@ -81,8 +83,10 @@ public class DiSHClustering implements IClusterer {
 				});
 				NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 				clustersArr = clusterList.toArray(clustersArr);
-				clusterings.add(new NumberVectorClusteringResult(clustersArr,
-						getName() + ": Mu:" + calcMu + " Epsilon:" + calcEps));
+				final Parameter param = new Parameter(getName());
+				param.addParameter("Mu", calcMu);
+				param.addParameter("Epsilon", calcEps);
+				clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
 				calcMu += MuStep;
 			} while (calcMu < MuBound);
 			calcEps += epsStep;

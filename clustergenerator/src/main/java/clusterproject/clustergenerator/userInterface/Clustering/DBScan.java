@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 
 import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.userInterface.Clustering.Panel.DBScanOptions;
+import clusterproject.clustergenerator.userInterface.Clustering.Parameters.Parameter;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.DBSCAN;
 import de.lmu.ifi.dbs.elki.data.Clustering;
 import de.lmu.ifi.dbs.elki.data.DoubleVector;
@@ -76,8 +77,10 @@ public class DBScan implements IClusterer {
 				});
 				NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 				clustersArr = clusterList.toArray(clustersArr);
-				clusterings.add(new NumberVectorClusteringResult(clustersArr,
-						getName() + ": minPTS:" + calcMinPTS + " Epsilon:" + calcEps));
+				final Parameter param = new Parameter(getName());
+				param.addParameter("minPTS", calcMinPTS);
+				param.addParameter("Epsilon", calcEps);
+				clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
 				calcMinPTS += minPTSStep;
 			} while (calcMinPTS < minPTSBound);
 			calcEps += epsStep;

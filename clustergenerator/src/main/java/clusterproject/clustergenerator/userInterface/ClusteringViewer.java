@@ -88,7 +88,7 @@ public class ClusteringViewer extends JFrame {
 		final List<String> clusteringIDs = new ArrayList<String>();
 		int i = 0;
 		for (final ClusteringResult result : sClusterings) {
-			clusteringIDs.add(i++ + ": " + result.getDescription());
+			clusteringIDs.add(i++ + ": " + result.getParameter().getInfoString());
 		}
 
 		String[] idArr = new String[clusteringIDs.size()];
