@@ -64,6 +64,8 @@ public class ClusteringViewer extends JFrame {
 
 	private JButton mainWindowButton;
 
+	private HeatMap heatMap;
+
 	public ClusteringViewer(List<ClusteringResult> sClusterings, IDistanceMeasure metaDistance, int minPTS,
 			double eps) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
@@ -203,6 +205,14 @@ public class ClusteringViewer extends JFrame {
 		mainPanel.add(oPlot, new Integer(10));
 
 		mdsPlot.setClickHandler(oPlot);
+
+		heatMap = new HeatMap(Util.getSortedDistances(list, distanceMatrix));
+		layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, heatMap, VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.SOUTH, heatMap, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, heatMap, VIEWER_SPACE, SpringLayout.WEST, mainPanel);
+		mainPanel.add(heatMap, new Integer(10));
+
 		clustereringSelector.addActionListener(e -> {
 			final String selected = (String) clustereringSelector.getSelectedItem();
 			final int selection = Integer.parseInt(selected.split(":")[0]);

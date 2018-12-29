@@ -10,6 +10,7 @@ import java.util.Map;
 
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
+import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringWithDistance;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
 import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
 
@@ -121,6 +122,15 @@ public class Util {
 		}
 
 		return sClusterings;
+	}
+
+	public static double[][] getSortedDistances(List<ClusteringWithDistance> list, double[][] distanceMatrix) {
+		final double[][] sorted = new double[distanceMatrix.length][distanceMatrix.length];
+		for (int i = 0; i < distanceMatrix.length; ++i)
+			for (int j = 0; j < distanceMatrix.length; ++j) {
+				sorted[i][j] = distanceMatrix[list.get(i).inIndex][list.get(j).inIndex];
+			}
+		return sorted;
 	}
 
 }
