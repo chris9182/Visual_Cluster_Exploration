@@ -208,7 +208,7 @@ public class ClusteringViewer extends JFrame {
 
 		heatMap = new HeatMap(Util.getSortedDistances(list, distanceMatrix));
 		layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
-		layout.putConstraint(SpringLayout.EAST, heatMap, VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, heatMap, -VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
 		layout.putConstraint(SpringLayout.SOUTH, heatMap, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
 		layout.putConstraint(SpringLayout.WEST, heatMap, VIEWER_SPACE, SpringLayout.WEST, mainPanel);
 		mainPanel.add(heatMap, new Integer(10));

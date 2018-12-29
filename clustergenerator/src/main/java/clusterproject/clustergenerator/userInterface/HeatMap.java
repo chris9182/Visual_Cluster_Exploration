@@ -19,10 +19,10 @@ import clusterproject.clustergenerator.Util;
 public class HeatMap extends JLayeredPane {
 
 	private static final long serialVersionUID = 4325048897002003982L;
-	private static final int BAR_OFFSET = 10;
+	private static final int BAR_OFFSET = 4;
 	public static final Color MIN_COLOR = Color.WHITE;
 	public static final Color MAX_COLOR = new Color(102, 51, 0);
-	private static final int BAR_WIDTH = 40;
+	private static final int BAR_WIDTH = 30;
 	private static final int LABLE_OFFSET = 10;
 	private final double[][] distances;
 	private final SpringLayout layout;
@@ -49,7 +49,7 @@ public class HeatMap extends JLayeredPane {
 
 		final GradientBar bar = new GradientBar(maxDistance);
 		layout.putConstraint(SpringLayout.NORTH, bar, 0, SpringLayout.NORTH, this);
-		layout.putConstraint(SpringLayout.EAST, bar, -BAR_OFFSET, SpringLayout.EAST, this);
+		layout.putConstraint(SpringLayout.EAST, bar, 0, SpringLayout.EAST, this);
 		layout.putConstraint(SpringLayout.SOUTH, bar, 0, SpringLayout.SOUTH, this);
 		layout.putConstraint(SpringLayout.WEST, bar, -BAR_WIDTH, SpringLayout.EAST, this);
 		add(bar, new Integer(20));
