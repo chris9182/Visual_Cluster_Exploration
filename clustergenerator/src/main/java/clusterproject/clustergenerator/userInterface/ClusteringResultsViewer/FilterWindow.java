@@ -27,7 +27,7 @@ public class FilterWindow extends JFrame {
 	private static final int BARVOFFSET = 8;
 	private static final int BARHOFFSET = 16;
 	private static final int SPACING = 10;
-	private static final int SLIDERWIDTH = 50;
+	private static final int SLIDERWIDTH = 70;
 
 	JLayeredPane mainPane = new JLayeredPane();
 	SpringLayout mainLayout = new SpringLayout();
@@ -92,9 +92,13 @@ public class FilterWindow extends JFrame {
 	private class MyRangeSlider extends RangeSlider {
 		private static final long serialVersionUID = -1145841853132161271L;
 		private final List<JLabel> labels = new ArrayList<JLabel>();
+		private final double minLbl;
+		private final double maxLbl;
 
 		public MyRangeSlider(double minLbl, double maxLbl) {
 			super(RangeSlider.VERTICAL);
+			this.minLbl = minLbl;
+			this.maxLbl = maxLbl;
 			setOpaque(false);
 			setMinimum(0);
 			setMaximum(10000);
@@ -105,12 +109,23 @@ public class FilterWindow extends JFrame {
 			setPaintLabels(true);
 			final Dictionary<Integer, JComponent> dict = new Hashtable<Integer, JComponent>();
 			for (int i = 0; i < 11; ++i) {
-				final JLabel label = new JLabel("   " + (float) ((maxLbl - minLbl) * i + minLbl));
+				final JLabel label = new JLabel("   " + (float) ((maxLbl - minLbl) * (i) / 10 + minLbl));
 				// String.format("%.3f", (maxLbl - minLbl) * i + minLbl));
 				labels.add(label);
 				dict.put(i * 1000, label);
 			}
 			setLabelTable(dict);
+			setToolTipText((String.valueOf((float) getUpperValue())) + " <-> " + ((float) getLowerValue()));
+			addChangeListener(e -> setToolTipText(
+					(String.valueOf((float) getUpperValue())) + " <-> " + ((float) getLowerValue())));
+		}
+
+		public double getUpperValue() {
+			return (maxLbl - minLbl) * ((double) getHighValue() / 10000) + minLbl;
+		}
+
+		public double getLowerValue() {
+			return (maxLbl - minLbl) * ((double) getLowValue() / 10000) + minLbl;
 		}
 
 		@Override
