@@ -30,8 +30,16 @@
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-csv</artifactId>
     <version>1.6</version>
-    <!-- https://github.com/haifengl/smile -->
+   
 </dependency>
+<!-- https://mvnrepository.com/artifact/com.jidesoft/jide-oss -->
+<dependency>
+    <groupId>com.jidesoft</groupId>
+    <artifactId>jide-oss</artifactId>
+    <version>3.6.17</version>
+</dependency>
+
+ <!-- https://github.com/haifengl/smile -->
     <dependency>
       <groupId>com.github.haifengl</groupId>
       <artifactId>smile-plot</artifactId>

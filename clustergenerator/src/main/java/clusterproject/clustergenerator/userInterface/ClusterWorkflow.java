@@ -32,6 +32,7 @@ import clusterproject.clustergenerator.userInterface.Clustering.CLIQUEClustering
 import clusterproject.clustergenerator.userInterface.Clustering.DBScan;
 import clusterproject.clustergenerator.userInterface.Clustering.DiSHClustering;
 import clusterproject.clustergenerator.userInterface.Clustering.IClusterer;
+import clusterproject.clustergenerator.userInterface.ClusteringResultsViewer.ClusteringViewer;
 import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringError;
 import clusterproject.clustergenerator.userInterface.MetaClustering.IDistanceMeasure;
 import clusterproject.clustergenerator.userInterface.MetaClustering.VariationOfInformation;

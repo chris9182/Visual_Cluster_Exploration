@@ -1,4 +1,4 @@
-package clusterproject.clustergenerator.userInterface;
+package clusterproject.clustergenerator.userInterface.ClusteringResultsViewer;
 
 import java.awt.Color;
 import java.awt.GradientPaint;

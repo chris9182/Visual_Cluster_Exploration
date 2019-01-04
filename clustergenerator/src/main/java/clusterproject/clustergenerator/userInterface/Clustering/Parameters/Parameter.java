@@ -36,4 +36,8 @@ public class Parameter implements Serializable {
 		return returnval;
 	}
 
+	public Map<String, Object> getParameters() {
+		return parameters;
+	}
+
 }

@@ -1,4 +1,4 @@
-package clusterproject.clustergenerator.userInterface;
+package clusterproject.clustergenerator.userInterface.ClusteringResultsViewer;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -19,6 +19,7 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import clusterproject.clustergenerator.Util;
+import clusterproject.clustergenerator.userInterface.IClickHandler;
 import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringWithDistance;
 
 public class OpticsPlot extends JLayeredPane implements IClickHandler {

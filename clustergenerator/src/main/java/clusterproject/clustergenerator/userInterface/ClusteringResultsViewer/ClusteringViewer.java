@@ -1,4 +1,4 @@
-package clusterproject.clustergenerator.userInterface;
+package clusterproject.clustergenerator.userInterface.ClusteringResultsViewer;
 
 import java.awt.Dimension;
 import java.io.File;
@@ -24,6 +24,10 @@ import javax.swing.SwingUtilities;
 import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.PointContainer;
+import clusterproject.clustergenerator.userInterface.ClusterWorkflow;
+import clusterproject.clustergenerator.userInterface.MainWindow;
+import clusterproject.clustergenerator.userInterface.ScatterPlot;
+import clusterproject.clustergenerator.userInterface.ScatterPlotMatrix;
 import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringWithDistance;
 import clusterproject.clustergenerator.userInterface.MetaClustering.DistanceCalculation;
 import clusterproject.clustergenerator.userInterface.MetaClustering.HungarianAlgorithm;
@@ -117,6 +121,12 @@ public class ClusteringViewer extends JFrame {
 
 		scatterMatrixButton = new JButton("Matrix");
 		scatterMatrixButton.addActionListener(e -> {
+
+			final FilterWindow fw = new FilterWindow(sClusterings);// XXX debug
+			fw.setSize(new Dimension(800, 600));
+			fw.setLocationRelativeTo(null);
+			fw.setVisible(true);
+
 			final ScatterPlotMatrix ms = new ScatterPlotMatrix(visibleViewer.getPointContainer());
 			ms.setSize(new Dimension(800, 600));
 			ms.setExtendedState(JFrame.MAXIMIZED_BOTH);
