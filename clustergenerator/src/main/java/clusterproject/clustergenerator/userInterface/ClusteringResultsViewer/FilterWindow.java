@@ -141,6 +141,20 @@ public class FilterWindow extends JFrame {
 			});
 			addMouseListener(new MouseAdapter() {
 				@Override
+				public void mousePressed(MouseEvent e) {
+					tooltip.setText((String.valueOf((float) getUpperValue())) + " <-> " + ((float) getLowerValue()));
+					final Point p = MouseInfo.getPointerInfo().getLocation();
+					int labelwidth = 0;
+					for (final JLabel label : labels)
+						if (label.getWidth() > labelwidth)
+							labelwidth = label.getWidth();
+					tooltipFrame.pack();
+					tooltipFrame.setLocation((int) (getLocationOnScreen().getX() + getWidth() / 2),
+							(int) p.getY() - tooltipFrame.getHeight() / 2);
+					tooltipFrame.setVisible(true);
+				}
+
+				@Override
 				public void mouseReleased(MouseEvent e) {
 					tooltipFrame.setVisible(false);
 				}
