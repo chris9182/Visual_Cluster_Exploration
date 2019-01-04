@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.SpringLayout;
+import javax.swing.SwingUtilities;
 
 import com.jidesoft.swing.RangeSlider;
 
@@ -33,22 +36,29 @@ public class FilterWindow extends JFrame {
 	private static final int SPACING = 10;
 	private static final int SLIDERWIDTH = 70;
 
-	JLayeredPane mainPane = new JLayeredPane();
-	SpringLayout mainLayout = new SpringLayout();
+	private final JLayeredPane mainPane = new JLayeredPane();
+	private final SpringLayout mainLayout = new SpringLayout();
 
 	private final List<ClusteringResult> clusteringResults;
+	private List<RangeSlider> sliders;
 
 	public FilterWindow(List<ClusteringResult> clusteringResults) {
+		sliders = new ArrayList<RangeSlider>();
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 		add(mainPane);
 		mainPane.setLayout(mainLayout);
-		final RangeSlider slider = new MyRangeSlider(10.3, 12.5);
-		mainLayout.putConstraint(SpringLayout.NORTH, slider, SPACING, SpringLayout.NORTH, mainPane);
-		mainLayout.putConstraint(SpringLayout.SOUTH, slider, -SPACING, SpringLayout.SOUTH, mainPane);
-		mainLayout.putConstraint(SpringLayout.EAST, slider, SLIDERWIDTH + SPACING, SpringLayout.WEST, mainPane);
-		mainLayout.putConstraint(SpringLayout.WEST, slider, SPACING, SpringLayout.WEST, mainPane);
-		mainPane.add(slider, new Integer(1));
 		this.clusteringResults = clusteringResults;
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				adjust();
+			}
+		});
+	}
+
+	public void adjust() {
+		mainPane.removeAll();
+		sliders = new ArrayList<RangeSlider>();
 		final LinkedHashSet<String> clusteringNames = new LinkedHashSet<String>();
 		for (final ClusteringResult result : clusteringResults) {
 			clusteringNames.add(result.getParameter().getName());
@@ -76,21 +86,63 @@ public class FilterWindow extends JFrame {
 			parameters.add(clusteringParameters);
 		}
 		final Iterator<String> clusteringNamesIt = clusteringNames.iterator();
+		final int clusteringNameWidth = getWidth() / clusteringNames.size();
 		for (int i = 0; i < clusteringNames.size(); ++i) {
 			final String clusteringName = clusteringNamesIt.next();
-			System.err.println(clusteringName);
+			final JLabel clusteringNameLabel = new JLabel(clusteringName);
+			final int clusteringNameCenter = getWidth() / (clusteringNames.size() + 1) * (i + 1);
+			mainLayout.putConstraint(SpringLayout.NORTH, clusteringNameLabel, SPACING, SpringLayout.NORTH, mainPane);
+			mainLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, clusteringNameLabel, clusteringNameCenter,
+					SpringLayout.WEST, mainPane);
+			mainPane.add(clusteringNameLabel, new Integer(2));
+			// System.err.println(clusteringName);
 			final Iterator<String> parameterNamesIt = parameterNames.get(i).iterator();
+			final int parameterStart = clusteringNameCenter - clusteringNameWidth / 2;
 			for (int j = 0; j < parameterNames.get(i).size(); ++j) {
 				final String parameterName = parameterNamesIt.next();
-				System.err.println("  " + parameterName);
+				final JLabel parameterNameLabel = new JLabel(parameterName);
+				final int clusteringParameterCenter = clusteringNameWidth / (parameterNames.get(i).size() + 1) * (j + 1)
+						+ parameterStart;
+				mainLayout.putConstraint(SpringLayout.NORTH, parameterNameLabel, SPACING, SpringLayout.SOUTH,
+						clusteringNameLabel);
+				mainLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, parameterNameLabel, clusteringParameterCenter,
+						SpringLayout.WEST, mainPane);
+				mainPane.add(parameterNameLabel, new Integer(2));
+				// System.err.println(" " + parameterName);
+				double max = Double.MIN_VALUE;
+				double min = Double.MAX_VALUE;
 				final Iterator<Object> parametersIt = parameters.get(i).get(j).iterator();
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
 					final Object parameter = parametersIt.next();
-					System.err.println("    " + parameter);
+					if (!(parameter instanceof Double) && !(parameter instanceof Integer))
+						continue;
+					Double value = Double.NaN;
+					if (parameter instanceof Double)
+						value = (Double) parameter;
+					if (parameter instanceof Integer)
+						value = (double) (((Integer) parameter));
+					if (value == Double.NaN)
+						continue;
+					if (value < min)
+						min = value;
+					if (value > max)
+						max = value;
+				}
+				if (max != Double.MIN_VALUE) {
+					final RangeSlider slider = new MyRangeSlider(min, max);
+					mainLayout.putConstraint(SpringLayout.NORTH, slider, SPACING, SpringLayout.SOUTH,
+							parameterNameLabel);
+					mainLayout.putConstraint(SpringLayout.SOUTH, slider, -SPACING, SpringLayout.SOUTH, mainPane);
+					mainLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, slider, 0, SpringLayout.HORIZONTAL_CENTER,
+							parameterNameLabel);
+					mainPane.add(slider, new Integer(2));
 				}
 			}
 		}
-
+		SwingUtilities.invokeLater(() -> {
+			revalidate();
+			repaint();
+		});
 	}
 
 	private class MyRangeSlider extends RangeSlider {
@@ -156,6 +208,11 @@ public class FilterWindow extends JFrame {
 
 				@Override
 				public void mouseReleased(MouseEvent e) {
+					tooltipFrame.setVisible(false);
+				}
+
+				@Override
+				public void mouseExited(MouseEvent e) {
 					tooltipFrame.setVisible(false);
 				}
 			});
