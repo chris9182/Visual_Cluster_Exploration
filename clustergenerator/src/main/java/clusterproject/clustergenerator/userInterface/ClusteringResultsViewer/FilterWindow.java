@@ -2,6 +2,10 @@ package clusterproject.clustergenerator.userInterface.ClusteringResultsViewer;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -94,6 +98,7 @@ public class FilterWindow extends JFrame {
 		private final List<JLabel> labels = new ArrayList<JLabel>();
 		private final double minLbl;
 		private final double maxLbl;
+		private final JLabel tooltip = new JLabel();
 
 		public MyRangeSlider(double minLbl, double maxLbl) {
 			super(RangeSlider.VERTICAL);
@@ -115,9 +120,31 @@ public class FilterWindow extends JFrame {
 				dict.put(i * 1000, label);
 			}
 			setLabelTable(dict);
-			setToolTipText((String.valueOf((float) getUpperValue())) + " <-> " + ((float) getLowerValue()));
-			addChangeListener(e -> setToolTipText(
-					(String.valueOf((float) getUpperValue())) + " <-> " + ((float) getLowerValue())));
+			final JFrame tooltipFrame = new JFrame();
+
+			tooltipFrame.setUndecorated(true);
+			tooltipFrame.getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
+			tooltip.setOpaque(false);
+			tooltipFrame.add(tooltip);
+			tooltip.setText((String.valueOf((float) getUpperValue())) + " <-> " + ((float) getLowerValue()));
+			addChangeListener(e -> {
+				tooltip.setText((String.valueOf((float) getUpperValue())) + " <-> " + ((float) getLowerValue()));
+				final Point p = MouseInfo.getPointerInfo().getLocation();
+				int labelwidth = 0;
+				for (final JLabel label : labels)
+					if (label.getWidth() > labelwidth)
+						labelwidth = label.getWidth();
+				tooltipFrame.pack();
+				tooltipFrame.setLocation((int) (getLocationOnScreen().getX() + getWidth() / 2),
+						(int) p.getY() - tooltipFrame.getHeight() / 2);
+				tooltipFrame.setVisible(true);
+			});
+			addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					tooltipFrame.setVisible(false);
+				}
+			});
 		}
 
 		public double getUpperValue() {
