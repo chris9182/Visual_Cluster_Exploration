@@ -61,7 +61,7 @@ public class ClusterWorkflow extends JFrame {
 
 	private final List<IClusterer> clusterers;
 	private final JComboBox<String> clustererSelector;
-	private List<IClusterer> workflow;
+	private final List<IClusterer> workflow;
 
 	private final List<IDistanceMeasure> distances;
 	private final JComboBox<String> distanceSelector;
@@ -118,7 +118,7 @@ public class ClusterWorkflow extends JFrame {
 		wfLabel.setVisible(false);
 		mainPanel.add(wfLabel, new Integer(1));
 
-		loadClusterButton = new JButton("Load");
+		loadClusterButton = new JButton("Load Result");
 		loadClusterButton.addActionListener(e -> {
 
 			final JFileChooser fileChooser = new JFileChooser();
@@ -166,7 +166,7 @@ public class ClusterWorkflow extends JFrame {
 		layout.putConstraint(SpringLayout.EAST, distanceSelector, 0, SpringLayout.EAST, executeClusterersButton);
 		mainPanel.add(distanceSelector, new Integer(1));
 
-		saveButton = new JButton("Save");
+		saveButton = new JButton("Save Wf");
 		saveButton.setEnabled(false);
 		saveButton.addActionListener(e -> {
 			final JFileChooser fileChooser = new JFileChooser();
@@ -206,7 +206,7 @@ public class ClusterWorkflow extends JFrame {
 		layout.putConstraint(SpringLayout.EAST, saveButton, -OUTER_SPACE, SpringLayout.EAST, mainPanel);
 		mainPanel.add(saveButton, new Integer(1));
 
-		final JButton loadButton = new JButton("Load");
+		final JButton loadButton = new JButton("Load Wf");
 		loadButton.addActionListener(e -> {
 			final JFileChooser fileChooser = new JFileChooser();
 			fileChooser.addChoosableFileFilter(cwffilter);
@@ -270,7 +270,7 @@ public class ClusterWorkflow extends JFrame {
 		try {
 			final FileInputStream fileIn = new FileInputStream(selectedFile);
 			final ObjectInputStream in = new ObjectInputStream(fileIn);
-			workflow = (List<IClusterer>) in.readObject();
+			workflow.addAll((List<IClusterer>) in.readObject());
 			in.close();
 			fileIn.close();
 		} catch (final IOException i) {

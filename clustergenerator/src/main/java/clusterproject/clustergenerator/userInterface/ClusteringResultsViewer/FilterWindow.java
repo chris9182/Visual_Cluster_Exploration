@@ -176,7 +176,7 @@ public class FilterWindow extends JFrame {
 				final Iterator<Object> parametersIt = parameters.get(i).get(j).iterator();
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
 					final Object parameter = parametersIt.next();
-					if (!(parameter instanceof Double) && !(parameter instanceof Integer)) {
+					if (!(parameter instanceof Double) && !(parameter instanceof Integer)) {// TODO: handle other types
 						selectors.put(clusteringName + " " + parameterName, null);
 						System.err.println("unexpected value type");
 						continue;
@@ -197,6 +197,8 @@ public class FilterWindow extends JFrame {
 				}
 				if (max != Double.MIN_VALUE) {
 					final RangeSlider slider = new MyRangeSlider(min, max);
+					if (min == max)
+						slider.setEnabled(false);
 					selectors.put(clusteringName + " " + parameterName, slider);
 					mainLayout.putConstraint(SpringLayout.NORTH, slider, SPACING, SpringLayout.SOUTH,
 							parameterNameLabel);
