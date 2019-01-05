@@ -64,6 +64,8 @@ public class ClusteringViewer extends JFrame {
 
 	private final JButton scatterMatrixButton;
 
+	private final JButton filterButton;
+
 	private JButton saveButton;
 
 	private JButton mainWindowButton;
@@ -119,14 +121,22 @@ public class ClusteringViewer extends JFrame {
 				clustereringSelector);
 		mainPanel.add(mainWindowButton, new Integer(1));
 
-		scatterMatrixButton = new JButton("Matrix");
-		scatterMatrixButton.addActionListener(e -> {
-
-			final FilterWindow fw = new FilterWindow(sClusterings);// XXX debug
+		filterButton = new JButton("Filter");
+		filterButton.addActionListener(e -> {
+			final FilterWindow fw = new FilterWindow(sClusterings, this);// XXX debug
 			fw.setSize(new Dimension(800, 600));
 			fw.setLocationRelativeTo(null);
 			fw.setVisible(true);
+		});
 
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, filterButton, 0, SpringLayout.VERTICAL_CENTER,
+				mainWindowButton);
+		layout.putConstraint(SpringLayout.WEST, filterButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
+				mainWindowButton);
+		mainPanel.add(filterButton, new Integer(1));
+
+		scatterMatrixButton = new JButton("Matrix");
+		scatterMatrixButton.addActionListener(e -> {
 			final ScatterPlotMatrix ms = new ScatterPlotMatrix(visibleViewer.getPointContainer());
 			ms.setSize(new Dimension(800, 600));
 			ms.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -134,9 +144,9 @@ public class ClusteringViewer extends JFrame {
 			ms.setVisible(true);
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, scatterMatrixButton, 0, SpringLayout.VERTICAL_CENTER,
-				mainWindowButton);
+				filterButton);
 		layout.putConstraint(SpringLayout.WEST, scatterMatrixButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
-				mainWindowButton);
+				filterButton);
 		mainPanel.add(scatterMatrixButton, new Integer(1));
 
 		saveButton = new JButton("Save");
@@ -365,6 +375,10 @@ public class ClusteringViewer extends JFrame {
 		}
 
 		return closest;
+	}
+
+	public IDistanceMeasure getDistanceMeasure() {
+		return metaDistance;
 	}
 
 }
