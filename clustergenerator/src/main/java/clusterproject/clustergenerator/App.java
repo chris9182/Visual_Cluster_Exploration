@@ -4,7 +4,7 @@ import java.awt.Dimension;
 
 import javax.swing.JFrame;
 
-import clusterproject.clustergenerator.userInterface.MainWindow;
+import clusterproject.clustergenerator.program.MainWindow;
 
 /**
  * Hello world!

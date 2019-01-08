@@ -10,7 +10,7 @@ import java.util.Map;
 
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
-import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringWithDistance;
+import clusterproject.clustergenerator.program.MetaClustering.ClusteringWithDistance;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
 import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
 

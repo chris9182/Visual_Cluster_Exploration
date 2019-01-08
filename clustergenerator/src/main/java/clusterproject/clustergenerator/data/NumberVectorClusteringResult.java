@@ -1,6 +1,6 @@
 package clusterproject.clustergenerator.data;
 
-import clusterproject.clustergenerator.userInterface.Clustering.Parameters.Parameter;
+import clusterproject.clustergenerator.program.Clustering.Parameters.Parameter;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
 
 public class NumberVectorClusteringResult {

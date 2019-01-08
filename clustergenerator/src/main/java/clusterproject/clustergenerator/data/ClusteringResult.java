@@ -3,7 +3,7 @@ package clusterproject.clustergenerator.data;
 import java.io.Serializable;
 import java.util.List;
 
-import clusterproject.clustergenerator.userInterface.Clustering.Parameters.Parameter;
+import clusterproject.clustergenerator.program.Clustering.Parameters.Parameter;
 
 public class ClusteringResult implements Serializable {
 	private static final long serialVersionUID = -8078630305091815092L;
