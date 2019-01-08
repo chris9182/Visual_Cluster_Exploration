@@ -226,7 +226,7 @@ public class ClusteringViewer extends JFrame {
 
 		mdsPlot.setClickHandler(oPlot);
 
-		heatMap = new HeatMap(Util.getSortedDistances(list, distanceMatrix));
+		heatMap = new HeatMap(Util.getSortedDistances(list, distanceMatrix), this, list);
 		layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
 		layout.putConstraint(SpringLayout.EAST, heatMap, -VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
 		layout.putConstraint(SpringLayout.SOUTH, heatMap, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);

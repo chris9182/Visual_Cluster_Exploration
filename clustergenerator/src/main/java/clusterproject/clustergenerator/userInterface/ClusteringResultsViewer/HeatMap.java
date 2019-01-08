@@ -7,7 +7,10 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
@@ -15,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
 import clusterproject.clustergenerator.Util;
+import clusterproject.clustergenerator.userInterface.MetaClustering.ClusteringWithDistance;
 
 public class HeatMap extends JLayeredPane {
 
@@ -27,9 +31,12 @@ public class HeatMap extends JLayeredPane {
 	private final double[][] distances;
 	private final SpringLayout layout;
 	private final JPanel heatMap;
+	private final ClusteringViewer clusteringViewer;
 
-	public HeatMap(double[][] distances) {
+	public HeatMap(double[][] distances, ClusteringViewer clusteringViewer,
+			List<ClusteringWithDistance> clusteringList) {
 		this.distances = distances;
+		this.clusteringViewer = clusteringViewer;
 		heatMap = new JPanel();
 		layout = new SpringLayout();
 		setLayout(layout);
@@ -44,10 +51,20 @@ public class HeatMap extends JLayeredPane {
 			}
 		for (int i = distances.length - 1; i >= 0; --i)
 			for (int j = 0; j < distances.length; ++j) {
-				heatMap.add(new HeatCell(distances[i][j] / maxDistance));
+				final HeatCell cell = new HeatCell(this, distances[i][j] / maxDistance, clusteringList.get(i).inIndex,
+						clusteringList.get(j).inIndex);
+				heatMap.add(cell);
+				final int selected = clusteringList.get(j).inIndex;
+				cell.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						highlight(selected);
+
+					}
+				});
 			}
 
-		final GradientBar bar = new GradientBar(maxDistance);
+		final GradientBar bar = new GradientBar(maxDistance, this);
 		layout.putConstraint(SpringLayout.NORTH, bar, 0, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.EAST, bar, 0, SpringLayout.EAST, this);
 		layout.putConstraint(SpringLayout.SOUTH, bar, 0, SpringLayout.SOUTH, this);
@@ -62,16 +79,35 @@ public class HeatMap extends JLayeredPane {
 
 	}
 
+	public int getHighlighted() {
+		return clusteringViewer.getHighlighted();
+	}
+
+	public void highlight(int selection) {
+		clusteringViewer.highlight(selection);
+	}
+
 	private class HeatCell extends JComponent {
 		private static final long serialVersionUID = -1175380889963981647L;
 
-		public HeatCell(double percent) {
+		private final int i;
+		private final int j;
+
+		private final HeatMap heatMap;
+
+		public HeatCell(HeatMap heatMap, double percent, int i, int j) {
 			setBackground(getColor(percent, MIN_COLOR, MAX_COLOR));
+			this.heatMap = heatMap;
+			this.i = i;
+			this.j = j;
 		}
 
 		@Override
 		public void paint(Graphics g) {
-			g.setColor(getBackground());
+			if (heatMap.getHighlighted() == i && heatMap.getHighlighted() == j)
+				g.setColor(Color.ORANGE);
+			else
+				g.setColor(getBackground());
 			g.fillRect(0, 0, getWidth(), getHeight());
 		}
 
@@ -87,9 +123,11 @@ public class HeatMap extends JLayeredPane {
 	private class GradientBar extends JComponent {
 		private static final long serialVersionUID = -4332030550181663631L;
 		private final double maxValue;
+		private final HeatMap heatmap;
 
-		public GradientBar(double maxDistance) {
+		public GradientBar(double maxDistance, HeatMap heatmap) {
 			this.maxValue = maxDistance;
+			this.heatmap = heatmap;
 		}
 
 		@Override
