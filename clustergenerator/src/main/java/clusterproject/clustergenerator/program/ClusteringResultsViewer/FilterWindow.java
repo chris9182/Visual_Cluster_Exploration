@@ -206,6 +206,8 @@ public class FilterWindow extends JFrame {
 					mainLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, slider, 0, SpringLayout.HORIZONTAL_CENTER,
 							parameterNameLabel);
 					mainPane.add(slider, new Integer(2));
+				} else {
+					System.err.println("no values found");
 				}
 			}
 		}
