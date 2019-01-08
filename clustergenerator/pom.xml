@@ -32,11 +32,11 @@
     <version>1.6</version>
    
 </dependency>
-<!-- https://mvnrepository.com/artifact/com.jidesoft/jide-oss -->
+<!-- https://mvnrepository.com/artifact/org.jfree/jfreechart -->
 <dependency>
-    <groupId>com.jidesoft</groupId>
-    <artifactId>jide-oss</artifactId>
-    <version>3.6.17</version>
+    <groupId>org.jfree</groupId>
+    <artifactId>jfreechart</artifactId>
+    <version>1.5.0</version>
 </dependency>
 
  <!-- https://github.com/haifengl/smile -->

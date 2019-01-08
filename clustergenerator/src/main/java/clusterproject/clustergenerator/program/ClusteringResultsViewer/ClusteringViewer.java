@@ -66,7 +66,7 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 
 	private final JButton scatterMatrixButton;
 
-	private final JButton filterButton;
+	private final FilterWindow filterWindow;
 
 	private JButton saveButton;
 
@@ -123,20 +123,6 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 				clustereringSelector);
 		mainPanel.add(mainWindowButton, new Integer(1));
 
-		filterButton = new JButton("Filter");
-		filterButton.addActionListener(e -> {
-			final FilterWindow fw = new FilterWindow(sClusterings, this);// XXX debug
-			fw.setSize(new Dimension(800, 600));
-			fw.setLocationRelativeTo(null);
-			fw.setVisible(true);
-		});
-
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, filterButton, 0, SpringLayout.VERTICAL_CENTER,
-				mainWindowButton);
-		layout.putConstraint(SpringLayout.WEST, filterButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
-				mainWindowButton);
-		mainPanel.add(filterButton, new Integer(1));
-
 		scatterMatrixButton = new JButton("Matrix");
 		scatterMatrixButton.addActionListener(e -> {
 			final ScatterPlotMatrix ms = new ScatterPlotMatrix(visibleViewer.getPointContainer());
@@ -146,9 +132,9 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 			ms.setVisible(true);
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, scatterMatrixButton, 0, SpringLayout.VERTICAL_CENTER,
-				filterButton);
+				mainWindowButton);
 		layout.putConstraint(SpringLayout.WEST, scatterMatrixButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
-				filterButton);
+				mainWindowButton);
 		mainPanel.add(scatterMatrixButton, new Integer(1));
 
 		saveButton = new JButton("Save");
@@ -245,6 +231,13 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 			highlight(selection);
 		});
 		showViewer(0);
+
+		filterWindow = new FilterWindow(clusterings, this);
+		layout.putConstraint(SpringLayout.NORTH, filterWindow, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
+		layout.putConstraint(SpringLayout.SOUTH, filterWindow, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, filterWindow, 0, SpringLayout.EAST, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, filterWindow, -RIGHT_PANEL_WIDTH, SpringLayout.EAST, mainPanel);
+		mainPanel.add(filterWindow, new Integer(11));
 
 	}
 

@@ -1,11 +1,11 @@
 package clusterproject.clustergenerator.program.ClusteringResultsViewer;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -24,21 +24,30 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.SpringLayout;
-import javax.swing.SwingUtilities;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.general.DatasetUtils;
 
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.program.MainWindow;
 import clusterproject.clustergenerator.program.slider.RangeSlider;
 import clusterproject.clustergenerator.program.slider.RangeSliderUI;
 
-public class FilterWindow extends JFrame {
+public class FilterWindow extends JLayeredPane {
 
 	private static final long serialVersionUID = 1052960199516074256L;
 	private static final int SPACING = 10;
 	private static final int ABOVE_BAR_SPACE = 100;
 	private static final int SLIDERHEIGHT = 30;
 
-	private final JLayeredPane mainPane = new JLayeredPane();
 	private final SpringLayout mainLayout = new SpringLayout();
 
 	private final List<ClusteringResult> clusteringResults;
@@ -47,14 +56,13 @@ public class FilterWindow extends JFrame {
 	private final JButton filterButton;
 	private final LinkedHashSet<String> clusteringNames;
 	private final List<LinkedHashSet<String>> parameterNames;
-	private final List<List<LinkedHashSet<Object>>> parameters;
+	private final List<List<List<Object>>> parameters;
 
 	public FilterWindow(List<ClusteringResult> clusteringResults, ClusteringViewer clusteringViewer) {
 		this.clusteringViewer = clusteringViewer;
 		selectors = new HashMap<String, Object>();
-		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
-		add(mainPane);
-		mainPane.setLayout(mainLayout);
+		// getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
+		setLayout(mainLayout);
 		this.clusteringResults = clusteringResults;
 
 		filterButton = new JButton("Filter");
@@ -98,8 +106,7 @@ public class FilterWindow extends JFrame {
 			cv.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			cv.setLocationRelativeTo(null);
 			cv.setVisible(true);
-			setVisible(false);
-			dispose();
+			// dispose();
 		});
 
 		clusteringNames = new LinkedHashSet<String>();
@@ -107,7 +114,7 @@ public class FilterWindow extends JFrame {
 			clusteringNames.add(result.getParameter().getName());
 		}
 		parameterNames = new ArrayList<LinkedHashSet<String>>();
-		parameters = new ArrayList<List<LinkedHashSet<Object>>>();
+		parameters = new ArrayList<List<List<Object>>>();
 		for (final String clusteringName : clusteringNames) {
 			final LinkedHashSet<String> clusteringParameterNames = new LinkedHashSet<String>();
 			for (final ClusteringResult result : clusteringResults) {
@@ -115,10 +122,10 @@ public class FilterWindow extends JFrame {
 					clusteringParameterNames.addAll(result.getParameter().getParameters().keySet());
 			}
 			parameterNames.add(clusteringParameterNames);
-			final List<LinkedHashSet<Object>> clusteringParameters = new ArrayList<LinkedHashSet<Object>>();
+			final List<List<Object>> clusteringParameters = new ArrayList<List<Object>>();
 
 			for (final String clusteringParameterName : clusteringParameterNames) {
-				final LinkedHashSet<Object> nameParameters = new LinkedHashSet<Object>();
+				final List<Object> nameParameters = new ArrayList<Object>();
 				for (final ClusteringResult result : clusteringResults) {
 					if (result.getParameter().getName().equals(clusteringName)) {
 						nameParameters.add(result.getParameter().getParameters().get(clusteringParameterName));
@@ -128,27 +135,33 @@ public class FilterWindow extends JFrame {
 			}
 			parameters.add(clusteringParameters);
 		}
+	}
 
-		addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				adjust();
-			}
-		});
+	private int oldwidth = -1;
+
+	@Override
+	public void setBounds(int x, int y, int width, int height) {
+		// TODO Auto-generated method stub
+		super.setBounds(x, y, width, height);
+		if (oldwidth != width) {
+			oldwidth = width;
+			adjust();
+
+		}
 	}
 
 	public void adjust() {
-		mainPane.removeAll();
-		mainLayout.putConstraint(SpringLayout.SOUTH, filterButton, -SPACING, SpringLayout.SOUTH, mainPane);
-		mainLayout.putConstraint(SpringLayout.EAST, filterButton, -SPACING, SpringLayout.EAST, mainPane);
-		mainPane.add(filterButton, new Integer(2));
+		this.removeAll();
+		mainLayout.putConstraint(SpringLayout.SOUTH, filterButton, -SPACING, SpringLayout.SOUTH, this);
+		mainLayout.putConstraint(SpringLayout.EAST, filterButton, -SPACING, SpringLayout.EAST, this);
+		this.add(filterButton, new Integer(2));
 		selectors = new HashMap<String, Object>();
 
 		final Iterator<String> clusteringNamesIt = clusteringNames.iterator();
 		final int clusteringNameWidth = getHeight() / clusteringNames.size();
 		Component lastComponent = Box.createVerticalStrut(0);
-		mainLayout.putConstraint(SpringLayout.NORTH, lastComponent, 0, SpringLayout.NORTH, mainPane);
-		mainPane.add(lastComponent, new Integer(0));
+		mainLayout.putConstraint(SpringLayout.NORTH, lastComponent, 0, SpringLayout.NORTH, this);
+		this.add(lastComponent, new Integer(0));
 
 		for (int i = 0; i < clusteringNames.size(); ++i) {
 			final String clusteringName = clusteringNamesIt.next();
@@ -156,11 +169,11 @@ public class FilterWindow extends JFrame {
 			final int clusteringNameCenter = getHeight() / (clusteringNames.size()) * (i)
 					+ getHeight() / (clusteringNames.size()) / 2;
 			mainLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, clusteringNameLabel, 0,
-					SpringLayout.HORIZONTAL_CENTER, mainPane);
+					SpringLayout.HORIZONTAL_CENTER, this);
 			mainLayout.putConstraint(SpringLayout.NORTH, clusteringNameLabel, 2 * SPACING, SpringLayout.SOUTH,
 					lastComponent);
 			lastComponent = clusteringNameLabel;
-			mainPane.add(clusteringNameLabel, new Integer(2));
+			this.add(clusteringNameLabel, new Integer(2));
 			// System.err.println(clusteringName);
 			final Iterator<String> parameterNamesIt = parameterNames.get(i).iterator();
 			final int parameterStart = clusteringNameCenter - clusteringNameWidth / 2;
@@ -174,13 +187,15 @@ public class FilterWindow extends JFrame {
 				mainLayout.putConstraint(SpringLayout.NORTH, parameterNameLabel, SPACING, SpringLayout.SOUTH,
 						lastComponent);
 				lastComponent = parameterNameLabel;
-				mainPane.add(parameterNameLabel, new Integer(2));
+				this.add(parameterNameLabel, new Integer(2));
 				// System.err.println(" " + parameterName);
 				double max = Double.MIN_VALUE;
 				double min = Double.MAX_VALUE;
 				final Iterator<Object> parametersIt = parameters.get(i).get(j).iterator();
+				final double[] allParameters = new double[parameters.get(i).get(j).size()];
+				Object parameter = null;
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
-					final Object parameter = parametersIt.next();
+					parameter = parametersIt.next();
 					if (!(parameter instanceof Double) && !(parameter instanceof Integer)) {// TODO: handle other types
 						selectors.put(clusteringName + " " + parameterName, null);
 						System.err.println("unexpected value type");
@@ -195,6 +210,7 @@ public class FilterWindow extends JFrame {
 						System.err.println("unexpected value type");
 						continue;
 					}
+					allParameters[k] = value;
 					if (value < min)
 						min = value;
 					if (value > max)
@@ -202,7 +218,6 @@ public class FilterWindow extends JFrame {
 				}
 				if (max != Double.MIN_VALUE) {
 					final RangeSlider slider = new MyRangeSlider(min, max);
-					((RangeSliderUI) slider.getUI()).getTrackRectangle();// TODO use for bounds with plot
 					slider.setSize(new Dimension(getWidth(), SLIDERHEIGHT));
 					if (min == max)
 						slider.setEnabled(false);
@@ -211,25 +226,98 @@ public class FilterWindow extends JFrame {
 							parameterNameLabel);
 					mainLayout.putConstraint(SpringLayout.SOUTH, slider, ABOVE_BAR_SPACE + SLIDERHEIGHT,
 							SpringLayout.SOUTH, parameterNameLabel);
-					mainLayout.putConstraint(SpringLayout.WEST, slider, 0, SpringLayout.WEST, mainPane);
-					mainLayout.putConstraint(SpringLayout.EAST, slider, 0, SpringLayout.EAST, mainPane);
+					mainLayout.putConstraint(SpringLayout.WEST, slider, 0, SpringLayout.WEST, this);
+					mainLayout.putConstraint(SpringLayout.EAST, slider, 0, SpringLayout.EAST, this);
 					lastComponent = slider;
-					mainPane.add(slider, new Integer(3));
+					this.add(slider, new Integer(3));
+
+					final Rectangle sliderRectangle = ((RangeSliderUI) slider.getUI()).getTrackRectangle();// TODO use
+																											// for
+																											// bounds
+																											// with plot
+					int bins = clusteringResults.size() / 5;
+					if (parameter instanceof Integer)
+						bins = (int) (max - min + 1);// TODO check if this is good
+					if (bins < 1)
+						bins = 1;
+					final CategoryDataset dataset = createDataset(allParameters, bins, min, max);
+					final JFreeChart chart = createChart(dataset);
+					final ChartPanel chartPanel = new ChartPanel(chart);
+					mainLayout.putConstraint(SpringLayout.NORTH, chartPanel, -ABOVE_BAR_SPACE, SpringLayout.NORTH,
+							slider);
+					mainLayout.putConstraint(SpringLayout.SOUTH, chartPanel, 0, SpringLayout.NORTH, slider);
+					mainLayout.putConstraint(SpringLayout.WEST, chartPanel, (int) sliderRectangle.getX() - 11,
+							SpringLayout.WEST, this);
+					mainLayout.putConstraint(SpringLayout.EAST, chartPanel, (int) (-sliderRectangle.getX() + 10),
+							SpringLayout.EAST, this);
+					this.add(chartPanel, new Integer(4));
 				} else {
 					System.err.println("no values found");
 				}
 			}
 		}
-		SwingUtilities.invokeLater(() -> {
-			revalidate();
-			repaint();
-			toFront();
-		});
+	}
+
+	public CategoryDataset createDataset(double[] allParameters, int bins, double min, double max) {
+		final double[] allParametersBins = new double[bins];
+		for (int i = 0; i < bins; ++i) {
+			allParametersBins[i] = 0;
+		}
+		final double start = max - min;
+		final double width = start / (bins - 1);
+		for (int i = 0; i < allParameters.length; ++i) {
+			allParametersBins[(int) ((allParameters[i] - min) / width)] += 1;
+		}
+
+		final double[][] data = new double[][] { allParametersBins// TODO: add other data
+		};
+
+		final CategoryDataset dataset = DatasetUtils.createCategoryDataset("Series ", "Type ", data);
+
+		return dataset;
+	}
+
+	public JFreeChart createChart(CategoryDataset dataset) {
+
+		final JFreeChart chart = ChartFactory.createStackedAreaChart(null, // chart title
+				"Category", // domain axis label
+				"Value", // range axis label
+				dataset, // data
+				PlotOrientation.VERTICAL, // orientation
+				false, // include legend
+				false, false);
+
+		chart.setBackgroundPaint(Color.white);
+
+		final CategoryPlot plot = (CategoryPlot) chart.getPlot();
+		plot.setForegroundAlpha(0.5f);
+		plot.setBackgroundPaint(null);
+		plot.setDomainGridlinesVisible(false);
+		plot.setRangeGridlinesVisible(false);
+		plot.setRangeMinorGridlinesVisible(false);
+		plot.setRangeMinorGridlinesVisible(false);
+
+		final CategoryAxis domainAxis = plot.getDomainAxis();
+		domainAxis.setLowerMargin(0.0);
+		domainAxis.setUpperMargin(0.0);
+		domainAxis.setVisible(false);
+		domainAxis.setCategoryMargin(0);
+
+		// change the auto tick unit selection to integer units only...
+		final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+		rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+		rangeAxis.setVisible(false);
+
+		final CategoryItemRenderer renderer = plot.getRenderer();
+		renderer.setDefaultItemLabelsVisible(false);
+
+		return chart;
+
 	}
 
 	private class MyRangeSlider extends RangeSlider {
 		private static final long serialVersionUID = -1145841853132161271L;
-		private static final int LABEL_COUNT = 6;
+		private static final int LABEL_COUNT = 3;
 		private static final int TICK_COUNT = 1000;
 		private final double minLbl;
 		private final double maxLbl;
