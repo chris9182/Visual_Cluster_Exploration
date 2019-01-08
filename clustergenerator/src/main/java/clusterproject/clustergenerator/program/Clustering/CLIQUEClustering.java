@@ -2,6 +2,7 @@ package clusterproject.clustergenerator.program.Clustering;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.JPanel;
 
@@ -25,11 +26,10 @@ public class CLIQUEClustering implements IClusterer {
 
 	private transient CLIQUEOptions optionsPanel = new CLIQUEOptions();
 	private double tau;
-	private double tauStep;
 	private double tauBound;
 	private int xsi;
-	private int xsiStep;
 	private int xsiBound;
+	private int samples;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -48,49 +48,45 @@ public class CLIQUEClustering implements IClusterer {
 
 		if (optionsPanel != null) {
 			tau = optionsPanel.getLBtau();
-			tauStep = optionsPanel.getSteptau();
 			tauBound = optionsPanel.getUBtau();
 			xsi = optionsPanel.getLBxsi();
-			xsiStep = optionsPanel.getStepxsi();
 			xsiBound = optionsPanel.getUBxsi();
+			samples = optionsPanel.getNSamples();
 		}
 
-		for (int i = 0; i < 2; ++i) {
-			double calcTau = tau;
-			do {
-				int calcXsi = xsi;
-				do {
-					final ListParameterization params = new ListParameterization();
-					params.addParameter(CLIQUE.TAU_ID, calcTau);
-					params.addParameter(CLIQUE.XSI_ID, calcXsi);
-					params.addParameter(CLIQUE.PRUNE_ID, i % 2 == 0);// TODO: settings
-					final CLIQUE<NumberVector> clique = ClassGenericsUtil.parameterizeOrAbort(CLIQUE.class, params);
-					final Clustering<SubspaceModel> result = clique.run(rel);
-					final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
-					result.getAllClusters().forEach(cluster -> {
-						final List<NumberVector> pointList = new ArrayList<NumberVector>();
+		for (int i = 0; i < samples; ++i) {
+			final Random r = new Random();
+			final double calcTau = tau + (tauBound - tau) * r.nextDouble();
+			final int calcXsi = r.nextInt((xsiBound - xsi) + 1) + xsi;
+			final boolean calcPrune = r.nextInt(2) == 1;
+			final ListParameterization params = new ListParameterization();
+			params.addParameter(CLIQUE.TAU_ID, calcTau);
+			params.addParameter(CLIQUE.XSI_ID, calcXsi);
+			params.addParameter(CLIQUE.PRUNE_ID, calcPrune);// TODO: settings
+			final CLIQUE<NumberVector> clique = ClassGenericsUtil.parameterizeOrAbort(CLIQUE.class, params);
+			final Clustering<SubspaceModel> result = clique.run(rel);
+			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
+			result.getAllClusters().forEach(cluster -> {
+				final List<NumberVector> pointList = new ArrayList<NumberVector>();
 
-						for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
-							pointList.add(rel.get(it));
-							// ArrayLikeUtil.toPrimitiveDoubleArray(v)
-						}
-						NumberVector[] clusterArr = new NumberVector[pointList.size()];
-						clusterArr = pointList.toArray(clusterArr);
-						clusterList.add(clusterArr);
-					});
-					NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
-					clustersArr = clusterList.toArray(clustersArr);
-					final Parameter param = new Parameter(getName());
-					param.addParameter("xsi", calcXsi);
-					param.addParameter("tauilon", calcTau);
-					param.addParameter("prune", i % 2 == 0);
-					clusterings.add(new NumberVectorClusteringResult(clustersArr, param));// TODO:
-					// show
-					// pruning
-					calcXsi += xsiStep;
-				} while (calcXsi < xsiBound);
-				calcTau += tauStep;
-			} while (calcTau < tauBound);
+				for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
+					pointList.add(rel.get(it));
+					// ArrayLikeUtil.toPrimitiveDoubleArray(v)
+				}
+				NumberVector[] clusterArr = new NumberVector[pointList.size()];
+				clusterArr = pointList.toArray(clusterArr);
+				clusterList.add(clusterArr);
+			});
+			NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
+			clustersArr = clusterList.toArray(clustersArr);
+			final Parameter param = new Parameter(getName());
+			param.addParameter("xsi", calcXsi);
+			param.addParameter("tauilon", calcTau);
+			param.addParameter("prune", i % 2 == 0);
+			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));// TODO:
+			// show
+			// pruning
+
 		}
 		return clusterings;
 	}
@@ -104,14 +100,14 @@ public class CLIQUEClustering implements IClusterer {
 	public String getSettingsString() {
 		if (optionsPanel != null) {
 			tau = optionsPanel.getLBtau();
-			tauStep = optionsPanel.getSteptau();
 			tauBound = optionsPanel.getUBtau();
 			xsi = optionsPanel.getLBxsi();
-			xsiStep = optionsPanel.getStepxsi();
 			xsiBound = optionsPanel.getUBxsi();
+			samples = optionsPanel.getNSamples();
 		}
-		return "xsi{LB:" + xsi + " Step:" + xsiStep + " UB:" + xsiBound + "} " + "tau{LB:" + tau + " Step:" + tauStep
-				+ " UB:" + tauBound + "}";// TODO: show pruning
+		return "xsi{LB:" + xsi + " UB:" + xsiBound + "} " + "tau{LB:" + tau + " UB:" + tauBound + " Samples:" + samples
+				+ "}";// TODO: show
+		// pruning
 	}
 
 }

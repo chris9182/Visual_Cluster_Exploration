@@ -23,7 +23,11 @@ import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParamet
 
 public class ELKIGenerator implements IGenerator {
 
-	private final ELKIOptions optionsPanel = new ELKIOptions();
+	private final ELKIOptions optionsPanel;
+
+	public ELKIGenerator() {
+		optionsPanel = new ELKIOptions();
+	}
 
 	@Override
 	public JPanel getOptionsPanel() {

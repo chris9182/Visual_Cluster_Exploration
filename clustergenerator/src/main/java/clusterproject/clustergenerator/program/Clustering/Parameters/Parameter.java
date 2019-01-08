@@ -30,10 +30,10 @@ public class Parameter implements Serializable {
 	public String getInfoString() {
 		String returnval = getName() + ": ";
 		for (final String param : parameters.keySet()) {
-			returnval += param + ": " + parameters.get(param);
+			returnval += param + ": " + parameters.get(param) + " ";
 
 		}
-		return returnval;
+		return returnval.trim();
 	}
 
 	public Map<String, Object> getParameters() {

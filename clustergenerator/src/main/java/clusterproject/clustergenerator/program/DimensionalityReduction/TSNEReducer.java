@@ -16,7 +16,11 @@ import clusterproject.clustergenerator.program.DimensionalityReduction.Panel.TSN
 
 public class TSNEReducer implements IDimensionalityReduction {
 
-	TSNEOptions tSNEOptions = new TSNEOptions();
+	TSNEOptions tSNEOptions;
+
+	public TSNEReducer() {
+		tSNEOptions = new TSNEOptions();
+	}
 
 	@Override
 	public JPanel getOptionsPanel() {

@@ -2,6 +2,7 @@ package clusterproject.clustergenerator.program.Clustering;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.JPanel;
 
@@ -25,11 +26,10 @@ public class DBScan implements IClusterer {
 
 	private transient DBScanOptions optionsPanel = new DBScanOptions();
 	private double eps;
-	private double epsStep;
 	private double epsBound;
 	private int minPTS;
-	private int minPTSStep;
 	private int minPTSBound;
+	private int samples;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -48,43 +48,41 @@ public class DBScan implements IClusterer {
 
 		if (optionsPanel != null) {
 			eps = optionsPanel.getLBEps();
-			epsStep = optionsPanel.getStepEps();
 			epsBound = optionsPanel.getUBEps();
-			minPTSStep = optionsPanel.getStepMinPTS();
-			minPTSBound = optionsPanel.getUBMinPTS();
 			minPTS = optionsPanel.getLBMinPTS();
+			minPTSBound = optionsPanel.getUBMinPTS();
+			samples = optionsPanel.getNSamples();
 		}
-		double calcEps = eps;
-		do {
-			int calcMinPTS = minPTS;
-			do {
-				final ListParameterization params = new ListParameterization();
-				params.addParameter(DBSCAN.Parameterizer.EPSILON_ID, calcEps);
-				params.addParameter(DBSCAN.Parameterizer.MINPTS_ID, calcMinPTS);
-				final DBSCAN<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(DBSCAN.class, params);
-				final Clustering<Model> result = dbscan.run(db);
-				final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
-				result.getAllClusters().forEach(cluster -> {
-					final List<NumberVector> pointList = new ArrayList<NumberVector>();
 
-					for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
-						pointList.add(rel.get(it));
-						// ArrayLikeUtil.toPrimitiveDoubleArray(v)
-					}
-					NumberVector[] clusterArr = new NumberVector[pointList.size()];
-					clusterArr = pointList.toArray(clusterArr);
-					clusterList.add(clusterArr);
-				});
-				NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
-				clustersArr = clusterList.toArray(clustersArr);
-				final Parameter param = new Parameter(getName());
-				param.addParameter("minPTS", calcMinPTS);
-				param.addParameter("Epsilon", calcEps);
-				clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
-				calcMinPTS += minPTSStep;
-			} while (calcMinPTS < minPTSBound);
-			calcEps += epsStep;
-		} while (calcEps < epsBound);
+		for (int i = 0; i < samples; ++i) {
+			final Random r = new Random();
+			final double calcEps = eps + (epsBound - eps) * r.nextDouble();
+			final int calcMinPTS = r.nextInt((minPTSBound - minPTS) + 1) + minPTS;
+
+			final ListParameterization params = new ListParameterization();
+			params.addParameter(DBSCAN.Parameterizer.EPSILON_ID, calcEps);
+			params.addParameter(DBSCAN.Parameterizer.MINPTS_ID, calcMinPTS);
+			final DBSCAN<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(DBSCAN.class, params);
+			final Clustering<Model> result = dbscan.run(db);
+			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
+			result.getAllClusters().forEach(cluster -> {
+				final List<NumberVector> pointList = new ArrayList<NumberVector>();
+
+				for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
+					pointList.add(rel.get(it));
+					// ArrayLikeUtil.toPrimitiveDoubleArray(v)
+				}
+				NumberVector[] clusterArr = new NumberVector[pointList.size()];
+				clusterArr = pointList.toArray(clusterArr);
+				clusterList.add(clusterArr);
+			});
+			NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
+			clustersArr = clusterList.toArray(clustersArr);
+			final Parameter param = new Parameter(getName());
+			param.addParameter("minPTS", calcMinPTS);
+			param.addParameter("Epsilon", calcEps);
+			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
+		}
 		return clusterings;
 	}
 
@@ -97,13 +95,12 @@ public class DBScan implements IClusterer {
 	public String getSettingsString() {
 		if (optionsPanel != null) {
 			eps = optionsPanel.getLBEps();
-			epsStep = optionsPanel.getStepEps();
 			epsBound = optionsPanel.getUBEps();
 			minPTS = optionsPanel.getLBMinPTS();
-			minPTSStep = optionsPanel.getStepMinPTS();
 			minPTSBound = optionsPanel.getUBMinPTS();
+			samples = optionsPanel.getNSamples();
 		}
-		return "minPTS{LB:" + minPTS + " Step:" + minPTSStep + " UB:" + minPTSBound + "} " + "Epsilon{LB:" + eps
-				+ " Step:" + epsStep + " UB:" + epsBound + "}";
+		return "minPTS{LB:" + minPTS + " UB:" + minPTSBound + "} " + "Epsilon{LB:" + eps + " UB:" + epsBound
+				+ " Samples:" + samples + "}";
 	}
 }

@@ -19,7 +19,11 @@ import clusterproject.clustergenerator.program.DimensionalityReduction.Panel.PCA
 
 public class PCAReducer implements IDimensionalityReduction {
 
-	PCAOptions pCAOptions = new PCAOptions();
+	PCAOptions pCAOptions;
+
+	public PCAReducer() {
+		pCAOptions = new PCAOptions();
+	}
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -33,19 +37,22 @@ public class PCAReducer implements IDimensionalityReduction {
 
 	@Override
 	public boolean reduce(PointContainer container) {
+		System.err.println(container);
 		if (container.getDim() < pCAOptions.getDim() || container.getPoints().size() < 2)
 			return false;
 		double[][] data = new double[container.getPoints().size()][];
 		data = container.getPoints().toArray(data);
-
+		System.err.println(container.getPoints().size());
 		final LinkedList<Vector> rowsList = new LinkedList<>();
 		for (int i = 0; i < data.length; i++) {
+			System.err.println(data[i][0]);
 			final Vector currentRow = Vectors.dense(data[i]);
 			rowsList.add(currentRow);
 		}
 
 		// XXX this may be changed for release
 		final SparkConf conf = new SparkConf().setAppName("JavaPCA").setMaster("local[*]");
+		conf.set("spark.driver.allowMultipleContexts", "true");
 		final JavaSparkContext jsc = new JavaSparkContext(conf);
 
 		final JavaRDD<Vector> rows = jsc.parallelize(rowsList);

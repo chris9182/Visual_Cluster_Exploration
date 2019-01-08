@@ -12,12 +12,12 @@ public class DBScanOptions extends JPanel {
 	private static final long serialVersionUID = 559822521256476978L;
 
 	private final JFormattedTextField lowerMinPTSField;
-	private final JFormattedTextField stepMinPTSField;
 	private final JFormattedTextField upperMinPTSField;
 
 	private final JFormattedTextField lowerEpsField;
-	private final JFormattedTextField stepEpsField;
 	private final JFormattedTextField upperEpsField;
+
+	private final JFormattedTextField NField;
 
 	private static final int INNER_PAD = 2;
 
@@ -46,23 +46,11 @@ public class DBScanOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, lminplbl, 0, SpringLayout.WEST, this);
 		add(lminplbl);
 
-		// step
-		stepMinPTSField = new JFormattedTextField(integerFieldFormatter);
-		stepMinPTSField.setValue(1);
-		stepMinPTSField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, stepMinPTSField, INNER_PAD, SpringLayout.SOUTH, lowerMinPTSField);
-		layout.putConstraint(SpringLayout.EAST, stepMinPTSField, 0, SpringLayout.EAST, this);
-		add(stepMinPTSField);
-		final JLabel sminplbl = new JLabel("step size:");
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sminplbl, 0, SpringLayout.VERTICAL_CENTER, stepMinPTSField);
-		layout.putConstraint(SpringLayout.WEST, sminplbl, 0, SpringLayout.WEST, this);
-		add(sminplbl);
-
 		// upperBound
 		upperMinPTSField = new JFormattedTextField(integerFieldFormatter);
 		upperMinPTSField.setValue(1);
 		upperMinPTSField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, upperMinPTSField, INNER_PAD, SpringLayout.SOUTH, stepMinPTSField);
+		layout.putConstraint(SpringLayout.NORTH, upperMinPTSField, INNER_PAD, SpringLayout.SOUTH, lowerMinPTSField);
 		layout.putConstraint(SpringLayout.EAST, upperMinPTSField, 0, SpringLayout.EAST, this);
 		add(upperMinPTSField);
 		final JLabel uminplbl = new JLabel("upper bound:");
@@ -89,23 +77,11 @@ public class DBScanOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, lepslbl, 0, SpringLayout.WEST, this);
 		add(lepslbl);
 
-		// step
-		stepEpsField = new JFormattedTextField(doubleFieldFormatter);
-		stepEpsField.setValue(new Double(1.0));
-		stepEpsField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, stepEpsField, INNER_PAD, SpringLayout.SOUTH, lowerEpsField);
-		layout.putConstraint(SpringLayout.EAST, stepEpsField, 0, SpringLayout.EAST, this);
-		add(stepEpsField);
-		final JLabel sepslbl = new JLabel("step size:");
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sepslbl, 0, SpringLayout.VERTICAL_CENTER, stepEpsField);
-		layout.putConstraint(SpringLayout.WEST, sepslbl, 0, SpringLayout.WEST, this);
-		add(sepslbl);
-
 		// upperBound
 		upperEpsField = new JFormattedTextField(doubleFieldFormatter);
 		upperEpsField.setValue(new Double(1.0));
 		upperEpsField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, upperEpsField, INNER_PAD, SpringLayout.SOUTH, stepEpsField);
+		layout.putConstraint(SpringLayout.NORTH, upperEpsField, INNER_PAD, SpringLayout.SOUTH, lowerEpsField);
 		layout.putConstraint(SpringLayout.EAST, upperEpsField, 0, SpringLayout.EAST, this);
 		add(upperEpsField);
 		final JLabel uepslbl = new JLabel("upper bound:");
@@ -113,14 +89,25 @@ public class DBScanOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, uepslbl, 0, SpringLayout.WEST, this);
 		add(uepslbl);
 
+		NField = new JFormattedTextField(integerFieldFormatter);
+		NField.setValue(1);
+		NField.setColumns(5);
+		layout.putConstraint(SpringLayout.NORTH, NField, 5 * INNER_PAD, SpringLayout.SOUTH, upperEpsField);
+		layout.putConstraint(SpringLayout.EAST, NField, 0, SpringLayout.EAST, this);
+		add(NField);
+		final JLabel sminplbl = new JLabel("Samples:");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sminplbl, 0, SpringLayout.VERTICAL_CENTER, NField);
+		layout.putConstraint(SpringLayout.WEST, sminplbl, 0, SpringLayout.WEST, this);
+		add(sminplbl);
+
 	}
 
 	public int getLBMinPTS() {
 		return Integer.parseInt(lowerMinPTSField.getText());
 	}
 
-	public int getStepMinPTS() {
-		return Integer.parseInt(stepMinPTSField.getText());
+	public int getNSamples() {
+		return Integer.parseInt(NField.getText());
 	}
 
 	public int getUBMinPTS() {
@@ -132,18 +119,6 @@ public class DBScanOptions extends JPanel {
 		Number number;
 		try {
 			number = format.parse(lowerEpsField.getText());
-		} catch (final ParseException e1) {
-			e1.printStackTrace();
-			return 0;
-		}
-		return number.doubleValue();
-	}
-
-	public double getStepEps() {
-		final NumberFormat format = NumberFormat.getInstance();
-		Number number;
-		try {
-			number = format.parse(stepEpsField.getText());
 		} catch (final ParseException e1) {
 			e1.printStackTrace();
 			return 0;

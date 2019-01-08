@@ -7,7 +7,11 @@ import clusterproject.clustergenerator.program.Generator.Panel.SinglePointOption
 
 public class SinglePointGenerator implements IGenerator {
 
-	private final SinglePointOptions optionsPanel = new SinglePointOptions();
+	private final SinglePointOptions optionsPanel;
+
+	public SinglePointGenerator() {
+		optionsPanel = new SinglePointOptions();
+	}
 
 	@Override
 	public JPanel getOptionsPanel() {

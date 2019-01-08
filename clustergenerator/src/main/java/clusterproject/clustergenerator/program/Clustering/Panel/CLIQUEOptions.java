@@ -12,11 +12,10 @@ public class CLIQUEOptions extends JPanel {
 	private static final long serialVersionUID = -3850715094627642884L;
 
 	private final JFormattedTextField lowerxsiField;
-	private final JFormattedTextField stepxsiField;
+	private final JFormattedTextField NField;
 	private final JFormattedTextField upperxsiField;
 
 	private final JFormattedTextField lowertauField;
-	private final JFormattedTextField steptauField;
 	private final JFormattedTextField uppertauField;
 
 	private static final int INNER_PAD = 2;
@@ -46,23 +45,11 @@ public class CLIQUEOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, lminplbl, 0, SpringLayout.WEST, this);
 		add(lminplbl);
 
-		// step
-		stepxsiField = new JFormattedTextField(integerFieldFormatter);
-		stepxsiField.setValue(1);
-		stepxsiField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, stepxsiField, INNER_PAD, SpringLayout.SOUTH, lowerxsiField);
-		layout.putConstraint(SpringLayout.EAST, stepxsiField, 0, SpringLayout.EAST, this);
-		add(stepxsiField);
-		final JLabel sminplbl = new JLabel("step size:");
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sminplbl, 0, SpringLayout.VERTICAL_CENTER, stepxsiField);
-		layout.putConstraint(SpringLayout.WEST, sminplbl, 0, SpringLayout.WEST, this);
-		add(sminplbl);
-
 		// upperBound
 		upperxsiField = new JFormattedTextField(integerFieldFormatter);
 		upperxsiField.setValue(1);
 		upperxsiField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, upperxsiField, INNER_PAD, SpringLayout.SOUTH, stepxsiField);
+		layout.putConstraint(SpringLayout.NORTH, upperxsiField, INNER_PAD, SpringLayout.SOUTH, lowerxsiField);
 		layout.putConstraint(SpringLayout.EAST, upperxsiField, 0, SpringLayout.EAST, this);
 		add(upperxsiField);
 		final JLabel uminplbl = new JLabel("upper bound:");
@@ -89,23 +76,11 @@ public class CLIQUEOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, ltaulbl, 0, SpringLayout.WEST, this);
 		add(ltaulbl);
 
-		// step
-		steptauField = new JFormattedTextField(doubleFieldFormatter);
-		steptauField.setValue(new Double(1.0));
-		steptauField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, steptauField, INNER_PAD, SpringLayout.SOUTH, lowertauField);
-		layout.putConstraint(SpringLayout.EAST, steptauField, 0, SpringLayout.EAST, this);
-		add(steptauField);
-		final JLabel staulbl = new JLabel("step size:");
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, staulbl, 0, SpringLayout.VERTICAL_CENTER, steptauField);
-		layout.putConstraint(SpringLayout.WEST, staulbl, 0, SpringLayout.WEST, this);
-		add(staulbl);
-
 		// upperBound
 		uppertauField = new JFormattedTextField(doubleFieldFormatter);
 		uppertauField.setValue(new Double(1.0));
 		uppertauField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, uppertauField, INNER_PAD, SpringLayout.SOUTH, steptauField);
+		layout.putConstraint(SpringLayout.NORTH, uppertauField, INNER_PAD, SpringLayout.SOUTH, lowertauField);
 		layout.putConstraint(SpringLayout.EAST, uppertauField, 0, SpringLayout.EAST, this);
 		add(uppertauField);
 		final JLabel utaulbl = new JLabel("upper bound:");
@@ -113,14 +88,25 @@ public class CLIQUEOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, utaulbl, 0, SpringLayout.WEST, this);
 		add(utaulbl);
 
+		NField = new JFormattedTextField(integerFieldFormatter);
+		NField.setValue(1);
+		NField.setColumns(5);
+		layout.putConstraint(SpringLayout.NORTH, NField, 5 * INNER_PAD, SpringLayout.SOUTH, uppertauField);
+		layout.putConstraint(SpringLayout.EAST, NField, 0, SpringLayout.EAST, this);
+		add(NField);
+		final JLabel sminplbl = new JLabel("Samples:");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sminplbl, 0, SpringLayout.VERTICAL_CENTER, NField);
+		layout.putConstraint(SpringLayout.WEST, sminplbl, 0, SpringLayout.WEST, this);
+		add(sminplbl);
+
 	}
 
 	public int getLBxsi() {
 		return Integer.parseInt(lowerxsiField.getText());
 	}
 
-	public int getStepxsi() {
-		return Integer.parseInt(stepxsiField.getText());
+	public int getNSamples() {
+		return Integer.parseInt(NField.getText());
 	}
 
 	public int getUBxsi() {
@@ -132,18 +118,6 @@ public class CLIQUEOptions extends JPanel {
 		Number number;
 		try {
 			number = format.parse(lowertauField.getText());
-		} catch (final ParseException e1) {
-			e1.printStackTrace();
-			return 0;
-		}
-		return number.doubleValue();
-	}
-
-	public double getSteptau() {
-		final NumberFormat format = NumberFormat.getInstance();
-		Number number;
-		try {
-			number = format.parse(steptauField.getText());
 		} catch (final ParseException e1) {
 			e1.printStackTrace();
 			return 0;

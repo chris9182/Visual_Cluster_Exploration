@@ -12,12 +12,12 @@ public class DiSHOptions extends JPanel {
 	private static final long serialVersionUID = 1723051853199455897L;
 
 	private final JFormattedTextField lowerMuField;
-	private final JFormattedTextField stepMuField;
 	private final JFormattedTextField upperMuField;
 
 	private final JFormattedTextField lowerEpsField;
-	private final JFormattedTextField stepEpsField;
 	private final JFormattedTextField upperEpsField;
+
+	private final JFormattedTextField NField;
 
 	private static final int INNER_PAD = 2;
 
@@ -46,23 +46,11 @@ public class DiSHOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, lminplbl, 0, SpringLayout.WEST, this);
 		add(lminplbl);
 
-		// step
-		stepMuField = new JFormattedTextField(integerFieldFormatter);
-		stepMuField.setValue(1);
-		stepMuField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, stepMuField, INNER_PAD, SpringLayout.SOUTH, lowerMuField);
-		layout.putConstraint(SpringLayout.EAST, stepMuField, 0, SpringLayout.EAST, this);
-		add(stepMuField);
-		final JLabel sminplbl = new JLabel("step size:");
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sminplbl, 0, SpringLayout.VERTICAL_CENTER, stepMuField);
-		layout.putConstraint(SpringLayout.WEST, sminplbl, 0, SpringLayout.WEST, this);
-		add(sminplbl);
-
 		// upperBound
 		upperMuField = new JFormattedTextField(integerFieldFormatter);
 		upperMuField.setValue(1);
 		upperMuField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, upperMuField, INNER_PAD, SpringLayout.SOUTH, stepMuField);
+		layout.putConstraint(SpringLayout.NORTH, upperMuField, INNER_PAD, SpringLayout.SOUTH, lowerMuField);
 		layout.putConstraint(SpringLayout.EAST, upperMuField, 0, SpringLayout.EAST, this);
 		add(upperMuField);
 		final JLabel uminplbl = new JLabel("upper bound:");
@@ -89,23 +77,11 @@ public class DiSHOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, lepslbl, 0, SpringLayout.WEST, this);
 		add(lepslbl);
 
-		// step
-		stepEpsField = new JFormattedTextField(doubleFieldFormatter);
-		stepEpsField.setValue(new Double(1.0));
-		stepEpsField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, stepEpsField, INNER_PAD, SpringLayout.SOUTH, lowerEpsField);
-		layout.putConstraint(SpringLayout.EAST, stepEpsField, 0, SpringLayout.EAST, this);
-		add(stepEpsField);
-		final JLabel sepslbl = new JLabel("step size:");
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sepslbl, 0, SpringLayout.VERTICAL_CENTER, stepEpsField);
-		layout.putConstraint(SpringLayout.WEST, sepslbl, 0, SpringLayout.WEST, this);
-		add(sepslbl);
-
 		// upperBound
 		upperEpsField = new JFormattedTextField(doubleFieldFormatter);
 		upperEpsField.setValue(new Double(1.0));
 		upperEpsField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, upperEpsField, INNER_PAD, SpringLayout.SOUTH, stepEpsField);
+		layout.putConstraint(SpringLayout.NORTH, upperEpsField, INNER_PAD, SpringLayout.SOUTH, lowerEpsField);
 		layout.putConstraint(SpringLayout.EAST, upperEpsField, 0, SpringLayout.EAST, this);
 		add(upperEpsField);
 		final JLabel uepslbl = new JLabel("upper bound:");
@@ -113,14 +89,25 @@ public class DiSHOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, uepslbl, 0, SpringLayout.WEST, this);
 		add(uepslbl);
 
+		NField = new JFormattedTextField(integerFieldFormatter);
+		NField.setValue(1);
+		NField.setColumns(5);
+		layout.putConstraint(SpringLayout.NORTH, NField, 5 * INNER_PAD, SpringLayout.SOUTH, upperEpsField);
+		layout.putConstraint(SpringLayout.EAST, NField, 0, SpringLayout.EAST, this);
+		add(NField);
+		final JLabel sminplbl = new JLabel("Samples:");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sminplbl, 0, SpringLayout.VERTICAL_CENTER, NField);
+		layout.putConstraint(SpringLayout.WEST, sminplbl, 0, SpringLayout.WEST, this);
+		add(sminplbl);
+
 	}
 
 	public int getLBMu() {
 		return Integer.parseInt(lowerMuField.getText());
 	}
 
-	public int getStepMu() {
-		return Integer.parseInt(stepMuField.getText());
+	public int getNSamples() {
+		return Integer.parseInt(NField.getText());
 	}
 
 	public int getUBMu() {
@@ -132,18 +119,6 @@ public class DiSHOptions extends JPanel {
 		Number number;
 		try {
 			number = format.parse(lowerEpsField.getText());
-		} catch (final ParseException e1) {
-			e1.printStackTrace();
-			return 0;
-		}
-		return number.doubleValue();
-	}
-
-	public double getStepEps() {
-		final NumberFormat format = NumberFormat.getInstance();
-		Number number;
-		try {
-			number = format.parse(stepEpsField.getText());
 		} catch (final ParseException e1) {
 			e1.printStackTrace();
 			return 0;

@@ -25,6 +25,7 @@ import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.program.ClusterWorkflow;
+import clusterproject.clustergenerator.program.IClickHandler;
 import clusterproject.clustergenerator.program.MainWindow;
 import clusterproject.clustergenerator.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.clustergenerator.program.ClusterViewerElement.ScatterPlotMatrix;
@@ -35,7 +36,7 @@ import clusterproject.clustergenerator.program.MetaClustering.IDistanceMeasure;
 import clusterproject.clustergenerator.program.MetaClustering.OpticsMetaClustering;
 import smile.mds.MDS;
 
-public class ClusteringViewer extends JFrame {
+public class ClusteringViewer extends JFrame implements IClickHandler {
 
 	/**
 	 *
@@ -224,7 +225,7 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.EAST, oPlot, -VIEWER_SPACE, SpringLayout.EAST, mainPanel);
 		mainPanel.add(oPlot, new Integer(10));
 
-		mdsPlot.setClickHandler(oPlot);
+		mdsPlot.setClickHandler(this);
 
 		heatMap = new HeatMap(Util.getSortedDistances(list, distanceMatrix), this, list);
 		layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
@@ -379,6 +380,14 @@ public class ClusteringViewer extends JFrame {
 
 	public IDistanceMeasure getDistanceMeasure() {
 		return metaDistance;
+	}
+
+	@Override
+	public void handleClick(double[] point) {
+		final int closest = getClosestPoint(point);
+		if (closest != -1)
+			highlight(closest);
+
 	}
 
 }

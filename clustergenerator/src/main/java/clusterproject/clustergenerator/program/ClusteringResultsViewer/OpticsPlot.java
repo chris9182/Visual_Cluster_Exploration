@@ -19,10 +19,9 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import clusterproject.clustergenerator.Util;
-import clusterproject.clustergenerator.program.IClickHandler;
 import clusterproject.clustergenerator.program.MetaClustering.ClusteringWithDistance;
 
-public class OpticsPlot extends JLayeredPane implements IClickHandler {
+public class OpticsPlot extends JLayeredPane {
 
 	/**
 	 *
@@ -181,14 +180,6 @@ public class OpticsPlot extends JLayeredPane implements IClickHandler {
 
 	public void highlight(int selection) {
 		clusteringViewer.highlight(selection);
-	}
-
-	@Override
-	public void handleClick(double[] point) {
-		final int closest = clusteringViewer.getClosestPoint(point);
-		if (closest != -1)
-			highlight(closest);
-
 	}
 
 	private class OpticsBar extends JComponent {
