@@ -1,8 +1,7 @@
 package clusterproject.clustergenerator.program.ClusteringResultsViewer;
 
-import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ComponentAdapter;
@@ -18,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -26,19 +26,17 @@ import javax.swing.JLayeredPane;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
-import com.jidesoft.swing.RangeSlider;
-
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.program.MainWindow;
+import clusterproject.clustergenerator.program.slider.RangeSlider;
+import clusterproject.clustergenerator.program.slider.RangeSliderUI;
 
 public class FilterWindow extends JFrame {
 
 	private static final long serialVersionUID = 1052960199516074256L;
-	private static final int BARWIDTH = 10;
-	private static final int BARVOFFSET = 8;
-	private static final int BARHOFFSET = 16;
 	private static final int SPACING = 10;
-	private static final int SLIDERWIDTH = 70;
+	private static final int ABOVE_BAR_SPACE = 100;
+	private static final int SLIDERHEIGHT = 30;
 
 	private final JLayeredPane mainPane = new JLayeredPane();
 	private final SpringLayout mainLayout = new SpringLayout();
@@ -147,15 +145,21 @@ public class FilterWindow extends JFrame {
 		selectors = new HashMap<String, Object>();
 
 		final Iterator<String> clusteringNamesIt = clusteringNames.iterator();
-		final int clusteringNameWidth = getWidth() / clusteringNames.size();
+		final int clusteringNameWidth = getHeight() / clusteringNames.size();
+		Component lastComponent = Box.createVerticalStrut(0);
+		mainLayout.putConstraint(SpringLayout.NORTH, lastComponent, 0, SpringLayout.NORTH, mainPane);
+		mainPane.add(lastComponent, new Integer(0));
+
 		for (int i = 0; i < clusteringNames.size(); ++i) {
 			final String clusteringName = clusteringNamesIt.next();
 			final JLabel clusteringNameLabel = new JLabel(clusteringName);
-			final int clusteringNameCenter = getWidth() / (clusteringNames.size()) * (i)
-					+ getWidth() / (clusteringNames.size()) / 2;
-			mainLayout.putConstraint(SpringLayout.NORTH, clusteringNameLabel, SPACING, SpringLayout.NORTH, mainPane);
-			mainLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, clusteringNameLabel, clusteringNameCenter,
-					SpringLayout.WEST, mainPane);
+			final int clusteringNameCenter = getHeight() / (clusteringNames.size()) * (i)
+					+ getHeight() / (clusteringNames.size()) / 2;
+			mainLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, clusteringNameLabel, 0,
+					SpringLayout.HORIZONTAL_CENTER, mainPane);
+			mainLayout.putConstraint(SpringLayout.NORTH, clusteringNameLabel, 2 * SPACING, SpringLayout.SOUTH,
+					lastComponent);
+			lastComponent = clusteringNameLabel;
 			mainPane.add(clusteringNameLabel, new Integer(2));
 			// System.err.println(clusteringName);
 			final Iterator<String> parameterNamesIt = parameterNames.get(i).iterator();
@@ -164,11 +168,12 @@ public class FilterWindow extends JFrame {
 				final String parameterName = parameterNamesIt.next();
 				final JLabel parameterNameLabel = new JLabel(parameterName);
 				final int clusteringParameterCenter = clusteringNameWidth / (parameterNames.get(i).size()) * (j)
-						+ clusteringNameWidth / (parameterNames.get(i).size()) / 2 + parameterStart;
+						+ parameterStart;
+				mainLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, parameterNameLabel, 0,
+						SpringLayout.HORIZONTAL_CENTER, clusteringNameLabel);
 				mainLayout.putConstraint(SpringLayout.NORTH, parameterNameLabel, SPACING, SpringLayout.SOUTH,
-						clusteringNameLabel);
-				mainLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, parameterNameLabel, clusteringParameterCenter,
-						SpringLayout.WEST, mainPane);
+						lastComponent);
+				lastComponent = parameterNameLabel;
 				mainPane.add(parameterNameLabel, new Integer(2));
 				// System.err.println(" " + parameterName);
 				double max = Double.MIN_VALUE;
@@ -197,15 +202,19 @@ public class FilterWindow extends JFrame {
 				}
 				if (max != Double.MIN_VALUE) {
 					final RangeSlider slider = new MyRangeSlider(min, max);
+					((RangeSliderUI) slider.getUI()).getTrackRectangle();// TODO use for bounds with plot
+					slider.setSize(new Dimension(getWidth(), SLIDERHEIGHT));
 					if (min == max)
 						slider.setEnabled(false);
 					selectors.put(clusteringName + " " + parameterName, slider);
-					mainLayout.putConstraint(SpringLayout.NORTH, slider, SPACING, SpringLayout.SOUTH,
+					mainLayout.putConstraint(SpringLayout.NORTH, slider, ABOVE_BAR_SPACE, SpringLayout.SOUTH,
 							parameterNameLabel);
-					mainLayout.putConstraint(SpringLayout.SOUTH, slider, -SPACING, SpringLayout.NORTH, filterButton);
-					mainLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, slider, 0, SpringLayout.HORIZONTAL_CENTER,
-							parameterNameLabel);
-					mainPane.add(slider, new Integer(2));
+					mainLayout.putConstraint(SpringLayout.SOUTH, slider, ABOVE_BAR_SPACE + SLIDERHEIGHT,
+							SpringLayout.SOUTH, parameterNameLabel);
+					mainLayout.putConstraint(SpringLayout.WEST, slider, 0, SpringLayout.WEST, mainPane);
+					mainLayout.putConstraint(SpringLayout.EAST, slider, 0, SpringLayout.EAST, mainPane);
+					lastComponent = slider;
+					mainPane.add(slider, new Integer(3));
 				} else {
 					System.err.println("no values found");
 				}
@@ -220,62 +229,52 @@ public class FilterWindow extends JFrame {
 
 	private class MyRangeSlider extends RangeSlider {
 		private static final long serialVersionUID = -1145841853132161271L;
-		private final List<JLabel> labels = new ArrayList<JLabel>();
+		private static final int LABEL_COUNT = 6;
+		private static final int TICK_COUNT = 1000;
 		private final double minLbl;
 		private final double maxLbl;
 		private final JLabel tooltip = new JLabel();
 
 		public MyRangeSlider(double minLbl, double maxLbl) {
-			super(RangeSlider.VERTICAL);
 			this.minLbl = minLbl;
 			this.maxLbl = maxLbl;
 			setOpaque(false);
 			setMinimum(0);
-			setMaximum(10000);
-			setLowValue(0);
-			setHighValue(10000);
-			setRangeDraggable(true);
-			setPaintTrack(false);
+			setMaximum(TICK_COUNT);
+			setValue(0);
+			setUpperValue(TICK_COUNT);
+			setFocusable(false);
 			setPaintLabels(true);
 			final Dictionary<Integer, JComponent> dict = new Hashtable<Integer, JComponent>();
-			for (int i = 0; i < 11; ++i) {
-				final JLabel label = new JLabel("   " + (float) ((maxLbl - minLbl) * (i) / 10 + minLbl));
+			for (int i = 0; i < LABEL_COUNT; ++i) {
+				final JLabel label = new JLabel("   " + (float) ((maxLbl - minLbl) * (i) / (LABEL_COUNT - 1) + minLbl));
 				// String.format("%.3f", (maxLbl - minLbl) * i + minLbl));
-				labels.add(label);
-				dict.put(i * 1000, label);
+				dict.put(i * TICK_COUNT / (LABEL_COUNT - 1), label);
 			}
 			setLabelTable(dict);
 			final JFrame tooltipFrame = new JFrame();
-
+			tooltipFrame.setType(javax.swing.JFrame.Type.UTILITY);
 			tooltipFrame.setUndecorated(true);
 			tooltipFrame.getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 			tooltip.setOpaque(false);
 			tooltipFrame.add(tooltip);
-			tooltip.setText((String.valueOf((float) getUpperValue())) + " <-> " + ((float) getLowerValue()));
+			tooltip.setText((String.valueOf(((float) getLowerValue()) + " <-> " + (float) getUpperValueD())));
 			addChangeListener(e -> {
-				tooltip.setText((String.valueOf((float) getUpperValue())) + " <-> " + ((float) getLowerValue()));
+				tooltip.setText((String.valueOf(((float) getLowerValue()) + " <-> " + (float) getUpperValueD())));
 				final Point p = MouseInfo.getPointerInfo().getLocation();
-				int labelwidth = 0;
-				for (final JLabel label : labels)
-					if (label.getWidth() > labelwidth)
-						labelwidth = label.getWidth();
 				tooltipFrame.pack();
-				tooltipFrame.setLocation((int) (getLocationOnScreen().getX() + getWidth() / 2),
-						(int) p.getY() - tooltipFrame.getHeight() / 2);
+				tooltipFrame.setLocation((int) p.getX() - tooltipFrame.getWidth() / 2,
+						(int) (getLocationOnScreen().getY() - getHeight() / 2));
 				tooltipFrame.setVisible(true);
 			});
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
-					tooltip.setText((String.valueOf((float) getUpperValue())) + " <-> " + ((float) getLowerValue()));
+					tooltip.setText((String.valueOf(((float) getLowerValue()) + " <-> " + (float) getUpperValueD())));
 					final Point p = MouseInfo.getPointerInfo().getLocation();
-					int labelwidth = 0;
-					for (final JLabel label : labels)
-						if (label.getWidth() > labelwidth)
-							labelwidth = label.getWidth();
 					tooltipFrame.pack();
-					tooltipFrame.setLocation((int) (getLocationOnScreen().getX() + getWidth() / 2),
-							(int) p.getY() - tooltipFrame.getHeight() / 2);
+					tooltipFrame.setLocation((int) p.getX() - tooltipFrame.getWidth() / 2,
+							(int) (getLocationOnScreen().getY() - getHeight() / 2));
 					tooltipFrame.setVisible(true);
 				}
 
@@ -291,28 +290,14 @@ public class FilterWindow extends JFrame {
 			});
 		}
 
-		public double getUpperValue() {
-			return (maxLbl - minLbl) * ((double) getHighValue() / 10000) + minLbl;
+		public double getUpperValueD() {
+			return (maxLbl - minLbl) * ((double) getUpperValue() / TICK_COUNT) + minLbl;
 		}
 
 		public double getLowerValue() {
-			return (maxLbl - minLbl) * ((double) getLowValue() / 10000) + minLbl;
+			return (maxLbl - minLbl) * ((double) getValue() / TICK_COUNT) + minLbl;
 		}
 
-		@Override
-		public void paint(Graphics g) {
-			final Color c = g.getColor();
-			g.setColor(Color.black);
-			int labelwidth = 0;
-			for (final JLabel label : labels)
-				if (label.getWidth() > labelwidth)
-					labelwidth = label.getWidth();
-			g.drawRect(getWidth() / 2 - BARWIDTH + BARHOFFSET - labelwidth / 2, BARVOFFSET, BARWIDTH / 2,
-					getHeight() - 2 * BARVOFFSET);
-			g.setColor(c);
-			super.paint(g);
-
-		}
 	};
 
 }

@@ -45,6 +45,7 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 
 	private static final int OUTER_SPACE = 20;
 	public static final int VIEWER_SPACE = 4;
+	private static final int RIGHT_PANEL_WIDTH = 300;
 
 	private final List<ClusteringResult> clusterings;
 	private final List<ScatterPlot> viewers;
@@ -205,9 +206,11 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 		mdsPlot.addAutoAdjust();
 		mdsPlot.autoAdjust();
 		layout.putConstraint(SpringLayout.NORTH, mdsPlot, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
-		layout.putConstraint(SpringLayout.WEST, mdsPlot, VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, mdsPlot, VIEWER_SPACE - RIGHT_PANEL_WIDTH / 2,
+				SpringLayout.HORIZONTAL_CENTER, mainPanel);
 		layout.putConstraint(SpringLayout.SOUTH, mdsPlot, -VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
-		layout.putConstraint(SpringLayout.EAST, mdsPlot, -VIEWER_SPACE, SpringLayout.EAST, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, mdsPlot, -VIEWER_SPACE - RIGHT_PANEL_WIDTH, SpringLayout.EAST,
+				mainPanel);
 		mainPanel.add(mdsPlot, new Integer(9));
 
 		final JLabel mdsLabel = new JLabel("MDS Plot");
@@ -220,16 +223,18 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 		final List<ClusteringWithDistance> list = optics.runOptics();
 		oPlot = new OpticsPlot(this, list);
 		layout.putConstraint(SpringLayout.NORTH, oPlot, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
-		layout.putConstraint(SpringLayout.WEST, oPlot, VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, oPlot, VIEWER_SPACE - RIGHT_PANEL_WIDTH / 2,
+				SpringLayout.HORIZONTAL_CENTER, mainPanel);
 		layout.putConstraint(SpringLayout.SOUTH, oPlot, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
-		layout.putConstraint(SpringLayout.EAST, oPlot, -VIEWER_SPACE, SpringLayout.EAST, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, oPlot, -VIEWER_SPACE - RIGHT_PANEL_WIDTH, SpringLayout.EAST, mainPanel);
 		mainPanel.add(oPlot, new Integer(10));
 
 		mdsPlot.setClickHandler(this);
 
 		heatMap = new HeatMap(Util.getSortedDistances(list, distanceMatrix), this, list);
 		layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
-		layout.putConstraint(SpringLayout.EAST, heatMap, -VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, heatMap, -VIEWER_SPACE - RIGHT_PANEL_WIDTH / 2,
+				SpringLayout.HORIZONTAL_CENTER, mainPanel);
 		layout.putConstraint(SpringLayout.SOUTH, heatMap, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
 		layout.putConstraint(SpringLayout.WEST, heatMap, VIEWER_SPACE, SpringLayout.WEST, mainPanel);
 		mainPanel.add(heatMap, new Integer(10));
@@ -286,8 +291,8 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 		layout.putConstraint(SpringLayout.NORTH, visibleViewer, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
 		layout.putConstraint(SpringLayout.SOUTH, visibleViewer, -VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
 		layout.putConstraint(SpringLayout.WEST, visibleViewer, VIEWER_SPACE, SpringLayout.WEST, mainPanel);
-		layout.putConstraint(SpringLayout.EAST, visibleViewer, -VIEWER_SPACE, SpringLayout.HORIZONTAL_CENTER,
-				mainPanel);
+		layout.putConstraint(SpringLayout.EAST, visibleViewer, -VIEWER_SPACE - RIGHT_PANEL_WIDTH / 2,
+				SpringLayout.HORIZONTAL_CENTER, mainPanel);
 		mainPanel.add(visibleViewer, new Integer(2));
 		visibleViewer.setVisible(false);
 
