@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -121,6 +122,10 @@ public class OpticsPlot extends JLayeredPane {
 		return clusteringViewer.getHighlighted();
 	}
 
+	public Set<Integer> getFilteredIndexes() {
+		return clusteringViewer.getFilteredIndexes();
+	}
+
 	void adaptThreshhold(double newthreshhold) {
 
 		if (newthreshhold < 0)
@@ -205,10 +210,28 @@ public class OpticsPlot extends JLayeredPane {
 
 			super.paint(g);
 			final boolean highlighted = myid == plot.getHighlighted();
+			final Set<Integer> filtered = plot.getFilteredIndexes();
 			if (getWidth() - INNER_SPACE > BORDER_MIN_SIZE && !highlighted) {
-				g.setColor(color);
+				if (filtered == null) {
+					g.setColor(color);
+				} else {
+					if (filtered.contains(myid)) {
+						g.setColor(color);
+					} else {
+						g.setColor(Color.GRAY);
+					}
+				}
 				g.fillRect(INNER_SPACE / 2, (int) (getHeight() * (1 - heightPercent)) + 1, getWidth() - INNER_SPACE,
 						(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
+				if (filtered == null) {
+					g.setColor(Color.BLACK);
+				} else {
+					if (filtered.contains(myid)) {
+						g.setColor(Color.BLACK);
+					} else {
+						g.setColor(Color.GRAY);
+					}
+				}
 				g.setColor(Color.black);
 				g.drawRect(INNER_SPACE / 2, (int) Math.min((getHeight() * (1 - heightPercent)), getHeight() - 2),
 						getWidth() - INNER_SPACE,
@@ -221,7 +244,15 @@ public class OpticsPlot extends JLayeredPane {
 					g.fillRect(0, (int) (getHeight() * (1 - heightPercent)), getWidth(),
 							(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
 				} else {
-					g.setColor(color);
+					if (filtered == null) {
+						g.setColor(color);
+					} else {
+						if (filtered.contains(myid)) {
+							g.setColor(color);
+						} else {
+							g.setColor(Color.GRAY);
+						}
+					}
 					g.fillRect(0, (int) (getHeight() * (1 - heightPercent)), getWidth(),
 							(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
 				}

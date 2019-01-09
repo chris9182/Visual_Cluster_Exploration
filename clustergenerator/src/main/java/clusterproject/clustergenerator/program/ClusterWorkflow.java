@@ -439,17 +439,17 @@ public class ClusterWorkflow extends JFrame {
 		wfPanel.setPreferredSize(new Dimension(0, MainWindow.INNER_SPACE
 				+ workflow.size() * (MainWindow.INNER_SPACE + executeClusterersButton.getHeight())));
 		mainPanel.add(wfScrollPane, new Integer(1));
+		SwingUtilities.invokeLater(() -> {
+			revalidate();
+			repaint();
+
+		});
 
 	}
 
 	private void removeFromWorkflow(IClusterer clusterer) {
 		workflow.remove(clusterer);
 		showWorkflow();
-		SwingUtilities.invokeLater(() -> {
-			revalidate();
-			repaint();
-		});
-
 	}
 
 	private void initDistances() {

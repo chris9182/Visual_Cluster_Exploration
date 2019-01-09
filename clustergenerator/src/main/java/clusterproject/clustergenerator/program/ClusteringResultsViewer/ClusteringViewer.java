@@ -1,6 +1,9 @@
 package clusterproject.clustergenerator.program.ClusteringResultsViewer;
 
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,6 +14,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.IntStream;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -21,11 +28,12 @@ import javax.swing.JLayeredPane;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
+import com.google.common.util.concurrent.AtomicDouble;
+
 import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.program.ClusterWorkflow;
-import clusterproject.clustergenerator.program.IClickHandler;
 import clusterproject.clustergenerator.program.MainWindow;
 import clusterproject.clustergenerator.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.clustergenerator.program.ClusterViewerElement.ScatterPlotMatrix;
@@ -36,7 +44,7 @@ import clusterproject.clustergenerator.program.MetaClustering.IDistanceMeasure;
 import clusterproject.clustergenerator.program.MetaClustering.OpticsMetaClustering;
 import smile.mds.MDS;
 
-public class ClusteringViewer extends JFrame implements IClickHandler {
+public class ClusteringViewer extends JFrame {
 
 	/**
 	 *
@@ -73,6 +81,8 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 	private JButton mainWindowButton;
 
 	private HeatMap heatMap;
+
+	private Set<Integer> filteredIndexes;
 
 	public ClusteringViewer(List<ClusteringResult> sClusterings, IDistanceMeasure metaDistance, int minPTS,
 			double eps) {
@@ -215,7 +225,15 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 		layout.putConstraint(SpringLayout.EAST, oPlot, -VIEWER_SPACE - RIGHT_PANEL_WIDTH, SpringLayout.EAST, mainPanel);
 		mainPanel.add(oPlot, new Integer(10));
 
-		mdsPlot.setClickHandler(this);
+		mdsPlot.setCanvasMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				final int closest = getClosestPoint(e.getPoint());
+				if (closest != -1)
+					highlight(closest);
+				super.mouseClicked(e);
+			}
+		});
 
 		heatMap = new HeatMap(Util.getSortedDistances(list, distanceMatrix), this, list);
 		layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
@@ -280,7 +298,7 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 			visibleViewer = null;
 		}
 		currentClustering = i;
-		visibleViewer = viewers.get(i);
+		visibleViewer = newViewer;
 		layout.putConstraint(SpringLayout.NORTH, visibleViewer, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
 		layout.putConstraint(SpringLayout.SOUTH, visibleViewer, -VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
 		layout.putConstraint(SpringLayout.WEST, visibleViewer, VIEWER_SPACE, SpringLayout.WEST, mainPanel);
@@ -290,7 +308,7 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 		visibleViewer.setVisible(false);
 
 		SwingUtilities.invokeLater(() -> {
-			revalidate();
+			revalidate();// TODO: this is slow
 			visibleViewer.setVisible(true);
 			visibleViewer.repaint();
 
@@ -357,35 +375,51 @@ public class ClusteringViewer extends JFrame implements IClickHandler {
 		return highlighted;
 	}
 
-	public int getClosestPoint(double[] point) {
-		double distance = Double.MAX_VALUE;
-		int closest = -1;
+	public int getClosestPoint(Point point) {
+		final AtomicDouble distance = new AtomicDouble(Double.MAX_VALUE);
+		final AtomicInteger closest = new AtomicInteger(-1);
+		final ReentrantLock lock = new ReentrantLock();
 		final List<double[]> points = mdsPlot.getPointContainer().getPoints();
-		final int x = mdsPlot.getSelectedDimX();
-		final int y = mdsPlot.getSelectedDimY();
-		for (int i = 0; i < points.size(); ++i) {
-			final double offsetx = (points.get(i)[x] - point[x]);
-			final double offsety = (points.get(i)[y] - point[y]);
+		final IntStream stream = IntStream.range(0, points.size());
+		stream.parallel().forEach(i -> {
+			final double offsetx = (mdsPlot.getPixelX(points.get(i)) - point.getX());
+			final double offsety = (mdsPlot.getPixelY(points.get(i)) - point.getY());
 			final double curDistance = offsetx * offsetx + offsety * offsety;
-			if (curDistance < distance) {
-				distance = curDistance;
-				closest = i;
+			lock.lock();
+			if (curDistance < distance.get()) {
+				distance.lazySet(curDistance);
+				closest.set(i);
 			}
-		}
-
-		return closest;
+			lock.unlock();
+		});
+		return closest.get();
 	}
 
 	public IDistanceMeasure getDistanceMeasure() {
 		return metaDistance;
 	}
 
-	@Override
-	public void handleClick(double[] point) {
-		final int closest = getClosestPoint(point);
-		if (closest != -1)
-			highlight(closest);
+	public void setFilteredData(Set<ClusteringResult> filteredResults) {
+		this.filteredIndexes = null;// TODO display not contained ClusteringResults differently
+		if (filteredResults == null)
+			mdsPlot.getPointContainer().setFilteredResults(null);
+		else {
+			final Set<Integer> filteredIndexes = new HashSet<>();
+			for (final ClusteringResult result : filteredResults)
+				filteredIndexes.add(clusterings.indexOf(result));
+			mdsPlot.getPointContainer().setFilteredResults(filteredIndexes);
+			this.filteredIndexes = filteredIndexes;
+		}
 
+		SwingUtilities.invokeLater(() -> {
+			mdsPlot.repaint();
+			oPlot.repaint();
+		});
+
+	}
+
+	public Set<Integer> getFilteredIndexes() {
+		return filteredIndexes;
 	}
 
 }

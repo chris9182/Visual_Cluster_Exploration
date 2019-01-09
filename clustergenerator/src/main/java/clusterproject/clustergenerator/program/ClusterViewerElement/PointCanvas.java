@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -72,6 +73,7 @@ public class PointCanvas extends JPanel {
 			final List<Integer> clusterIDs = pointContainer.getClusterIDs();
 			final Stream<Integer> stream = clusterIDs.stream().distinct();
 			final Map<Integer, Color> colorMap = new HashMap<Integer, Color>();
+			final Set<Integer> filtered = pointContainer.getFilteredIndexes();
 			final Iterator<Integer> iter = stream.iterator();
 			while (iter.hasNext()) {
 				final int i = iter.next();
@@ -81,12 +83,30 @@ public class PointCanvas extends JPanel {
 			for (int i = 0; i < pointCount; ++i) {
 				if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]))
 					continue;
-				g2.setColor(colorMap.get(clusterIDs.get(i)));
+
+				if (filtered == null) {
+					g2.setColor(colorMap.get(clusterIDs.get(i)));
+				} else {
+					if (filtered.contains(i)) {
+						g2.setColor(colorMap.get(clusterIDs.get(i)));
+					} else {
+						g2.setColor(Color.WHITE);
+					}
+				}
 
 				g2.fillOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
 						pointWidth);
 				if (pointWidth >= MIN_WIDTH_FOR_BORDER) {
-					g2.setColor(Color.BLACK);
+					if (filtered == null) {
+						g2.setColor(Color.BLACK);
+					} else {
+						if (filtered.contains(i)) {
+							g2.setColor(Color.BLACK);
+						} else {
+							g2.setColor(Color.GRAY);
+						}
+					}
+
 					g2.drawOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2,
 							pointWidth, pointWidth);
 				}

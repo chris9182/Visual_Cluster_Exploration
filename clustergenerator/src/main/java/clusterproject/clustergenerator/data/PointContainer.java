@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.spark.mllib.linalg.Vector;
 
@@ -16,6 +17,7 @@ public class PointContainer {
 	Map<Integer, Integer> idMap = null;
 	private int dim;
 	private int highlighted = -1;
+	private Set<Integer> filteredResults;
 
 	public PointContainer(int dim) {
 		this.dim = dim;
@@ -196,5 +198,14 @@ public class PointContainer {
 		setIDMap(null);
 		setHighlighted(-1);
 
+	}
+
+	public void setFilteredResults(Set<Integer> filteredResults) {
+		this.filteredResults = filteredResults;
+
+	}
+
+	public Set<Integer> getFilteredIndexes() {
+		return filteredResults;
 	}
 }
