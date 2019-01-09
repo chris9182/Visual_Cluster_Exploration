@@ -248,7 +248,7 @@ public class ClusteringViewer extends JFrame {
 			final int selection = Integer.parseInt(selected.split(":")[0]);
 			highlight(selection);
 		});
-		showViewer(0);
+		showViewer(0, false);
 
 		filterWindow = new FilterWindow(clusterings, this);
 		layout.putConstraint(SpringLayout.NORTH, filterWindow, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
@@ -281,6 +281,10 @@ public class ClusteringViewer extends JFrame {
 	}
 
 	public void showViewer(int i) {
+		showViewer(i, true);
+	}
+
+	public void showViewer(int i, boolean repaint) {
 		clustereringSelector.setSelectedIndex(i);
 		final ScatterPlot newViewer = viewers.get(i);
 		if (i == highlighted)

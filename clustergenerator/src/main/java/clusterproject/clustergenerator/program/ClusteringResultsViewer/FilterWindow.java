@@ -50,7 +50,7 @@ public class FilterWindow extends JLayeredPane {
 	private static final int SPACING = 10;
 	private static final int ABOVE_BAR_SPACE = 100;
 	private static final int SLIDERHEIGHT = 30;
-	private static final int MAX_BINS = 30;
+	private static final int MAX_BINS = 21;
 
 	private final SpringLayout mainLayout = new SpringLayout();
 
@@ -303,7 +303,7 @@ public class FilterWindow extends JLayeredPane {
 	private class MyRangeSlider extends RangeSlider {
 		private static final long serialVersionUID = -1145841853132161271L;
 		private static final int LABEL_COUNT = 3;
-		private static final int TICK_COUNT = 1000;
+		private static final int TICK_COUNT = 500;
 		private final double minLbl;
 		private final double maxLbl;
 		private final JLabel tooltip = new JLabel();
