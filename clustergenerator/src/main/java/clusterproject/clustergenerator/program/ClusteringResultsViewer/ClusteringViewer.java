@@ -318,6 +318,7 @@ public class ClusteringViewer extends JFrame {
 			viewerPanel.repaint();
 			oPlot.repaint();
 			mdsPlot.repaint();
+			heatMap.repaint();
 		});
 
 	}
