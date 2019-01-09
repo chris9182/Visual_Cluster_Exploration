@@ -207,8 +207,6 @@ public class OpticsPlot extends JLayeredPane {
 
 		@Override
 		public void paint(Graphics g) {
-
-			super.paint(g);
 			final boolean highlighted = myid == plot.getHighlighted();
 			final Set<Integer> filtered = plot.getFilteredIndexes();
 			if (getWidth() - INNER_SPACE > BORDER_MIN_SIZE && !highlighted) {

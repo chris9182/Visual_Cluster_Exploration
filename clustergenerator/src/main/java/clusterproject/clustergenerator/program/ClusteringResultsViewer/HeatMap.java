@@ -45,7 +45,7 @@ public class HeatMap extends JLayeredPane {
 		heatMap.setLayout(new GridLayout(distances.length, distances.length));
 		double maxDistance = Double.MIN_VALUE;
 		for (int i = 0; i < distances.length; ++i)
-			for (int j = 0; j < distances.length; ++j) {
+			for (int j = i; j < distances.length; ++j) {
 				if (distances[i][j] > maxDistance)
 					maxDistance = distances[i][j];
 			}
@@ -64,7 +64,7 @@ public class HeatMap extends JLayeredPane {
 				});
 			}
 
-		final GradientBar bar = new GradientBar(maxDistance, this);
+		final GradientBar bar = new GradientBar(maxDistance);
 		layout.putConstraint(SpringLayout.NORTH, bar, 0, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.EAST, bar, 0, SpringLayout.EAST, this);
 		layout.putConstraint(SpringLayout.SOUTH, bar, 0, SpringLayout.SOUTH, this);
@@ -92,11 +92,12 @@ public class HeatMap extends JLayeredPane {
 
 		private final int i;
 		private final int j;
+		private final Color myColor;
 
 		private final HeatMap heatMap;
 
 		public HeatCell(HeatMap heatMap, double percent, int i, int j) {
-			setBackground(getColor(percent, MIN_COLOR, MAX_COLOR));
+			myColor = (getColor(percent, MIN_COLOR, MAX_COLOR));
 			this.heatMap = heatMap;
 			this.i = i;
 			this.j = j;
@@ -104,10 +105,11 @@ public class HeatMap extends JLayeredPane {
 
 		@Override
 		public void paint(Graphics g) {
-			if (heatMap.getHighlighted() == i && heatMap.getHighlighted() == j)
+			final int highlighted = heatMap.getHighlighted();
+			if (highlighted == i && highlighted == j)
 				g.setColor(Color.ORANGE);
 			else
-				g.setColor(getBackground());
+				g.setColor(myColor);
 			g.fillRect(0, 0, getWidth(), getHeight());
 		}
 
@@ -123,11 +125,9 @@ public class HeatMap extends JLayeredPane {
 	private class GradientBar extends JComponent {
 		private static final long serialVersionUID = -4332030550181663631L;
 		private final double maxValue;
-		private final HeatMap heatmap;
 
-		public GradientBar(double maxDistance, HeatMap heatmap) {
+		public GradientBar(double maxDistance) {
 			this.maxValue = maxDistance;
-			this.heatmap = heatmap;
 		}
 
 		@Override

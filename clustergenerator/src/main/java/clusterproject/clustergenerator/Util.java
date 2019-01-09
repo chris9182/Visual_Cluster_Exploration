@@ -5,8 +5,10 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
@@ -79,7 +81,7 @@ public class Util {
 	}
 
 	public static Object[] intersection(Object[] a, Object[] b) {
-		return Arrays.stream(a).distinct().filter(x -> Arrays.stream(b).anyMatch(y -> y == x)).toArray();
+		return Stream.of(a).filter(new HashSet<Object>(Arrays.asList(b))::contains).toArray(Object[]::new);
 	}
 
 	public static List<ClusteringResult> convertClusterings(List<NumberVectorClusteringResult> clusterings,

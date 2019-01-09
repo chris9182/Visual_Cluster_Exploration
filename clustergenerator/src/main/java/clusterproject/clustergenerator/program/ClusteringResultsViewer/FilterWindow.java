@@ -55,7 +55,10 @@ public class FilterWindow extends JLayeredPane {
 	private final SpringLayout mainLayout = new SpringLayout();
 
 	private final List<ClusteringResult> clusteringResults;
-	private Map<String, Object> selectors;
+	private final Map<String, Object> selectors;
+	private final Map<String, double[]> allParametersMap;
+	private final Map<String, Double> allParametersMinMap;
+	private final Map<String, Double> allParametersMaxMap;
 	private final ClusteringViewer clusteringViewer;
 
 	private final Set<ClusteringResult> filteredSet = new HashSet<ClusteringResult>();
@@ -68,26 +71,31 @@ public class FilterWindow extends JLayeredPane {
 	public FilterWindow(List<ClusteringResult> clusteringResults, ClusteringViewer clusteringViewer) {
 		this.clusteringViewer = clusteringViewer;
 		selectors = new HashMap<String, Object>();
+		allParametersMap = new HashMap<String, double[]>();
+		allParametersMinMap = new HashMap<String, Double>();
+		allParametersMaxMap = new HashMap<String, Double>();
 		// getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 		setLayout(mainLayout);
 		this.clusteringResults = clusteringResults;
 		charts = new ArrayList<JFreeChart>();
 
 		clusteringNames = new LinkedHashSet<String>();
-		for (final ClusteringResult result : clusteringResults) {
-			clusteringNames.add(result.getParameter().getName());
-		}
 		parameterNames = new ArrayList<LinkedHashSet<String>>();
-		parameters = new ArrayList<List<List<Object>>>();
-		for (final String clusteringName : clusteringNames) {
-			final LinkedHashSet<String> clusteringParameterNames = new LinkedHashSet<String>();
-			for (final ClusteringResult result : clusteringResults) {
-				if (result.getParameter().getName().equals(clusteringName))
-					clusteringParameterNames.addAll(result.getParameter().getParameters().keySet());
+		for (final ClusteringResult result : clusteringResults) {
+			final String clusteringName = result.getParameter().getName();
+			if (!clusteringNames.contains(clusteringName)) {
+				clusteringNames.add(clusteringName);
+				final LinkedHashSet<String> clusteringParameterNames = new LinkedHashSet<String>();
+				clusteringParameterNames.addAll(result.getParameter().getParameters().keySet());
+				parameterNames.add(clusteringParameterNames);
 			}
-			parameterNames.add(clusteringParameterNames);
-			final List<List<Object>> clusteringParameters = new ArrayList<List<Object>>();
+		}
 
+		parameters = new ArrayList<List<List<Object>>>();
+		int parameterIndex = 0;
+		for (final String clusteringName : clusteringNames) {
+			final LinkedHashSet<String> clusteringParameterNames = parameterNames.get(parameterIndex);
+			final List<List<Object>> clusteringParameters = new ArrayList<List<Object>>();
 			for (final String clusteringParameterName : clusteringParameterNames) {
 				final List<Object> nameParameters = new ArrayList<Object>();
 				for (final ClusteringResult result : clusteringResults) {
@@ -98,6 +106,7 @@ public class FilterWindow extends JLayeredPane {
 				clusteringParameters.add(nameParameters);
 			}
 			parameters.add(clusteringParameters);
+			parameterIndex++;
 		}
 	}
 
@@ -105,18 +114,20 @@ public class FilterWindow extends JLayeredPane {
 
 	@Override
 	public void setBounds(int x, int y, int width, int height) {
-		// TODO Auto-generated method stub
 		super.setBounds(x, y, width, height);
 		if (oldwidth != width) {
 			oldwidth = width;
 			adjust();
-
 		}
 	}
 
 	public void adjust() {
 		this.removeAll();
-		selectors = new HashMap<String, Object>();
+		selectors.clear();
+		allParametersMap.clear();
+		allParametersMinMap.clear();
+		allParametersMaxMap.clear();
+		charts.clear();
 
 		final Iterator<String> clusteringNamesIt = clusteringNames.iterator();
 		Component lastComponent = Box.createVerticalStrut(0);
@@ -147,6 +158,7 @@ public class FilterWindow extends JLayeredPane {
 				double max = Double.MIN_VALUE;
 				double min = Double.MAX_VALUE;
 				final double[] allParameters = new double[parameters.get(i).get(j).size()];
+				allParametersMap.put(clusteringName + " " + parameterName, allParameters);
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
 					final Object parameter = parameters.get(i).get(j).get(k);
 					if (!(parameter instanceof Double) && !(parameter instanceof Integer)) {// TODO: handle other types
@@ -169,6 +181,8 @@ public class FilterWindow extends JLayeredPane {
 					if (value > max)
 						max = value;
 				}
+				allParametersMaxMap.put(clusteringName + " " + parameterName, max);
+				allParametersMinMap.put(clusteringName + " " + parameterName, min);
 				if (max != Double.MIN_VALUE) {
 					final RangeSlider slider = new MyRangeSlider(min, max, this);
 					slider.setSize(new Dimension(getWidth(), SLIDERHEIGHT));
@@ -184,10 +198,7 @@ public class FilterWindow extends JLayeredPane {
 					lastComponent = slider;
 					this.add(slider, new Integer(3));
 
-					final Rectangle sliderRectangle = ((RangeSliderUI) slider.getUI()).getTrackRectangle();// TODO use
-																											// for
-																											// bounds
-																											// with plot
+					final Rectangle sliderRectangle = ((RangeSliderUI) slider.getUI()).getTrackRectangle();
 					int bins = MAX_BINS;
 					if (parameters.get(i).get(j).get(0) instanceof Integer)
 						bins = (int) (max - min + 1);// TODO check if this is good
@@ -364,7 +375,6 @@ public class FilterWindow extends JLayeredPane {
 
 				@Override
 				public void mouseExited(MouseEvent e) {
-
 					if (e.isConsumed())
 						return;
 					tooltipFrame.setVisible(false);
@@ -432,34 +442,17 @@ public class FilterWindow extends JLayeredPane {
 					++index;
 				}
 				int chartIndex = 0;
+				final Iterator<String> clusteringNamesIt = clusteringNames.iterator();
 				for (int i = 0; i < clusteringNames.size(); ++i) {
+					final String clusteringName = clusteringNamesIt.next();
+					final Iterator<String> parameterNamesIt = parameterNames.get(i).iterator();
 					for (int j = 0; j < parameterNames.get(i).size(); ++j) {
-						double max = Double.MIN_VALUE;
-						double min = Double.MAX_VALUE;
-						final double[] allParameters = new double[parameters.get(i).get(j).size()];
+						final String parameterName = parameterNamesIt.next();
 
-						for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
-							final Object parameter = parameters.get(i).get(j).get(k);
-							if (!(parameter instanceof Double) && !(parameter instanceof Integer)) {// TODO: handle
-																									// other types
-								System.err.println("unexpected value type");
-								continue;
-							}
-							Double value = Double.NaN;
-							if (parameter instanceof Double)
-								value = (Double) parameter;
-							if (parameter instanceof Integer)
-								value = (double) (((Integer) parameter));
-							if (value == Double.NaN) {
-								System.err.println("unexpected value type");
-								continue;
-							}
-							allParameters[k] = value;
-							if (value < min)
-								min = value;
-							if (value > max)
-								max = value;
-						}
+						final double[] allParameters = allParametersMap.get(clusteringName + " " + parameterName);
+						final double max = allParametersMaxMap.get(clusteringName + " " + parameterName);
+						final double min = allParametersMinMap.get(clusteringName + " " + parameterName);
+
 						double[] filteredParametersD = null;
 						if (parameters.get(i).get(j).size() != filteredParameters.get(i).get(j).size()) {
 							filteredParametersD = new double[filteredParameters.get(i).get(j).size()];
@@ -479,7 +472,6 @@ public class FilterWindow extends JLayeredPane {
 									System.err.println("unexpected value type");
 									continue;
 								}
-								// System.err.println(value);
 								filteredParametersD[k] = value;
 							}
 						}
@@ -510,13 +502,12 @@ public class FilterWindow extends JLayeredPane {
 				tooltipFrame.setVisible(true);
 
 				SwingUtilities.invokeLater(() -> {
-					mainPanel.repaint();
+					filterWindow.repaint();
 				});
 			});
 		}
 
 		private boolean isFullRange() {
-			// TODO Auto-generated method stub
 			return getValue() == 0 && getUpperValue() == TICK_COUNT;
 		}
 
