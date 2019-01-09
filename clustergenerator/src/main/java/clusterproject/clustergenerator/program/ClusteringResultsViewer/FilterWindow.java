@@ -8,6 +8,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ public class FilterWindow extends JLayeredPane {
 	private static final int SPACING = 10;
 	private static final int ABOVE_BAR_SPACE = 100;
 	private static final int SLIDERHEIGHT = 30;
+	private static final int MAX_BINS = 30;
 
 	private final SpringLayout mainLayout = new SpringLayout();
 
@@ -145,9 +147,8 @@ public class FilterWindow extends JLayeredPane {
 				double max = Double.MIN_VALUE;
 				double min = Double.MAX_VALUE;
 				final double[] allParameters = new double[parameters.get(i).get(j).size()];
-				Object parameter = null;
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
-					parameter = parameters.get(i).get(j).get(k);
+					final Object parameter = parameters.get(i).get(j).get(k);
 					if (!(parameter instanceof Double) && !(parameter instanceof Integer)) {// TODO: handle other types
 						selectors.put(clusteringName + " " + parameterName, null);
 						System.err.println("unexpected value type");
@@ -187,13 +188,13 @@ public class FilterWindow extends JLayeredPane {
 																											// for
 																											// bounds
 																											// with plot
-					int bins = clusteringResults.size() / 5;
-					if (parameter instanceof Integer)
+					int bins = MAX_BINS;
+					if (parameters.get(i).get(j).get(0) instanceof Integer)
 						bins = (int) (max - min + 1);// TODO check if this is good
 					if (bins < 1)
 						bins = 1;
-					if (bins > 30)
-						bins = 30;
+					if (bins > MAX_BINS)
+						bins = MAX_BINS;
 					final CategoryDataset dataset = createDataset(allParameters, null, bins, min, max);
 					final JFreeChart chart = createChart(dataset);
 					charts.add(chart);
@@ -307,6 +308,8 @@ public class FilterWindow extends JLayeredPane {
 		private final double maxLbl;
 		private final JLabel tooltip = new JLabel();
 		private final FilterWindow filterWindow;
+		private int oldMin = 0;
+		private int oldMax = TICK_COUNT;
 
 		public MyRangeSlider(double minLbl, double maxLbl, FilterWindow mainPanel) {
 			this.minLbl = minLbl;
@@ -333,31 +336,47 @@ public class FilterWindow extends JLayeredPane {
 			tooltip.setOpaque(false);
 			tooltipFrame.add(tooltip);
 			tooltip.setText((String.valueOf(((float) getLowerValue()) + " <-> " + (float) getUpperValueD())));
+			addMouseMotionListener(new MouseMotionAdapter() {
+			});
 
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
+					if (e.isConsumed())
+						return;
 					tooltip.setText((String.valueOf(((float) getLowerValue()) + " <-> " + (float) getUpperValueD())));
 					final Point p = MouseInfo.getPointerInfo().getLocation();
 					tooltipFrame.pack();
 					tooltipFrame.setLocation((int) p.getX() - tooltipFrame.getWidth() / 2,
 							(int) (getLocationOnScreen().getY() - getHeight() / 2));
 					tooltipFrame.setVisible(true);
+					e.consume();
 				}
 
 				@Override
 				public void mouseReleased(MouseEvent e) {
+					if (e.isConsumed())
+						return;
 					tooltipFrame.setVisible(false);
 					filterWindow.comitFilteredData();
+					e.consume();
 				}
 
 				@Override
 				public void mouseExited(MouseEvent e) {
+
+					if (e.isConsumed())
+						return;
 					tooltipFrame.setVisible(false);
+					e.consume();
 				}
 			});
 
 			addChangeListener(e -> {
+				if (getValue() == oldMin && getUpperValue() == oldMax)
+					return;
+				oldMin = getValue();
+				oldMax = getUpperValue();
 				filteredSet.clear();
 				for (final ClusteringResult result : clusteringResults) {
 					final String clusteringName = result.getParameter().getName();
@@ -465,11 +484,14 @@ public class FilterWindow extends JLayeredPane {
 							}
 						}
 						if (max != Double.MIN_VALUE) {
-							int bins = clusteringResults.size() / 5;
+							int bins = MAX_BINS;
 							if (parameters.get(i).get(j).get(0) instanceof Integer)
 								bins = (int) (max - min + 1);// TODO check if this is good
 							if (bins < 1)
 								bins = 1;
+							if (bins > MAX_BINS)
+								bins = MAX_BINS;
+
 							final CategoryDataset dataset = createDataset(allParameters, filteredParametersD, bins, min,
 									max);
 							final JFreeChart chart = charts.get(chartIndex++);
