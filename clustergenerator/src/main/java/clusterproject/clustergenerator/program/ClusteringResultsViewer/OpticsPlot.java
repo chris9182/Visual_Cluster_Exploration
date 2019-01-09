@@ -9,6 +9,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -72,7 +73,8 @@ public class OpticsPlot extends JLayeredPane {
 			bar.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					highlight(selection);
+
+					highlight(selection, !e.isControlDown());
 
 				}
 			});
@@ -118,7 +120,7 @@ public class OpticsPlot extends JLayeredPane {
 
 	}
 
-	public int getHighlighted() {
+	public LinkedHashSet<Integer> getHighlighted() {
 		return clusteringViewer.getHighlighted();
 	}
 
@@ -183,8 +185,10 @@ public class OpticsPlot extends JLayeredPane {
 		}
 	}
 
-	public void highlight(int selection) {
-		clusteringViewer.highlight(selection);
+	public void highlight(int selection, boolean replace) {
+		final List<Integer> highlighted = new ArrayList<Integer>();
+		highlighted.add(selection);
+		clusteringViewer.highlight(highlighted, replace);
 	}
 
 	private class OpticsBar extends JComponent {
@@ -207,7 +211,7 @@ public class OpticsPlot extends JLayeredPane {
 
 		@Override
 		public void paint(Graphics g) {
-			final boolean highlighted = myid == plot.getHighlighted();
+			final boolean highlighted = plot.getHighlighted().contains(myid);
 			final Set<Integer> filtered = plot.getFilteredIndexes();
 			if (getWidth() - INNER_SPACE > BORDER_MIN_SIZE && !highlighted) {
 				if (filtered == null) {

@@ -255,8 +255,12 @@ public class ScatterPlot extends JLayeredPane {
 
 	}
 
-	public void setCanvasMouseListener(MouseListener listener) {
+	public void addCanvasMouseListener(MouseListener listener) {
 		canvas.addMouseListener(listener);
+	}
+
+	public void addCanvasMouseMotionListener(MouseAdapter mouseAdapter) {
+		canvas.addMouseMotionListener(mouseAdapter);
 	}
 
 }

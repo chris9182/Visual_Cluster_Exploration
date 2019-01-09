@@ -10,6 +10,8 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -58,7 +60,7 @@ public class HeatMap extends JLayeredPane {
 				cell.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent e) {
-						highlight(selected);
+						highlight(selected, !e.isControlDown());
 
 					}
 				});
@@ -79,12 +81,14 @@ public class HeatMap extends JLayeredPane {
 
 	}
 
-	public int getHighlighted() {
+	public LinkedHashSet<Integer> getHighlighted() {
 		return clusteringViewer.getHighlighted();
 	}
 
-	public void highlight(int selection) {
-		clusteringViewer.highlight(selection);
+	public void highlight(int selection, boolean replace) {
+		final List<Integer> highlighted = new ArrayList<Integer>();
+		highlighted.add(selection);
+		clusteringViewer.highlight(highlighted, replace);
 	}
 
 	private class HeatCell extends JComponent {
@@ -105,8 +109,8 @@ public class HeatMap extends JLayeredPane {
 
 		@Override
 		public void paint(Graphics g) {
-			final int highlighted = heatMap.getHighlighted();
-			if (highlighted == i && highlighted == j)
+			final LinkedHashSet<Integer> highlighted = heatMap.getHighlighted();
+			if (highlighted.contains(i) && highlighted.contains(j) && i == j)
 				g.setColor(Color.ORANGE);
 			else
 				g.setColor(myColor);

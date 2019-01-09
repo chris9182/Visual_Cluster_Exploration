@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,7 +71,7 @@ public class ClusteringViewer extends JFrame {
 	private final OpticsPlot oPlot;
 	private final double[][] distanceMatrix;
 	private final ScatterPlot mdsPlot;
-	private int highlighted = -1;
+	private final LinkedHashSet<Integer> highlighted = new LinkedHashSet<>();
 
 	private int minPTS = 1;
 	private double eps = 2;// TODO settings
@@ -86,8 +88,11 @@ public class ClusteringViewer extends JFrame {
 
 	private Set<Integer> filteredIndexes;
 
+	private int selectedViewer = 0;
+
 	public ClusteringViewer(List<ClusteringResult> clusterings, IDistanceMeasure metaDistance, int minPTS, double eps) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
+		highlighted.add(-1);
 		this.minPTS = minPTS;
 		this.eps = eps;
 		this.metaDistance = metaDistance;
@@ -225,16 +230,42 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.SOUTH, oPlot, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
 		layout.putConstraint(SpringLayout.EAST, oPlot, -VIEWER_SPACE - RIGHT_PANEL_WIDTH, SpringLayout.EAST, mainPanel);
 		mainPanel.add(oPlot, new Integer(10));
+		final MouseAdapter mouseAdapter = new MouseAdapter() {
+			private Point down;
+			private Point current;
 
-		mdsPlot.setCanvasMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				down = null;
+				current = null;
+
 				final int closest = getClosestPoint(e.getPoint());
-				if (closest != -1)
-					highlight(closest);
-				super.mouseClicked(e);
+				if (closest != -1) {
+					final List<Integer> highlighted = new ArrayList<Integer>();
+					highlighted.add(closest);
+					highlight(highlighted, !e.isControlDown());
+				}
 			}
-		});
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				down = e.getPoint();
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				current = e.getPoint();
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if (current != null)
+					rangeSelect(down, current, !e.isControlDown());
+				current = null;
+			}
+		};
+		mdsPlot.addCanvasMouseMotionListener(mouseAdapter);
+		mdsPlot.addCanvasMouseListener(mouseAdapter);
 
 		heatMap = new HeatMap(Util.getSortedDistances(list, distanceMatrix), this, list);
 		layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
@@ -246,8 +277,9 @@ public class ClusteringViewer extends JFrame {
 
 		clustereringSelector.addActionListener(e -> {
 			final String selected = (String) clustereringSelector.getSelectedItem();
-			final int selection = Integer.parseInt(selected.split(":")[0]);
-			highlight(selection);
+			final List<Integer> highlighted = new ArrayList<Integer>();
+			highlighted.add(Integer.parseInt(selected.split(":")[0]));
+			highlight(highlighted, true);
 		});
 
 		filterWindow = new FilterWindow(clusterings, this);
@@ -268,6 +300,31 @@ public class ClusteringViewer extends JFrame {
 		mainPanel.add(viewerPanel, new Integer(10));
 
 		showViewer(0, false);
+	}
+
+	protected void rangeSelect(Point down, Point current, boolean replace) {
+		final Point lower = new Point((int) (down.getX() < current.getX() ? down.getX() : current.getX()),
+				(int) (down.getY() < current.getY() ? down.getY() : current.getY()));
+		final Point upper = new Point((int) (down.getX() > current.getX() ? down.getX() : current.getX()),
+				(int) (down.getY() > current.getY() ? down.getY() : current.getY()));
+
+		final ReentrantLock lock = new ReentrantLock();
+		final List<Integer> ids = new ArrayList<Integer>();
+		final List<double[]> points = mdsPlot.getPointContainer().getPoints();
+		final IntStream stream = IntStream.range(0, points.size());
+		stream.parallel().forEach(i -> {
+			final double posX = mdsPlot.getPixelX(points.get(i));
+			final double posY = mdsPlot.getPixelY(points.get(i));
+
+			if (posX >= lower.getX() && posX <= upper.getX() && posY >= lower.getY() && posY <= upper.getY()) {
+				lock.lock();
+				ids.add(i);
+				lock.unlock();
+			}
+		});
+		if (ids.size() > 0)
+			highlight(ids, replace);
+
 	}
 
 	private void saveCRFFile(File selectedFile) {
@@ -298,8 +355,6 @@ public class ClusteringViewer extends JFrame {
 	public void showViewer(int i, boolean repaint) {
 		clustereringSelector.setSelectedIndex(i);
 		final ScatterPlot newViewer = viewers[i];
-		if (i == highlighted)
-			return;
 		if (visibleViewer != null) {
 			final List<Integer> newClusterIDs = getNewColors(i);
 			newViewer.getPointContainer().setClusterIDs(newClusterIDs);
@@ -309,10 +364,15 @@ public class ClusteringViewer extends JFrame {
 			newViewer.setIntervalY(visibleViewer.getIntervalY());
 			viewerPanel.remove(visibleViewer);
 		}
-		highlighted = i;
+		selectedViewer = i;
 		visibleViewer = newViewer;
 		viewerPanel.add(visibleViewer, BorderLayout.CENTER);
+		if (repaint)
+			callRepaint();
 
+	}
+
+	private void callRepaint() {
 		SwingUtilities.invokeLater(() -> {
 			viewerPanel.revalidate();
 			viewerPanel.repaint();
@@ -324,7 +384,7 @@ public class ClusteringViewer extends JFrame {
 	}
 
 	private List<Integer> getNewColors(int i) { // TODO: maybe something with cluster size for color selection?
-		final ClusteringResult oldClustering = clusterings.get(highlighted);
+		final ClusteringResult oldClustering = clusterings.get(selectedViewer);
 		final ClusteringResult newClustering = clusterings.get(i);
 		final Map<Integer, Integer> oldIDMap = visibleViewer.getPointContainer().getIDMap();
 		final List<Integer> currentIDs = viewers[i].getPointContainer().getOriginalClusterIDs();
@@ -373,12 +433,29 @@ public class ClusteringViewer extends JFrame {
 		return i;
 	}
 
-	public void highlight(int i) {
-		mdsPlot.getPointContainer().setHighlighted(i);
-		showViewer(i);
+	public void highlight(Collection<Integer> i, boolean replace) {
+		if (replace) {
+			highlighted.clear();
+			highlighted.addAll(i);
+		} else {
+			for (final Integer newInt : i) {
+				if (highlighted.contains(newInt))
+					highlighted.remove(newInt);
+				else
+					highlighted.add(newInt);
+			}
+		}
+
+		if (highlighted.isEmpty())
+			highlighted.add(-1);
+		mdsPlot.getPointContainer().setHighlighted(highlighted);
+		if (highlighted.size() > 1)
+			callRepaint();
+		else
+			showViewer(highlighted.iterator().next());
 	}
 
-	public int getHighlighted() {
+	public LinkedHashSet<Integer> getHighlighted() {
 		return highlighted;
 	}
 

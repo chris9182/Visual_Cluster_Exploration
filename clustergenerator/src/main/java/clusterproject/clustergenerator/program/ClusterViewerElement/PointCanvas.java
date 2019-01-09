@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,17 +112,19 @@ public class PointCanvas extends JPanel {
 
 			}
 		}
-		final int highlighted = pointContainer.getHighlighted();
-		if (highlighted != -1) {
+		final LinkedHashSet<Integer> highlighted = pointContainer.getHighlighted();
+		if (highlighted.size() == 1 && highlighted.iterator().next() == -1)
+			return;
+		for (final int hIndex : highlighted) {
 			g2.setColor(HIGHLIGHT_COLOR);
-			g2.fillOval((int) (xCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
-					(int) (yCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
-					pointWidth * HIGHLIGHT_FACTOR, pointWidth * HIGHLIGHT_FACTOR);
+			g2.fillOval((int) (xCoordinates[hIndex] - pointWidth * HIGHLIGHT_FACTOR / 2),
+					(int) (yCoordinates[hIndex] - pointWidth * HIGHLIGHT_FACTOR / 2), pointWidth * HIGHLIGHT_FACTOR,
+					pointWidth * HIGHLIGHT_FACTOR);
 			if (pointWidth >= MIN_WIDTH_FOR_BORDER) {
 				g2.setColor(Color.BLACK);
-				g2.drawOval((int) (xCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
-						(int) (yCoordinates[highlighted] - pointWidth * HIGHLIGHT_FACTOR / 2),
-						pointWidth * HIGHLIGHT_FACTOR, pointWidth * HIGHLIGHT_FACTOR);
+				g2.drawOval((int) (xCoordinates[hIndex] - pointWidth * HIGHLIGHT_FACTOR / 2),
+						(int) (yCoordinates[hIndex] - pointWidth * HIGHLIGHT_FACTOR / 2), pointWidth * HIGHLIGHT_FACTOR,
+						pointWidth * HIGHLIGHT_FACTOR);
 			}
 		}
 	}

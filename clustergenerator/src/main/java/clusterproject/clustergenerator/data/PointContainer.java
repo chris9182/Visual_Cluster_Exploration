@@ -2,6 +2,7 @@ package clusterproject.clustergenerator.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,10 +17,11 @@ public class PointContainer {
 	private List<Integer> clusterIDs;
 	Map<Integer, Integer> idMap = null;
 	private int dim;
-	private int highlighted = -1;
+	private LinkedHashSet<Integer> highlighted = new LinkedHashSet<Integer>();
 	private Set<Integer> filteredResults;
 
 	public PointContainer(int dim) {
+		highlighted.add(-1);
 		this.dim = dim;
 		headers = new ArrayList<String>(dim);
 		for (int i = 0; i < dim; i++)
@@ -177,12 +179,12 @@ public class PointContainer {
 		return idMap;
 	}
 
-	public int getHighlighted() {
+	public LinkedHashSet<Integer> getHighlighted() {
 		return highlighted;
 	}
 
-	public void setHighlighted(int highlighted) {
-		this.highlighted = highlighted;
+	public void setHighlighted(LinkedHashSet<Integer> highlighted2) {
+		this.highlighted = highlighted2;
 	}
 
 	public void copyClusterInfo(PointContainer container) {
@@ -196,7 +198,8 @@ public class PointContainer {
 		setOriginalClusterID(null);
 		setClusterIDs(null);
 		setIDMap(null);
-		setHighlighted(-1);
+		highlighted.clear();
+		highlighted.add(-1);
 
 	}
 
