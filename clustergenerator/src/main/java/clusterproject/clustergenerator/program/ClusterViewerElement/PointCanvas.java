@@ -113,7 +113,7 @@ public class PointCanvas extends JPanel {
 			}
 		}
 		final LinkedHashSet<Integer> highlighted = pointContainer.getHighlighted();
-		if (highlighted.size() == 1 && highlighted.iterator().next() == -1)
+		if (highlighted.size() <= 1 && highlighted.iterator().next() == -1)
 			return;
 		for (final int hIndex : highlighted) {
 			g2.setColor(HIGHLIGHT_COLOR);

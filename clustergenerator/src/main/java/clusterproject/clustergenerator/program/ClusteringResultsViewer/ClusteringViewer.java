@@ -449,8 +449,12 @@ public class ClusteringViewer extends JFrame {
 		if (highlighted.isEmpty())
 			highlighted.add(-1);
 		mdsPlot.getPointContainer().setHighlighted(highlighted);
-		if (highlighted.size() > 1)
-			callRepaint();
+		if (highlighted.size() > 1 || highlighted.iterator().next() == -1)
+			if (highlighted.contains(selectedViewer) || highlighted.size() < 1) {
+				callRepaint();
+			} else
+				showViewer(highlighted.iterator().next());
+
 		else
 			showViewer(highlighted.iterator().next());
 	}
