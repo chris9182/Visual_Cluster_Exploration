@@ -338,7 +338,6 @@ public class ClusterWorkflow extends JFrame {
 			final List<NumberVectorClusteringResult> results = clusterer.cluster(db);
 			clusterings.addAll(results);
 		}
-		System.err.println(clusterings.size());
 		if (pointContainer.hasClusters()) {
 			final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 

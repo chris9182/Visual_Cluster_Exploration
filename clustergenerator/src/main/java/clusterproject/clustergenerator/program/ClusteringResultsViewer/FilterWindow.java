@@ -35,7 +35,9 @@ import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.AreaRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.chart.util.SortOrder;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.general.DatasetUtils;
 
@@ -332,6 +334,9 @@ public class FilterWindow extends JLayeredPane {
 		plot.setRangeMinorGridlinesVisible(false);
 		plot.setRangeMinorGridlinesVisible(false);
 
+		plot.setRenderer(new AreaRenderer());// XXX: remove this if stacked is better
+		plot.setRowRenderingOrder(SortOrder.DESCENDING);
+
 		final CategoryAxis domainAxis = plot.getDomainAxis();
 		domainAxis.setLowerMargin(0.0);
 		domainAxis.setUpperMargin(0.0);
@@ -407,7 +412,7 @@ public class FilterWindow extends JLayeredPane {
 					final Point p = MouseInfo.getPointerInfo().getLocation();
 					tooltipFrame.pack();
 					tooltipFrame.setLocation((int) p.getX() - tooltipFrame.getWidth() / 2,
-							(int) (getLocationOnScreen().getY() - getHeight() / 2));
+							(int) (getLocationOnScreen().getY() + getHeight() / 2));
 					tooltipFrame.setVisible(true);
 
 				}
@@ -588,7 +593,7 @@ public class FilterWindow extends JLayeredPane {
 				final Point p = MouseInfo.getPointerInfo().getLocation();
 				tooltipFrame.pack();
 				tooltipFrame.setLocation((int) p.getX() - tooltipFrame.getWidth() / 2,
-						(int) (getLocationOnScreen().getY() - getHeight() / 2));
+						(int) (getLocationOnScreen().getY() + getHeight() / 2));
 				tooltipFrame.setVisible(true);
 
 				SwingUtilities.invokeLater(() -> {
