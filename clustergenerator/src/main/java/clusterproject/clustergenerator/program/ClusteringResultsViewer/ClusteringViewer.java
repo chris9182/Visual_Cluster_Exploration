@@ -18,6 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
@@ -72,6 +73,7 @@ public class ClusteringViewer extends JFrame {
 	private final double[][] distanceMatrix;
 	private final ScatterPlot mdsPlot;
 	private final LinkedHashSet<Integer> highlighted = new LinkedHashSet<>();
+	private final AtomicBoolean dohighlight = new AtomicBoolean(true);
 
 	private int minPTS = 1;
 	private double eps = 2;// TODO settings
@@ -243,7 +245,6 @@ public class ClusteringViewer extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				down = null;
 				current = null;
-
 				final int closest = getClosestPoint(e.getPoint());
 				if (closest != -1) {
 					final List<Integer> highlighted = new ArrayList<Integer>();
@@ -254,19 +255,19 @@ public class ClusteringViewer extends JFrame {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				down = e.getPoint();
+				down = (Point) e.getPoint().clone();
 			}
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				current = e.getPoint();
+				current = (Point) e.getPoint().clone();
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				if (current != null)
 					rangeSelect(down, current, !e.isControlDown());
-				current = null;
+				current = null;// TODO: bug
 			}
 		};
 		mdsPlot.addCanvasMouseMotionListener(mouseAdapter);
@@ -328,8 +329,9 @@ public class ClusteringViewer extends JFrame {
 				lock.unlock();
 			}
 		});
-		if (ids.size() > 0)
+		if (ids.size() > 0) {
 			highlight(ids, replace);
+		}
 
 	}
 
@@ -385,7 +387,6 @@ public class ClusteringViewer extends JFrame {
 			oPlot.repaint();
 			mdsPlot.repaint();
 			heatMap.repaint();
-			filterWindow.revalidate();
 			filterWindow.repaint();
 		});
 
@@ -442,6 +443,9 @@ public class ClusteringViewer extends JFrame {
 	}
 
 	public void highlight(Collection<Integer> i, boolean replace) {
+		if (!dohighlight.get())
+			return;
+		dohighlight.set(false);
 		if (replace) {
 			highlighted.clear();
 			highlighted.addAll(i);
@@ -477,6 +481,7 @@ public class ClusteringViewer extends JFrame {
 
 		else
 			showViewer(highlighted.iterator().next());
+		dohighlight.set(true);
 	}
 
 	public LinkedHashSet<Integer> getHighlighted() {

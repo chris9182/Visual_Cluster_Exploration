@@ -56,10 +56,10 @@ public class FilterWindow extends JLayeredPane {
 	private SpringLayout mainLayout = new SpringLayout();
 
 	private List<ClusteringResult> clusteringResults;
-	private Map<String, Object> selectors;
-	private Map<String, double[]> allParametersMap;// TODO: sepparate this
-	private Map<String, Double> allParametersMinMap;
-	private Map<String, Double> allParametersMaxMap;
+	private final Map<String, Object> selectors;
+	private final Map<String, double[]> allParametersMap;// TODO: sepparate this
+	private final Map<String, Double> allParametersMinMap;
+	private final Map<String, Double> allParametersMaxMap;
 	private final ClusteringViewer clusteringViewer;
 
 	private final Set<ClusteringResult> filteredSet = new HashSet<ClusteringResult>();
@@ -68,11 +68,57 @@ public class FilterWindow extends JLayeredPane {
 	private List<LinkedHashSet<String>> parameterNames;
 	private List<List<List<Object>>> parameters;
 	private List<JFreeChart> charts;
+	private final List<ClusteringResult> clusteringBaseResults;
 
 	public FilterWindow(List<ClusteringResult> clusteringResults, ClusteringViewer clusteringViewer) {
+		this.clusteringBaseResults = new ArrayList<ClusteringResult>(clusteringResults);
 		this.clusteringViewer = clusteringViewer;
-
+		allParametersMap = new HashMap<String, double[]>();
+		allParametersMaxMap = new HashMap<String, Double>();
+		allParametersMinMap = new HashMap<String, Double>();
+		selectors = new HashMap<String, Object>();
 		rebuild(clusteringResults);
+		final Iterator<String> clusteringNamesIt = clusteringNames.iterator();
+		final Component lastComponent = Box.createVerticalStrut(0);
+		mainLayout.putConstraint(SpringLayout.NORTH, lastComponent, 0, SpringLayout.NORTH, this);
+		this.add(lastComponent, new Integer(0));
+
+		for (int i = 0; i < clusteringNames.size(); ++i) {
+			final String clusteringName = clusteringNamesIt.next();
+			final Iterator<String> parameterNamesIt = parameterNames.get(i).iterator();
+			for (int j = 0; j < parameterNames.get(i).size(); ++j) {
+				final String parameterName = parameterNamesIt.next();
+				double max = Double.MIN_VALUE;
+				double min = Double.MAX_VALUE;
+				final double[] allParameters = new double[parameters.get(i).get(j).size()];
+				allParametersMap.put(clusteringName + " " + parameterName, allParameters);
+				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
+					final Object parameter = parameters.get(i).get(j).get(k);
+					if (!(parameter instanceof Double) && !(parameter instanceof Integer)) {// TODO: handle other types
+						selectors.put(clusteringName + " " + parameterName, null);
+						System.err.println("unexpected value type");
+						continue;
+					}
+					Double value = Double.NaN;
+					if (parameter instanceof Double)
+						value = (Double) parameter;
+					if (parameter instanceof Integer)
+						value = (double) (((Integer) parameter));
+					if (value == Double.NaN) {
+						System.err.println("unexpected value type");
+						continue;
+					}
+					allParameters[k] = value;
+					if (value < min)
+						min = value;
+					if (value > max)
+						max = value;
+				}
+				allParametersMaxMap.put(clusteringName + " " + parameterName, max);
+				allParametersMinMap.put(clusteringName + " " + parameterName, min);
+			}
+		}
+
 	}
 
 	public void rebuild(List<ClusteringResult> clusteringResults) {
@@ -80,10 +126,7 @@ public class FilterWindow extends JLayeredPane {
 		filteredSet.clear();
 		mainLayout = new SpringLayout();
 		setLayout(mainLayout);
-		selectors = new HashMap<String, Object>();
-		allParametersMap = new HashMap<String, double[]>();
-		allParametersMinMap = new HashMap<String, Double>();
-		allParametersMaxMap = new HashMap<String, Double>();
+
 		// getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 
 		this.clusteringResults = clusteringResults;
@@ -137,9 +180,6 @@ public class FilterWindow extends JLayeredPane {
 	public void adjust() {
 		this.removeAll();
 		selectors.clear();
-		allParametersMap.clear();
-		allParametersMinMap.clear();
-		allParametersMaxMap.clear();
 		charts.clear();
 
 		final Iterator<String> clusteringNamesIt = clusteringNames.iterator();
@@ -168,8 +208,8 @@ public class FilterWindow extends JLayeredPane {
 				lastComponent = parameterNameLabel;
 				this.add(parameterNameLabel, new Integer(2));
 				// System.err.println(" " + parameterName);
-				double max = Double.MIN_VALUE;
-				double min = Double.MAX_VALUE;
+				final double max = allParametersMaxMap.get(clusteringName + " " + parameterName);
+				final double min = allParametersMinMap.get(clusteringName + " " + parameterName);
 				final double[] allParameters = new double[parameters.get(i).get(j).size()];
 				allParametersMap.put(clusteringName + " " + parameterName, allParameters);
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
@@ -189,13 +229,7 @@ public class FilterWindow extends JLayeredPane {
 						continue;
 					}
 					allParameters[k] = value;
-					if (value < min)
-						min = value;
-					if (value > max)
-						max = value;
 				}
-				allParametersMaxMap.put(clusteringName + " " + parameterName, max);
-				allParametersMinMap.put(clusteringName + " " + parameterName, min);
 				if (max != Double.MIN_VALUE) {
 					final RangeSlider slider = new MyRangeSlider(min, max, this);
 					slider.setSize(new Dimension(getWidth(), SLIDERHEIGHT));
@@ -386,6 +420,41 @@ public class FilterWindow extends JLayeredPane {
 					tooltipFrame.setVisible(false);
 					if (maxLbl == minLbl)
 						return;
+					filteredSet.clear();
+					for (final ClusteringResult result : clusteringBaseResults) {
+						final String clusteringName = result.getParameter().getName();
+						final Map<String, Object> params = result.getParameter().getParameters();
+						boolean add = true;
+						for (final String param : params.keySet()) {
+							final Object selector = selectors.get(clusteringName + " " + param);
+							if (selector == null) {
+								System.err.println("not implemented type");
+								continue;
+							}
+							if (selector instanceof MyRangeSlider) {// TODO: other selectors
+								if (((MyRangeSlider) selector).isFullRange())
+									continue;
+								final Object paramVal = params.get(param);
+								Double value = Double.NaN;
+								if (paramVal instanceof Double)
+									value = (Double) paramVal;
+								if (paramVal instanceof Integer)
+									value = (double) (((Integer) paramVal));
+								if (value == Double.NaN) {
+									System.err.println("unexpected value type");
+									continue;
+								}
+								if (value * 0.99999 >= ((MyRangeSlider) selector).getUpperValueD()
+										|| value * 1.00001 <= ((MyRangeSlider) selector).getLowerValue()) {
+									add = false;
+								}
+							} else {
+								System.err.println("not implemented type");
+							}
+						}
+						if (add)
+							filteredSet.add(result);
+					}
 					filterWindow.comitFilteredData();
 
 				}
@@ -407,7 +476,8 @@ public class FilterWindow extends JLayeredPane {
 					return;
 				oldMin = getValue();
 				oldMax = getUpperValue();
-				filteredSet.clear();
+
+				final Set<ClusteringResult> visualResult = new HashSet<ClusteringResult>();
 				for (final ClusteringResult result : clusteringResults) {
 					final String clusteringName = result.getParameter().getName();
 					final Map<String, Object> params = result.getParameter().getParameters();
@@ -440,7 +510,7 @@ public class FilterWindow extends JLayeredPane {
 						}
 					}
 					if (add)
-						filteredSet.add(result);
+						visualResult.add(result);
 				}
 
 				filteredParameters = new ArrayList<List<List<Object>>>();
@@ -450,7 +520,7 @@ public class FilterWindow extends JLayeredPane {
 
 					for (final String clusteringParameterName : parameterNames.get(index)) {
 						final List<Object> nameParameters = new ArrayList<Object>();
-						for (final ClusteringResult result : filteredSet) {
+						for (final ClusteringResult result : visualResult) {
 							if (result.getParameter().getName().equals(clusteringName)) {
 								nameParameters.add(result.getParameter().getParameters().get(clusteringParameterName));
 							}
