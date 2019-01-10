@@ -19,6 +19,7 @@ public class PointContainer {
 	private int dim;
 	private LinkedHashSet<Integer> highlighted = new LinkedHashSet<Integer>();
 	private Set<Integer> filteredResults;
+	private int groundTruth = -1;
 
 	public PointContainer(int dim) {
 		highlighted.add(-1);
@@ -210,5 +211,14 @@ public class PointContainer {
 
 	public Set<Integer> getFilteredIndexes() {
 		return filteredResults;
+	}
+
+	public void setGroundTruth(int groundTruth) {
+		this.groundTruth = groundTruth;
+
+	}
+
+	public int getGroundTruth() {
+		return groundTruth;
 	}
 }

@@ -89,9 +89,13 @@ public class ClusteringViewer extends JFrame {
 	private Set<Integer> filteredIndexes;
 
 	private int selectedViewer = 0;
+	private int groundTruth = -1;
 
 	public ClusteringViewer(List<ClusteringResult> clusterings, IDistanceMeasure metaDistance, int minPTS, double eps) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
+		for (int i = 0; i < clusterings.size(); ++i)
+			if (clusterings.get(i).getParameter().getName().equals(Util.GROUND_TRUTH))
+				groundTruth = i;
 		highlighted.add(-1);
 		this.minPTS = minPTS;
 		this.eps = eps;
@@ -267,6 +271,7 @@ public class ClusteringViewer extends JFrame {
 		};
 		mdsPlot.addCanvasMouseMotionListener(mouseAdapter);
 		mdsPlot.addCanvasMouseListener(mouseAdapter);
+		mdsPlot.getPointContainer().setGroundTruth(groundTruth);
 
 		heatMap = new HeatMap(Util.getSortedDistances(list, distanceMatrix), this, list);
 		layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
@@ -511,4 +516,7 @@ public class ClusteringViewer extends JFrame {
 		return filteredIndexes;
 	}
 
+	public int getGroundTruth() {
+		return groundTruth;
+	}
 }
