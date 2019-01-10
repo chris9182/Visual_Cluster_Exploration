@@ -385,6 +385,8 @@ public class ClusteringViewer extends JFrame {
 			oPlot.repaint();
 			mdsPlot.repaint();
 			heatMap.repaint();
+			filterWindow.revalidate();
+			filterWindow.repaint();
 		});
 
 	}
@@ -449,6 +451,18 @@ public class ClusteringViewer extends JFrame {
 					highlighted.remove(newInt);
 				else
 					highlighted.add(newInt);
+			}
+		}
+
+		if (highlighted.size() > 1) {
+			final List<ClusteringResult> results = new ArrayList<>();
+			highlighted.forEach(i1 -> results.add(clusterings.get(i1)));
+			filterWindow.rebuild(results);
+			filterWindow.adjust();
+		} else {
+			if (filterWindow.getClusterings() != clusterings) {
+				filterWindow.rebuild(clusterings);
+				filterWindow.adjust();
 			}
 		}
 

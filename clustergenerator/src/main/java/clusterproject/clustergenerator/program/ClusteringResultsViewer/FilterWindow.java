@@ -53,30 +53,39 @@ public class FilterWindow extends JLayeredPane {
 	private static final int SLIDERHEIGHT = 30;
 	private static final int MAX_BINS = 21;
 
-	private final SpringLayout mainLayout = new SpringLayout();
+	private SpringLayout mainLayout = new SpringLayout();
 
-	private final List<ClusteringResult> clusteringResults;
-	private final Map<String, Object> selectors;
-	private final Map<String, double[]> allParametersMap;
-	private final Map<String, Double> allParametersMinMap;
-	private final Map<String, Double> allParametersMaxMap;
+	private List<ClusteringResult> clusteringResults;
+	private Map<String, Object> selectors;
+	private Map<String, double[]> allParametersMap;// TODO: sepparate this
+	private Map<String, Double> allParametersMinMap;
+	private Map<String, Double> allParametersMaxMap;
 	private final ClusteringViewer clusteringViewer;
 
 	private final Set<ClusteringResult> filteredSet = new HashSet<ClusteringResult>();
 	private List<List<List<Object>>> filteredParameters;
-	private final LinkedHashSet<String> clusteringNames;
-	private final List<LinkedHashSet<String>> parameterNames;
-	private final List<List<List<Object>>> parameters;
-	private final List<JFreeChart> charts;
+	private LinkedHashSet<String> clusteringNames;
+	private List<LinkedHashSet<String>> parameterNames;
+	private List<List<List<Object>>> parameters;
+	private List<JFreeChart> charts;
 
 	public FilterWindow(List<ClusteringResult> clusteringResults, ClusteringViewer clusteringViewer) {
 		this.clusteringViewer = clusteringViewer;
+
+		rebuild(clusteringResults);
+	}
+
+	public void rebuild(List<ClusteringResult> clusteringResults) {
+		removeAll();
+		filteredSet.clear();
+		mainLayout = new SpringLayout();
+		setLayout(mainLayout);
 		selectors = new HashMap<String, Object>();
 		allParametersMap = new HashMap<String, double[]>();
 		allParametersMinMap = new HashMap<String, Double>();
 		allParametersMaxMap = new HashMap<String, Double>();
 		// getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
-		setLayout(mainLayout);
+
 		this.clusteringResults = clusteringResults;
 		charts = new ArrayList<JFreeChart>();
 
@@ -111,6 +120,7 @@ public class FilterWindow extends JLayeredPane {
 			parameters.add(clusteringParameters);
 			parameterIndex++;
 		}
+
 	}
 
 	private int oldwidth = -1;
@@ -533,6 +543,10 @@ public class FilterWindow extends JLayeredPane {
 			return (maxLbl - minLbl) * ((double) getValue() / TICK_COUNT) + minLbl;
 		}
 
+	}
+
+	public List<ClusteringResult> getClusterings() {
+		return clusteringResults;
 	}
 
 }
