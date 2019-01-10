@@ -9,7 +9,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -32,12 +35,17 @@ import clusterproject.clustergenerator.program.Clustering.CLIQUEClustering;
 import clusterproject.clustergenerator.program.Clustering.DBScan;
 import clusterproject.clustergenerator.program.Clustering.DiSHClustering;
 import clusterproject.clustergenerator.program.Clustering.IClusterer;
+import clusterproject.clustergenerator.program.Clustering.Parameters.Parameter;
 import clusterproject.clustergenerator.program.ClusteringResultsViewer.ClusteringViewer;
 import clusterproject.clustergenerator.program.MetaClustering.ClusteringError;
 import clusterproject.clustergenerator.program.MetaClustering.IDistanceMeasure;
 import clusterproject.clustergenerator.program.MetaClustering.VariationOfInformation;
+import de.lmu.ifi.dbs.elki.data.NumberVector;
+import de.lmu.ifi.dbs.elki.data.type.TypeUtil;
 import de.lmu.ifi.dbs.elki.database.Database;
 import de.lmu.ifi.dbs.elki.database.StaticArrayDatabase;
+import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
+import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.datasource.ArrayAdapterDatabaseConnection;
 import de.lmu.ifi.dbs.elki.datasource.DatabaseConnection;
 
@@ -320,6 +328,7 @@ public class ClusterWorkflow extends JFrame {
 
 	private void executeWorkflow() {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
+
 		double[][] data = new double[pointContainer.getPoints().size()][];
 		data = pointContainer.getPoints().toArray(data);
 		final DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data);
@@ -328,6 +337,38 @@ public class ClusterWorkflow extends JFrame {
 		for (final IClusterer clusterer : workflow) {
 			final List<NumberVectorClusteringResult> results = clusterer.cluster(db);
 			clusterings.addAll(results);
+		}
+		System.err.println(clusterings.size());
+		if (pointContainer.hasClusters()) {
+			final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
+
+			final List<List<NumberVector>> pointList = new ArrayList<List<NumberVector>>();
+			final Set<Integer> clusterIDs = new HashSet<Integer>(pointContainer.getClusterIDs());
+			final int maxInt = Collections.max(clusterIDs) + 1;
+			for (int j = 0; j < maxInt; ++j) {
+				pointList.add(new ArrayList<NumberVector>());
+			}
+			int i = 0;
+			for (final DBIDIter it = rel.iterDBIDs(); it.valid(); it.advance()) {
+				pointList.get(pointContainer.getClusterIDs().get(i)).add(rel.get(it));
+				i++;
+			}
+			final List<List<NumberVector>> betterPointList = new ArrayList<List<NumberVector>>();
+			for (final List<NumberVector> lNV : pointList) {
+				if (lNV.isEmpty())
+					continue;
+				betterPointList.add(lNV);
+			}
+			final NumberVector[][] clustersArr = new NumberVector[betterPointList.size()][];
+			i = 0;
+			for (final List<NumberVector> lNV : betterPointList) {
+				NumberVector[] clusterArr = new NumberVector[pointList.size()];
+				clusterArr = lNV.toArray(clusterArr);
+				clustersArr[i] = clusterArr;
+				++i;
+			}
+			final Parameter param = new Parameter(Util.GROUND_TRUTH);
+			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
 		}
 
 		final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings, pointContainer.getHeaders());

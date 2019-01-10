@@ -9,11 +9,15 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -33,6 +37,7 @@ public class ImporterWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private final JFileChooser fileChooser;
 	private final JCheckBox addBox;
+	private final JFormattedTextField labelIndexField;
 	private File selectedFile;
 	private PointContainer pointContainer;
 	MainWindow update;
@@ -71,6 +76,17 @@ public class ImporterWindow extends JFrame {
 		});
 		addBox = new JCheckBox("Add");
 		thisPanel.add(addBox);
+		final JPanel indexPanel = new JPanel();
+		indexPanel.setLayout(new BoxLayout(indexPanel, BoxLayout.X_AXIS));
+		final NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
+		labelIndexField = new JFormattedTextField(integerFieldFormatter);
+		labelIndexField.setValue(-1);
+		labelIndexField.setHorizontalAlignment(JTextField.RIGHT);
+		final JLabel indexLabel = new JLabel("Index of Cluster Labels");
+		indexPanel.add(indexLabel);
+		indexPanel.add(labelIndexField);
+		thisPanel.add(indexPanel);
+		thisPanel.add(Box.createVerticalStrut(0));
 
 	}
 
@@ -127,6 +143,12 @@ public class ImporterWindow extends JFrame {
 
 	private boolean importCSVFile() {
 		final NumberFormat format = NumberFormat.getInstance();
+
+		int labelIndex = -1;
+		try {
+			labelIndex = Integer.parseInt(labelIndexField.getText());
+		} catch (final Exception e) {
+		}
 		Reader in = null;
 		try {
 			if (selectedFile == null)
@@ -134,12 +156,22 @@ public class ImporterWindow extends JFrame {
 
 			in = new FileReader(selectedFile);
 			final CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
+
 			final int size = parser.getHeaderMap().size();
 			final List<String> headers = new ArrayList<String>();
-			parser.getHeaderMap().keySet().forEach(t -> headers.add(t));
+			boolean hasHeaders = false;
+			for (final String string : parser.getHeaderMap().keySet())
+				try {
+					format.parse(string).doubleValue();
+				} catch (final Exception e) {
+					hasHeaders = true;
+				}
+			if (hasHeaders)
+				parser.getHeaderMap().keySet().forEach(t -> headers.add(t));
 
 			final int newDim = headers.size();
 			if (newDim != pointContainer.getDim() && !replacePoints()) {
+				parser.close();
 				return false;// TODO set error
 			}
 
@@ -147,18 +179,71 @@ public class ImporterWindow extends JFrame {
 				pointContainer.empty();
 
 			pointContainer.setHeaders(headers);
-			final Iterable<CSVRecord> records = parser;
-			for (final CSVRecord record : records) {
-				final double[] point = new double[size];
-
-				for (int i = 0; i < size; ++i)
-					try {
-						point[i] = format.parse(record.get(i)).doubleValue();
-					} catch (final Exception e) {
-						point[i] = Double.NaN;
+			final List<CSVRecord> records = parser.getRecords();
+			if (!hasHeaders) {
+				double[] point = null;
+				if (labelIndex > -1)
+					point = new double[size - 1];
+				else
+					point = new double[size];
+				int i = 0;
+				for (final String string : parser.getHeaderMap().keySet()) {
+					if (i == labelIndex) {
+						i++;
+						continue;
 					}
+					final int index = i > labelIndex && labelIndex > -1 ? i - 1 : i;
+					try {
+						point[index] = format.parse(string).doubleValue();
+					} catch (final Exception e) {
+					}
+					++i;
+				}
 				pointContainer.addPoint(point);
 			}
+			for (final CSVRecord record : records) {
+				double[] point = null;
+				if (labelIndex > -1)
+					point = new double[size - 1];
+				else
+					point = new double[size];
+
+				for (int i = 0; i < size; ++i) {
+					if (i == labelIndex) {
+						continue;
+					}
+					final int index = i > labelIndex && labelIndex > -1 ? i - 1 : i;
+					try {
+						point[index] = format.parse(record.get(i)).doubleValue();
+					} catch (final Exception e) {
+						point[index] = Double.NaN;
+					}
+				}
+				pointContainer.addPoint(point);
+			}
+			if (labelIndex > -1) {
+				pointContainer.setUpClusters();
+				if (!hasHeaders) {
+					int i = 0;
+					for (final String string : parser.getHeaderMap().keySet()) {
+						if (i == labelIndex)
+							try {
+								pointContainer.addClusterID((int) format.parse(string).doubleValue());
+							} catch (final Exception e) {
+								pointContainer.addClusterID(-1);
+							}
+						++i;
+					}
+				}
+				for (final CSVRecord record : records) {
+					try {
+						pointContainer.addClusterID((int) format.parse(record.get(labelIndex)).doubleValue());
+					} catch (final Exception e) {
+						pointContainer.addClusterID(-1);
+					}
+				}
+			}
+			parser.close();
 		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (final IOException e) {

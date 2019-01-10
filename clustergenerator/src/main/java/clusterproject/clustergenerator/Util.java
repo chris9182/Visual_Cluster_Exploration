@@ -17,6 +17,8 @@ import de.lmu.ifi.dbs.elki.data.NumberVector;
 import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
 
 public class Util {
+	public static final String GROUND_TRUTH = "Ground Truth";
+
 	public static void drawRotate(Graphics2D g2d, double x, double y, int angle, String text) {
 		g2d.translate((float) x, (float) y);
 		g2d.rotate(Math.toRadians(angle));

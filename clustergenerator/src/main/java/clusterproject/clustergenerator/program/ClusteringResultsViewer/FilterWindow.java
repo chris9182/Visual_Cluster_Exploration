@@ -39,6 +39,7 @@ import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.general.DatasetUtils;
 
+import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.program.MainWindow;
 import clusterproject.clustergenerator.program.slider.RangeSlider;
@@ -83,6 +84,8 @@ public class FilterWindow extends JLayeredPane {
 		parameterNames = new ArrayList<LinkedHashSet<String>>();
 		for (final ClusteringResult result : clusteringResults) {
 			final String clusteringName = result.getParameter().getName();
+			if (clusteringName.equals(Util.GROUND_TRUTH))
+				continue;
 			if (!clusteringNames.contains(clusteringName)) {
 				clusteringNames.add(clusteringName);
 				final LinkedHashSet<String> clusteringParameterNames = new LinkedHashSet<String>();
@@ -355,35 +358,42 @@ public class FilterWindow extends JLayeredPane {
 				public void mousePressed(MouseEvent e) {
 					if (e.isConsumed())
 						return;
+					e.consume();
 					tooltip.setText((String.valueOf(((float) getLowerValue()) + " <-> " + (float) getUpperValueD())));
 					final Point p = MouseInfo.getPointerInfo().getLocation();
 					tooltipFrame.pack();
 					tooltipFrame.setLocation((int) p.getX() - tooltipFrame.getWidth() / 2,
 							(int) (getLocationOnScreen().getY() - getHeight() / 2));
 					tooltipFrame.setVisible(true);
-					e.consume();
+
 				}
 
 				@Override
 				public void mouseReleased(MouseEvent e) {
 					if (e.isConsumed())
 						return;
-					tooltipFrame.setVisible(false);
-					filterWindow.comitFilteredData();
 					e.consume();
+					tooltipFrame.setVisible(false);
+					if (maxLbl == minLbl)
+						return;
+					filterWindow.comitFilteredData();
+
 				}
 
 				@Override
 				public void mouseExited(MouseEvent e) {
 					if (e.isConsumed())
 						return;
-					tooltipFrame.setVisible(false);
 					e.consume();
+					tooltipFrame.setVisible(false);
+
 				}
 			});
 
 			addChangeListener(e -> {
 				if (getValue() == oldMin && getUpperValue() == oldMax)
+					return;
+				if (maxLbl == minLbl)
 					return;
 				oldMin = getValue();
 				oldMax = getUpperValue();

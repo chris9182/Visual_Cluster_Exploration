@@ -108,6 +108,7 @@ public class ClusteringViewer extends JFrame {
 			final PointContainer container = clustering.toPointContainer();
 			container.setHeaders(clustering.getHeaders());
 			final ScatterPlot plot = new ScatterPlot(null, container, true);
+			plot.autoAdjust();
 			plot.addAutoAdjust();
 			plot.addAutoColor();
 			viewers[i] = plot;
