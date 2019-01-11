@@ -422,7 +422,7 @@ public class ClusterWorkflow extends JFrame {
 		double eps = Double.MAX_VALUE;
 		if (number != null)
 			eps = number.doubleValue() < 0 ? Double.MAX_VALUE : number.doubleValue();
-		System.err.println(eps + " " + Integer.parseInt(minPTSField.getText()));
+		// System.err.println(eps + " " + Integer.parseInt(minPTSField.getText()));
 		final ClusteringViewer cv = new ClusteringViewer(sClusterings, getDistanceMeasure(),
 				Integer.parseInt(minPTSField.getText()), eps);
 		cv.setSize(new Dimension(800, 600));
@@ -498,15 +498,6 @@ public class ClusterWorkflow extends JFrame {
 		layout.putConstraint(SpringLayout.EAST, wfScrollPane, -2 * OUTER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
 				mainPanel);
 
-		// layout.putConstraint(SpringLayout.NORTH, wfPanel, 0, SpringLayout.NORTH,
-		// wfScrollPane);
-		// layout.putConstraint(SpringLayout.SOUTH, wfPanel, 0, SpringLayout.SOUTH,
-		// wfScrollPane);
-		// layout.putConstraint(SpringLayout.WEST, wfPanel, 0, SpringLayout.WEST,
-		// wfScrollPane);
-		// layout.putConstraint(SpringLayout.EAST, wfPanel, 0, SpringLayout.EAST,
-		// wfScrollPane);
-
 		Component alignment = Box.createVerticalStrut(0);
 		wfLayout.putConstraint(SpringLayout.NORTH, alignment, 0, SpringLayout.NORTH, wfPanel);
 		wfPanel.add(alignment);
@@ -547,8 +538,9 @@ public class ClusterWorkflow extends JFrame {
 
 	private void initClusterers() {
 		clusterers.add(new DBScan());
-		clusterers.add(new SNN());
 		clusterers.add(new DiSHClustering());
+		clusterers.add(new SNN());
+
 		// clusterers.add(new CLIQUEClustering());//XXX this is bugged
 		clusterers.add(new LloydKMeans());
 	}

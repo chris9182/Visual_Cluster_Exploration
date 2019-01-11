@@ -10,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -85,17 +86,21 @@ public class FilterWindow extends JPanel {
 		}
 		clusteringBaseResults.removeAll(removeTruth);
 
-		clusteringNames = new LinkedHashSet<String>();
+		final List<String> cList = new ArrayList<String>();
 		parameterNames = new ArrayList<LinkedHashSet<String>>();
 		for (final ClusteringResult result : clusteringBaseResults) {
 			final String clusteringName = result.getParameter().getName();
-			if (!clusteringNames.contains(clusteringName)) {
-				clusteringNames.add(clusteringName);
+			if (!cList.contains(clusteringName)) {
+				cList.add(clusteringName);
+				final List<String> pList = new ArrayList<>(result.getParameter().getParameters().keySet());
+				Collections.sort(pList);
 				final LinkedHashSet<String> clusteringParameterNames = new LinkedHashSet<String>();
-				clusteringParameterNames.addAll(result.getParameter().getParameters().keySet());
+				clusteringParameterNames.addAll(pList);
 				parameterNames.add(clusteringParameterNames);
 			}
 		}
+		Collections.sort(cList);
+		clusteringNames = new LinkedHashSet<String>(cList);
 
 		this.clusteringViewer = clusteringViewer;
 		allParametersMap = new HashMap<String, double[]>();
@@ -286,7 +291,7 @@ public class FilterWindow extends JPanel {
 					if (parameters.get(i).get(j).get(0) instanceof Integer)
 						bins = (int) (max - min + 1);// TODO check if this is good
 					else if (parameters.get(i).get(j).get(0) instanceof Boolean)
-						bins=2;
+						bins = 2;
 					if (bins < 1)
 						bins = 1;
 					if (bins > MAX_BINS)
@@ -645,7 +650,7 @@ public class FilterWindow extends JPanel {
 						} else if (parameters.get(i).get(j).get(0) instanceof Integer)
 							bins = (int) (max - min + 1);// TODO check if this is good
 						else if (parameters.get(i).get(j).get(0) instanceof Boolean)
-							bins=2;
+							bins = 2;
 						if (bins < 1)
 							bins = 1;
 						if (bins > MAX_BINS)
