@@ -99,7 +99,6 @@ public class FilterWindow extends JPanel {
 				parameterNames.add(clusteringParameterNames);
 			}
 		}
-		Collections.sort(cList);
 		clusteringNames = new LinkedHashSet<String>(cList);
 
 		this.clusteringViewer = clusteringViewer;
@@ -273,8 +272,8 @@ public class FilterWindow extends JPanel {
 				if (max != Double.MIN_VALUE) {
 					final RangeSlider slider = new MyRangeSlider(min, max, this);
 					// slider.setSize(new Dimension(getWidth(), SLIDERHEIGHT));
-					if (min == max)
-						slider.setEnabled(false);
+					// if (min == max)
+					// slider.setEnabled(false);
 					selectors.put(clusteringName + " " + parameterName, slider);
 					mainLayout.putConstraint(SpringLayout.NORTH, slider, ABOVE_BAR_SPACE, SpringLayout.SOUTH,
 							parameterNameLabel);
@@ -288,7 +287,7 @@ public class FilterWindow extends JPanel {
 
 					final Rectangle sliderRectangle = ((RangeSliderUI) slider.getUI()).getTrackRectangle();
 					int bins = MAX_BINS;
-					if (parameters.get(i).get(j).size() < 1)
+					if (parameters.get(i).get(j).size() <= 1)
 						bins = 1;
 					else if (parameters.get(i).get(j).get(0) instanceof Integer)
 						bins = (int) (max - min + 1);// TODO check if this is good
@@ -477,8 +476,6 @@ public class FilterWindow extends JPanel {
 						return;
 					e.consume();
 					tooltipFrame.setVisible(false);
-					if (maxLbl == minLbl)
-						return;
 					filteredSet.clear();
 					for (final ClusteringResult result : clusteringBaseResults) {
 						final String clusteringName = result.getParameter().getName();
@@ -546,8 +543,6 @@ public class FilterWindow extends JPanel {
 		public void handleChange(boolean forceUpdate) {
 			if (!forceUpdate) {
 				if (getValue() == oldMin && getUpperValue() == oldMax)
-					return;
-				if (maxLbl == minLbl)
 					return;
 			}
 			oldMin = getValue();
@@ -652,7 +647,7 @@ public class FilterWindow extends JPanel {
 					}
 					if (max != Double.MIN_VALUE) {
 						int bins = MAX_BINS;
-						if (parameters.get(i).get(j).size() < 1)
+						if (parameters.get(i).get(j).size() <= 1)
 							bins = 1;
 						else if (parameters.get(i).get(j).get(0) instanceof Integer)
 							bins = (int) (max - min + 1);// TODO check if this is good
