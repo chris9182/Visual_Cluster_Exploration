@@ -399,6 +399,7 @@ public class FilterWindow extends JPanel {
 		final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
 		rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 		rangeAxis.setVisible(false);
+		rangeAxis.setRange(rangeAxis.getLowerBound(), rangeAxis.getUpperBound());
 
 		final CategoryItemRenderer renderer = plot.getRenderer();
 		renderer.setDefaultItemLabelsVisible(false);
