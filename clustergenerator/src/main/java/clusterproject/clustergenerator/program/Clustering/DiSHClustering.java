@@ -106,7 +106,7 @@ public class DiSHClustering implements IClusterer {
 			MuBound = optionsPanel.getUBMu();
 			samples = optionsPanel.getNSamples();
 		}
-		return "Mu{LB:" + Mu + " UB:" + MuBound + "} " + "Epsilon{LB:" + eps + " UB:" + epsBound + " Samples:" + samples
+		return "Mu{LB:" + Mu + " UB:" + MuBound + "} " + "Epsilon{LB:" + eps + " UB:" + epsBound + " Samples{" + samples
 				+ "}";
 	}
 

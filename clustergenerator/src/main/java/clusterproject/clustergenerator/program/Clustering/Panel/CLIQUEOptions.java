@@ -94,10 +94,10 @@ public class CLIQUEOptions extends JPanel {
 		layout.putConstraint(SpringLayout.NORTH, NField, 5 * INNER_PAD, SpringLayout.SOUTH, uppertauField);
 		layout.putConstraint(SpringLayout.EAST, NField, 0, SpringLayout.EAST, this);
 		add(NField);
-		final JLabel sminplbl = new JLabel("Samples:");
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sminplbl, 0, SpringLayout.VERTICAL_CENTER, NField);
-		layout.putConstraint(SpringLayout.WEST, sminplbl, 0, SpringLayout.WEST, this);
-		add(sminplbl);
+		final JLabel sampleslbl = new JLabel("Samples:");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sampleslbl, 0, SpringLayout.VERTICAL_CENTER, NField);
+		layout.putConstraint(SpringLayout.WEST, sampleslbl, 0, SpringLayout.WEST, this);
+		add(sampleslbl);
 
 	}
 

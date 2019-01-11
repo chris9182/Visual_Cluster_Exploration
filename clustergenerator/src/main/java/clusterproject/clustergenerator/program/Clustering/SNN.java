@@ -7,28 +7,31 @@ import java.util.Random;
 import javax.swing.JPanel;
 
 import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
-import clusterproject.clustergenerator.program.Clustering.Panel.CLIQUEOptions;
+import clusterproject.clustergenerator.program.Clustering.Panel.SNNOptions;
 import clusterproject.clustergenerator.program.Clustering.Parameters.Parameter;
-import de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.CLIQUE;
+import de.lmu.ifi.dbs.elki.algorithm.clustering.SNNClustering;
 import de.lmu.ifi.dbs.elki.data.Clustering;
+import de.lmu.ifi.dbs.elki.data.DoubleVector;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
-import de.lmu.ifi.dbs.elki.data.model.SubspaceModel;
+import de.lmu.ifi.dbs.elki.data.model.Model;
 import de.lmu.ifi.dbs.elki.data.type.TypeUtil;
 import de.lmu.ifi.dbs.elki.database.Database;
 import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
 import de.lmu.ifi.dbs.elki.database.relation.Relation;
+import de.lmu.ifi.dbs.elki.index.preprocessed.snn.SharedNearestNeighborPreprocessor;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
-public class CLIQUEClustering implements IClusterer {
+public class SNN implements IClusterer {
+	private static final long serialVersionUID = -5466140815704959353L;
 
-	private static final long serialVersionUID = -724435821167392129L;
-
-	private transient CLIQUEOptions optionsPanel = new CLIQUEOptions();
-	private double tau;
-	private double tauBound;
-	private int xsi;
-	private int xsiBound;
+	private transient SNNOptions optionsPanel = new SNNOptions();
+	private int eps;
+	private int epsBound;
+	private int minPTS;
+	private int minPTSBound;
+	private int snn;
+	private int snnBound;
 	private int samples;
 
 	@Override
@@ -38,7 +41,7 @@ public class CLIQUEClustering implements IClusterer {
 
 	@Override
 	public String getName() {
-		return "CLIQUE #BETA#";
+		return "Shared Nearest Neighbor";
 	}
 
 	@Override
@@ -47,24 +50,28 @@ public class CLIQUEClustering implements IClusterer {
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
 		if (optionsPanel != null) {
-			tau = optionsPanel.getLBtau();
-			tauBound = optionsPanel.getUBtau();
-			xsi = optionsPanel.getLBxsi();
-			xsiBound = optionsPanel.getUBxsi();
+			eps = optionsPanel.getLBEps();
+			epsBound = optionsPanel.getUBEps();
+			minPTS = optionsPanel.getLBMinPTS();
+			minPTSBound = optionsPanel.getUBMinPTS();
+			snn = optionsPanel.getLBsnn();
+			snnBound = optionsPanel.getUBsnn();
 			samples = optionsPanel.getNSamples();
 		}
 
 		for (int i = 0; i < samples; ++i) {
 			final Random r = new Random();
-			final double calcTau = tau + (tauBound - tau) * r.nextDouble();
-			final int calcXsi = r.nextInt((xsiBound - xsi) + 1) + xsi;
-			final boolean calcPrune = r.nextInt(2) == 1;
+			final int calcEps = r.nextInt((epsBound - eps) + 1) + eps;
+			final int calcMinPTS = r.nextInt((minPTSBound - minPTS) + 1) + minPTS;
+			final int calcSNN = r.nextInt((snnBound - snn) + 1) + snn;
+
 			final ListParameterization params = new ListParameterization();
-			params.addParameter(CLIQUE.TAU_ID, calcTau);
-			params.addParameter(CLIQUE.XSI_ID, calcXsi);
-			params.addParameter(CLIQUE.PRUNE_ID, calcPrune);// TODO: settings
-			final CLIQUE<NumberVector> clique = ClassGenericsUtil.parameterizeOrAbort(CLIQUE.class, params);
-			final Clustering<SubspaceModel> result = clique.run(rel);
+			params.addParameter(SNNClustering.Parameterizer.EPSILON_ID, calcEps);
+			params.addParameter(SNNClustering.Parameterizer.MINPTS_ID, calcMinPTS);
+			params.addParameter(SharedNearestNeighborPreprocessor.Factory.NUMBER_OF_NEIGHBORS_ID, calcSNN);
+			final SNNClustering<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(SNNClustering.class,
+					params);
+			final Clustering<Model> result = dbscan.run(db);
 			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
 			result.getAllClusters().forEach(cluster -> {
 				final List<NumberVector> pointList = new ArrayList<NumberVector>();
@@ -80,34 +87,31 @@ public class CLIQUEClustering implements IClusterer {
 			NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 			clustersArr = clusterList.toArray(clustersArr);
 			final Parameter param = new Parameter(getName());
-			param.addParameter("xsi", calcXsi);
-			param.addParameter("tauilon", calcTau);
-			param.addParameter("prune", i % 2 == 0);
-			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));// TODO:
-			// show
-			// pruning
-
+			param.addParameter("minPTS", calcMinPTS);
+			param.addParameter("Epsilon", calcEps);
+			param.addParameter("Num. Neighbors", calcSNN);
+			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
 		}
 		return clusterings;
 	}
 
 	@Override
 	public IClusterer duplicate() {
-		return new CLIQUEClustering();
+		return new SNN();
 	}
 
 	@Override
 	public String getSettingsString() {
 		if (optionsPanel != null) {
-			tau = optionsPanel.getLBtau();
-			tauBound = optionsPanel.getUBtau();
-			xsi = optionsPanel.getLBxsi();
-			xsiBound = optionsPanel.getUBxsi();
+			eps = optionsPanel.getLBEps();
+			epsBound = optionsPanel.getUBEps();
+			minPTS = optionsPanel.getLBMinPTS();
+			minPTSBound = optionsPanel.getUBMinPTS();
+			snn = optionsPanel.getLBsnn();
+			snnBound = optionsPanel.getUBsnn();
 			samples = optionsPanel.getNSamples();
 		}
-		return "xsi{LB:" + xsi + " UB:" + xsiBound + "} " + "tau{LB:" + tau + " UB:" + tauBound + " Samples{" + samples
-				+ "}";// TODO: show
-		// pruning
+		return "minPTS{LB:" + minPTS + " UB:" + minPTSBound + "} " + "Epsilon{LB:" + eps + " UB:" + epsBound
+				+ "Num. Neighbors{LB:" + snn + " UB:" + snnBound + "} " + " Samples{" + samples + "}";
 	}
-
 }

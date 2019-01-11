@@ -1,14 +1,13 @@
 package clusterproject.clustergenerator.program.Clustering.Panel;
 
 import java.text.NumberFormat;
-import java.text.ParseException;
 
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
-public class DBScanOptions extends JPanel {
+public class SNNOptions extends JPanel {
 	private static final long serialVersionUID = 559822521256476978L;
 
 	private final JFormattedTextField lowerMinPTSField;
@@ -19,9 +18,13 @@ public class DBScanOptions extends JPanel {
 
 	private final JFormattedTextField NField;
 
+	private final JFormattedTextField lowersnnField;
+
+	private final JFormattedTextField uppersnnField;
+
 	private static final int INNER_PAD = 2;
 
-	public DBScanOptions() {
+	public SNNOptions() {
 		setOpaque(false);
 		final SpringLayout layout = new SpringLayout();
 		setLayout(layout);
@@ -66,7 +69,7 @@ public class DBScanOptions extends JPanel {
 		add(epsLbl);
 
 		// lowerBound
-		lowerEpsField = new JFormattedTextField(doubleFieldFormatter);
+		lowerEpsField = new JFormattedTextField(integerFieldFormatter);
 		lowerEpsField.setValue(new Double(1.0));
 		lowerEpsField.setColumns(5);
 		layout.putConstraint(SpringLayout.NORTH, lowerEpsField, INNER_PAD, SpringLayout.SOUTH, epsLbl);
@@ -78,7 +81,7 @@ public class DBScanOptions extends JPanel {
 		add(lepslbl);
 
 		// upperBound
-		upperEpsField = new JFormattedTextField(doubleFieldFormatter);
+		upperEpsField = new JFormattedTextField(integerFieldFormatter);
 		upperEpsField.setValue(new Double(1.0));
 		upperEpsField.setColumns(5);
 		layout.putConstraint(SpringLayout.NORTH, upperEpsField, INNER_PAD, SpringLayout.SOUTH, lowerEpsField);
@@ -89,10 +92,40 @@ public class DBScanOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, uepslbl, 0, SpringLayout.WEST, this);
 		add(uepslbl);
 
+		// snn
+		final JLabel snnLbl = new JLabel("Num. Neighbors");
+		layout.putConstraint(SpringLayout.NORTH, snnLbl, 5 * INNER_PAD, SpringLayout.SOUTH, upperEpsField);
+		layout.putConstraint(SpringLayout.WEST, snnLbl, 0, SpringLayout.WEST, this);
+		add(snnLbl);
+
+		// lowerBound
+		lowersnnField = new JFormattedTextField(integerFieldFormatter);
+		lowersnnField.setValue(1);
+		lowersnnField.setColumns(5);
+		layout.putConstraint(SpringLayout.NORTH, lowersnnField, INNER_PAD, SpringLayout.SOUTH, snnLbl);
+		layout.putConstraint(SpringLayout.EAST, lowersnnField, 0, SpringLayout.EAST, this);
+		add(lowersnnField);
+		final JLabel lsnnlbl = new JLabel("lower bound:");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, lsnnlbl, 0, SpringLayout.VERTICAL_CENTER, lowersnnField);
+		layout.putConstraint(SpringLayout.WEST, lsnnlbl, 0, SpringLayout.WEST, this);
+		add(lsnnlbl);
+
+		// upperBound
+		uppersnnField = new JFormattedTextField(integerFieldFormatter);
+		uppersnnField.setValue(1);
+		uppersnnField.setColumns(5);
+		layout.putConstraint(SpringLayout.NORTH, uppersnnField, INNER_PAD, SpringLayout.SOUTH, lowersnnField);
+		layout.putConstraint(SpringLayout.EAST, uppersnnField, 0, SpringLayout.EAST, this);
+		add(uppersnnField);
+		final JLabel usnnlbl = new JLabel("upper bound:");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, usnnlbl, 0, SpringLayout.VERTICAL_CENTER, uppersnnField);
+		layout.putConstraint(SpringLayout.WEST, usnnlbl, 0, SpringLayout.WEST, this);
+		add(usnnlbl);
+
 		NField = new JFormattedTextField(integerFieldFormatter);
 		NField.setValue(1);
 		NField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, NField, 5 * INNER_PAD, SpringLayout.SOUTH, upperEpsField);
+		layout.putConstraint(SpringLayout.NORTH, NField, 5 * INNER_PAD, SpringLayout.SOUTH, uppersnnField);
 		layout.putConstraint(SpringLayout.EAST, NField, 0, SpringLayout.EAST, this);
 		add(NField);
 		final JLabel sampleslbl = new JLabel("Samples:");
@@ -114,28 +147,20 @@ public class DBScanOptions extends JPanel {
 		return Integer.parseInt(upperMinPTSField.getText());
 	}
 
-	public double getLBEps() {
-		final NumberFormat format = NumberFormat.getInstance();
-		Number number;
-		try {
-			number = format.parse(lowerEpsField.getText());
-		} catch (final ParseException e1) {
-			e1.printStackTrace();
-			return 0;
-		}
-		return number.doubleValue();
+	public int getLBEps() {
+		return Integer.parseInt(lowerEpsField.getText());
 	}
 
-	public double getUBEps() {
-		final NumberFormat format = NumberFormat.getInstance();
-		Number number;
-		try {
-			number = format.parse(upperEpsField.getText());
-		} catch (final ParseException e1) {
-			e1.printStackTrace();
-			return 0;
-		}
-		return number.doubleValue();
+	public int getUBEps() {
+		return Integer.parseInt(upperEpsField.getText());
+	}
+
+	public int getLBsnn() {
+		return Integer.parseInt(lowersnnField.getText());
+	}
+
+	public int getUBsnn() {
+		return Integer.parseInt(uppersnnField.getText());
 	}
 
 }

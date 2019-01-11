@@ -72,7 +72,7 @@ public class ClusteringViewer extends JFrame {
 	private final IDistanceMeasure metaDistance;
 	private final OpticsPlot oPlot;
 	private final double[][] distanceMatrix;
-	private final ScatterPlot mdsPlot;
+	private ScatterPlot mdsPlot;
 	private final LinkedHashSet<Integer> highlighted = new LinkedHashSet<>();
 	private final AtomicBoolean dohighlight = new AtomicBoolean(true);
 
@@ -213,26 +213,32 @@ public class ClusteringViewer extends JFrame {
 						distanceMatrix[groundTruth][i]);
 			}
 		}
-		final MDS mds = new MDS(distanceMatrix, 2);
-		final double[][] coords = mds.getCoordinates();
-		final PointContainer mdsContainer = new PointContainer(coords[0].length);
-		mdsContainer.addPoints(coords);
-		mdsPlot = new ScatterPlot(null, mdsContainer, true);
-		mdsPlot.addAutoAdjust();
-		mdsPlot.autoAdjust();
-		layout.putConstraint(SpringLayout.NORTH, mdsPlot, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
-		layout.putConstraint(SpringLayout.WEST, mdsPlot, VIEWER_SPACE - RIGHT_PANEL_WIDTH / 2,
-				SpringLayout.HORIZONTAL_CENTER, mainPanel);
-		layout.putConstraint(SpringLayout.SOUTH, mdsPlot, -VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
-		layout.putConstraint(SpringLayout.EAST, mdsPlot, -VIEWER_SPACE - RIGHT_PANEL_WIDTH, SpringLayout.EAST,
-				mainPanel);
-		mainPanel.add(mdsPlot, new Integer(9));
 
-		final JLabel mdsLabel = new JLabel("MDS Plot");
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, mdsLabel, 0, SpringLayout.VERTICAL_CENTER,
-				clustereringSelector);
-		layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, mdsLabel, 0, SpringLayout.HORIZONTAL_CENTER, mdsPlot);
-		mainPanel.add(mdsLabel, new Integer(11));
+		MDS mds = null;
+		try {
+			mds = new MDS(distanceMatrix, 2);
+			final double[][] coords = mds.getCoordinates();
+			final PointContainer mdsContainer = new PointContainer(coords[0].length);
+			mdsContainer.addPoints(coords);
+			mdsPlot = new ScatterPlot(null, mdsContainer, true);
+			mdsPlot.addAutoAdjust();
+			mdsPlot.autoAdjust();
+			layout.putConstraint(SpringLayout.NORTH, mdsPlot, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
+			layout.putConstraint(SpringLayout.WEST, mdsPlot, VIEWER_SPACE - RIGHT_PANEL_WIDTH / 2,
+					SpringLayout.HORIZONTAL_CENTER, mainPanel);
+			layout.putConstraint(SpringLayout.SOUTH, mdsPlot, -VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
+			layout.putConstraint(SpringLayout.EAST, mdsPlot, -VIEWER_SPACE - RIGHT_PANEL_WIDTH, SpringLayout.EAST,
+					mainPanel);
+			mainPanel.add(mdsPlot, new Integer(9));
+
+			final JLabel mdsLabel = new JLabel("MDS Plot");
+			layout.putConstraint(SpringLayout.VERTICAL_CENTER, mdsLabel, 0, SpringLayout.VERTICAL_CENTER,
+					clustereringSelector);
+			layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, mdsLabel, 0, SpringLayout.HORIZONTAL_CENTER, mdsPlot);
+			mainPanel.add(mdsLabel, new Integer(11));
+		} catch (final Exception e) {
+			e.printStackTrace();
+		}
 
 		final OpticsMetaClustering optics = new OpticsMetaClustering(clusterings, distanceMatrix, minPTS, eps);
 		final List<ClusteringWithDistance> list = optics.runOptics();
@@ -276,9 +282,12 @@ public class ClusteringViewer extends JFrame {
 				current = null;// TODO: bug
 			}
 		};
-		mdsPlot.addCanvasMouseMotionListener(mouseAdapter);
-		mdsPlot.addCanvasMouseListener(mouseAdapter);
-		mdsPlot.getPointContainer().setGroundTruth(groundTruth);
+
+		if (mdsPlot != null) {
+			mdsPlot.addCanvasMouseMotionListener(mouseAdapter);
+			mdsPlot.addCanvasMouseListener(mouseAdapter);
+			mdsPlot.getPointContainer().setGroundTruth(groundTruth);
+		}
 
 		heatMap = new HeatMap(Util.getSortedDistances(list, distanceMatrix), this, list);
 		layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
@@ -360,6 +369,8 @@ public class ClusteringViewer extends JFrame {
 	}
 
 	public void updateMDSPlot(List<ClusteringWithDistance> list) {
+		if (mdsPlot == null)
+			return;
 		final Integer[] clusterIDs = new Integer[list.size()];
 		for (final ClusteringWithDistance clustering : list)
 			clusterIDs[clustering.inIndex] = clustering.tag;
@@ -396,7 +407,8 @@ public class ClusteringViewer extends JFrame {
 			viewerPanel.revalidate();
 			viewerPanel.repaint();
 			oPlot.repaint();
-			mdsPlot.repaint();
+			if (mdsPlot != null)
+				mdsPlot.repaint();
 			heatMap.repaint();
 			filterWindow.repaint();
 		});
@@ -483,7 +495,8 @@ public class ClusteringViewer extends JFrame {
 
 		if (highlighted.isEmpty())
 			highlighted.add(-1);
-		mdsPlot.getPointContainer().setHighlighted(highlighted);
+		if (mdsPlot != null)
+			mdsPlot.getPointContainer().setHighlighted(highlighted);
 		if (highlighted.size() > 1 || highlighted.iterator().next() == -1)
 			if (highlighted.contains(selectedViewer) || highlighted.size() < 1) {
 				callRepaint();

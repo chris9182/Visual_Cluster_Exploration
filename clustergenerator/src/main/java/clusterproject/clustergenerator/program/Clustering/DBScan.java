@@ -101,6 +101,6 @@ public class DBScan implements IClusterer {
 			samples = optionsPanel.getNSamples();
 		}
 		return "minPTS{LB:" + minPTS + " UB:" + minPTSBound + "} " + "Epsilon{LB:" + eps + " UB:" + epsBound
-				+ " Samples:" + samples + "}";
+				+ " Samples{" + samples + "}";
 	}
 }
