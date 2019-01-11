@@ -210,8 +210,9 @@ public class ClusteringViewer extends JFrame {
 		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
 		if (groundTruth >= 0) {
 			for (int i = 0; i < clusterings.size(); ++i) {
-				clusterings.get(i).getParameter().addParameter("Distance to GroundTruth",
-						distanceMatrix[groundTruth][i]);
+				if (clusterings.get(i).getParameter().getParameters().containsKey(Util.GROUND_TRUTH))
+					continue;
+				clusterings.get(i).getParameter().addParameter(Util.GROUND_TRUTH, distanceMatrix[groundTruth][i]);
 			}
 		}
 
@@ -552,6 +553,7 @@ public class ClusteringViewer extends JFrame {
 		}
 
 		SwingUtilities.invokeLater(() -> {
+			heatMap.repaint();
 			mdsPlot.repaint();
 			oPlot.repaint();
 		});

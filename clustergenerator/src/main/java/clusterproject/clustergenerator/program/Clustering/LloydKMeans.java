@@ -2,7 +2,6 @@ package clusterproject.clustergenerator.program.Clustering;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import javax.swing.JPanel;
 
@@ -27,7 +26,6 @@ public class LloydKMeans implements IClusterer {
 	private transient LloydKMeansOptions optionsPanel = new LloydKMeansOptions();
 	private int minK;
 	private int minKBound;
-	private int samples;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -47,12 +45,10 @@ public class LloydKMeans implements IClusterer {
 		if (optionsPanel != null) {
 			minK = optionsPanel.getLBK();
 			minKBound = optionsPanel.getUBK();
-			samples = optionsPanel.getNSamples();
 		}
 
-		for (int i = 0; i < samples; ++i) {
-			final Random r = new Random();
-			final int calcK = r.nextInt((minKBound - minK) + 1) + minK;
+		for (int i = minK; i <= minKBound; ++i) {
+			final int calcK = i;
 
 			final ListParameterization params = new ListParameterization();
 			params.addParameter(ParallelLloydKMeans.K_ID, calcK);
@@ -90,8 +86,7 @@ public class LloydKMeans implements IClusterer {
 		if (optionsPanel != null) {
 			minK = optionsPanel.getLBK();
 			minKBound = optionsPanel.getUBK();
-			samples = optionsPanel.getNSamples();
 		}
-		return "k:{LB:" + minK + " UB:" + minKBound + "} " + " Samples{" + samples + "}";
+		return "k:{LB:" + minK + " UB:" + minKBound + "} ";
 	}
 }

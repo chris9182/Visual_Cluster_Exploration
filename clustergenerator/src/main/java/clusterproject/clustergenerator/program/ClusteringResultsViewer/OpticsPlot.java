@@ -242,7 +242,15 @@ public class OpticsPlot extends JLayeredPane {
 				if (highlighted) {
 					g.setColor(Color.lightGray);
 					g.fillRect(0, 0, getWidth(), getHeight());
-					g.setColor(Color.ORANGE);
+					if (filtered == null) {
+						g.setColor(Color.ORANGE);
+					} else {
+						if (filtered.contains(myid)) {
+							g.setColor(Color.ORANGE);
+						} else {
+							g.setColor(Color.gray);
+						}
+					}
 					g.fillRect(0, (int) (getHeight() * (1 - heightPercent)), getWidth(),
 							(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
 				} else {

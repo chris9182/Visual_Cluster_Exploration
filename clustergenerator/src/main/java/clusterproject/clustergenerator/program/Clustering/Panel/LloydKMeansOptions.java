@@ -13,8 +13,6 @@ public class LloydKMeansOptions extends JPanel {
 	private final JFormattedTextField lowerKField;
 	private final JFormattedTextField upperKField;
 
-	private final JFormattedTextField NField;
-
 	private static final int INNER_PAD = 2;
 
 	public LloydKMeansOptions() {
@@ -54,25 +52,10 @@ public class LloydKMeansOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, uklbl, 0, SpringLayout.WEST, this);
 		add(uklbl);
 
-		NField = new JFormattedTextField(integerFieldFormatter);
-		NField.setValue(1);
-		NField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, NField, 5 * INNER_PAD, SpringLayout.SOUTH, upperKField);
-		layout.putConstraint(SpringLayout.EAST, NField, 0, SpringLayout.EAST, this);
-		add(NField);
-		final JLabel sklbl = new JLabel("Samples:");
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, sklbl, 0, SpringLayout.VERTICAL_CENTER, NField);
-		layout.putConstraint(SpringLayout.WEST, sklbl, 0, SpringLayout.WEST, this);
-		add(sklbl);
-
 	}
 
 	public int getLBK() {
 		return Integer.parseInt(lowerKField.getText());
-	}
-
-	public int getNSamples() {
-		return Integer.parseInt(NField.getText());
 	}
 
 	public int getUBK() {

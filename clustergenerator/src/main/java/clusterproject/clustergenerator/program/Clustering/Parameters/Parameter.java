@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import clusterproject.clustergenerator.Util;
+
 public class Parameter implements Serializable {
 
 	/**
@@ -30,6 +32,8 @@ public class Parameter implements Serializable {
 	public String getInfoString() {
 		String returnval = getName() + ": ";
 		for (final String param : parameters.keySet()) {
+			if (param.equals(Util.GROUND_TRUTH))
+				continue;
 			returnval += param + ": " + parameters.get(param) + " ";
 
 		}

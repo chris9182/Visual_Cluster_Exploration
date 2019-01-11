@@ -129,7 +129,10 @@ public class PointCanvas extends JPanel {
 				for (final int hIndex : highlighted) {
 					if (hIndex == truth)
 						continue;
-					g2.setColor(HIGHLIGHT_COLOR);
+					if (filtered == null || filtered.contains(hIndex))
+						g2.setColor(HIGHLIGHT_COLOR);
+					else
+						g2.setColor(Color.lightGray);
 					g2.fillOval((int) (xCoordinates[hIndex] - pointWidth * HIGHLIGHT_FACTOR / 2),
 							(int) (yCoordinates[hIndex] - pointWidth * HIGHLIGHT_FACTOR / 2),
 							pointWidth * HIGHLIGHT_FACTOR, pointWidth * HIGHLIGHT_FACTOR);

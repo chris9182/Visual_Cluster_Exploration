@@ -13,6 +13,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
@@ -91,6 +92,10 @@ public class HeatMap extends JLayeredPane {
 		clusteringViewer.highlight(highlighted, replace);
 	}
 
+	public Set<Integer> getFilteredIndexes() {
+		return clusteringViewer.getFilteredIndexes();
+	}
+
 	private class HeatCell extends JComponent {
 		private static final long serialVersionUID = -1175380889963981647L;
 
@@ -109,11 +114,22 @@ public class HeatMap extends JLayeredPane {
 
 		@Override
 		public void paint(Graphics g) {
+			final Set<Integer> filtered = heatMap.getFilteredIndexes();
 			final LinkedHashSet<Integer> highlighted = heatMap.getHighlighted();
-			if (highlighted.contains(i) && highlighted.contains(j) && i == j)
-				g.setColor(Color.ORANGE);
-			else
-				g.setColor(myColor);
+			g.setColor(myColor);
+			if (i == j) {
+				if (highlighted.contains(i))
+					g.setColor(Color.ORANGE);
+				if (filtered != null) {
+					if (!filtered.contains(i)) {
+						if (highlighted.contains(i))
+							g.setColor(Color.darkGray);
+						else
+							g.setColor(Color.GRAY);
+					}
+				}
+			}
+
 			g.fillRect(0, 0, getWidth(), getHeight());
 		}
 

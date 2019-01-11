@@ -493,6 +493,10 @@ public class FilterWindow extends JPanel {
 							if (selector instanceof MyRangeSlider) {// TODO: other selectors
 								if (((MyRangeSlider) selector).isFullRange())
 									continue;
+								if (((MyRangeSlider) selector).isEmptyRange()) {
+									add = false;
+									continue;
+								}
 								final Object paramVal = params.get(param);
 								Double value = Double.NaN;
 								if (paramVal instanceof Double)
@@ -563,6 +567,10 @@ public class FilterWindow extends JPanel {
 					if (selector instanceof MyRangeSlider) {// TODO: other selectors
 						if (((MyRangeSlider) selector).isFullRange())
 							continue;
+						if (((MyRangeSlider) selector).isEmptyRange()) {
+							add = false;
+							continue;
+						}
 						final Object paramVal = params.get(param);
 						Double value = Double.NaN;
 						if (paramVal instanceof Double)
@@ -575,10 +583,6 @@ public class FilterWindow extends JPanel {
 							System.err.println("unexpected value type");
 							continue;
 						}
-						if (((MyRangeSlider) selector).isEmptyRange()) {
-							add = false;
-							continue;
-						}
 						if (value * 0.99999 >= ((MyRangeSlider) selector).getUpperValueD()
 								|| value * 1.00001 <= ((MyRangeSlider) selector).getLowerValue()) {
 							add = false;
@@ -587,8 +591,9 @@ public class FilterWindow extends JPanel {
 						System.err.println("not implemented type");
 					}
 				}
-				if (add)
+				if (add) {
 					visualResult.add(result);
+				}
 			}
 
 			filteredParameters = new ArrayList<List<List<Object>>>();
