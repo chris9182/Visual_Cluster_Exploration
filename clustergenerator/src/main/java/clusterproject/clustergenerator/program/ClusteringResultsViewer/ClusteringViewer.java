@@ -30,6 +30,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
@@ -58,7 +59,7 @@ public class ClusteringViewer extends JFrame {
 
 	private static final int OUTER_SPACE = 20;
 	public static final int VIEWER_SPACE = 4;
-	private static final int RIGHT_PANEL_WIDTH = 300;
+	public static final int RIGHT_PANEL_WIDTH = 300;
 
 	private final List<ClusteringResult> clusterings;
 	private final ScatterPlot[] viewers;
@@ -206,7 +207,12 @@ public class ClusteringViewer extends JFrame {
 		mainPanel.add(distLabel, new Integer(1));
 
 		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
-
+		if (groundTruth >= 0) {
+			for (int i = 0; i < clusterings.size(); ++i) {
+				clusterings.get(i).getParameter().addParameter("Distance to GroundTruth",
+						distanceMatrix[groundTruth][i]);
+			}
+		}
 		final MDS mds = new MDS(distanceMatrix, 2);
 		final double[][] coords = mds.getCoordinates();
 		final PointContainer mdsContainer = new PointContainer(coords[0].length);
@@ -290,11 +296,16 @@ public class ClusteringViewer extends JFrame {
 		});
 
 		filterWindow = new FilterWindow(clusterings, this);
-		layout.putConstraint(SpringLayout.NORTH, filterWindow, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);
-		layout.putConstraint(SpringLayout.SOUTH, filterWindow, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
-		layout.putConstraint(SpringLayout.EAST, filterWindow, 0, SpringLayout.EAST, mainPanel);
-		layout.putConstraint(SpringLayout.WEST, filterWindow, -RIGHT_PANEL_WIDTH, SpringLayout.EAST, mainPanel);
-		mainPanel.add(filterWindow, new Integer(11));
+		final JScrollPane scrollPaneFilter = new JScrollPane(filterWindow);
+		scrollPaneFilter.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPaneFilter.setBorder(null);
+		scrollPaneFilter.setOpaque(false);
+		layout.putConstraint(SpringLayout.NORTH, scrollPaneFilter, VIEWER_SPACE, SpringLayout.SOUTH,
+				clustereringSelector);
+		layout.putConstraint(SpringLayout.SOUTH, scrollPaneFilter, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.EAST, scrollPaneFilter, 0, SpringLayout.EAST, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, scrollPaneFilter, -RIGHT_PANEL_WIDTH, SpringLayout.EAST, mainPanel);
+		mainPanel.add(scrollPaneFilter, new Integer(11));
 
 		viewerPanel = new JPanel();
 		viewerPanel.setOpaque(false);
@@ -462,11 +473,11 @@ public class ClusteringViewer extends JFrame {
 			final List<ClusteringResult> results = new ArrayList<>();
 			highlighted.forEach(i1 -> results.add(clusterings.get(i1)));
 			filterWindow.rebuild(results);
-			filterWindow.adjust();
+			filterWindow.forceChange();
 		} else {
 			if (filterWindow.getClusterings() != clusterings) {
 				filterWindow.rebuild(clusterings);
-				filterWindow.adjust();
+				filterWindow.forceChange();
 			}
 		}
 
