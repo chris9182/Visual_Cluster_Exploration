@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,11 +20,13 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -74,6 +78,9 @@ public class ClusterWorkflow extends JFrame {
 
 	private final List<IDistanceMeasure> distances;
 	private final JComboBox<String> distanceSelector;
+	private final JFormattedTextField minPTSField;
+	private final JFormattedTextField epsField;
+
 	private final JLabel wfLabel;
 
 	private final JButton confirmClustererButton;
@@ -84,6 +91,18 @@ public class ClusterWorkflow extends JFrame {
 	private JButton loadClusterButton;
 
 	public ClusterWorkflow(PointContainer container) {
+		final NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
+		integerFieldFormatter.setGroupingUsed(false);
+		minPTSField = new JFormattedTextField(integerFieldFormatter);
+		minPTSField.setValue(1);
+		minPTSField.setColumns(5);
+		minPTSField.setHorizontalAlignment(JTextField.RIGHT);
+		final NumberFormat doubleFieldFormatter = NumberFormat.getNumberInstance();
+		epsField = new JFormattedTextField(doubleFieldFormatter);
+		epsField.setValue(new Double(-1.0));
+		epsField.setColumns(5);
+		epsField.setHorizontalAlignment(JTextField.RIGHT);
+
 		pointContainer = container;
 		mainPanel = new JLayeredPane();
 
@@ -174,6 +193,24 @@ public class ClusterWorkflow extends JFrame {
 				executeClusterersButton);
 		layout.putConstraint(SpringLayout.EAST, distanceSelector, 0, SpringLayout.EAST, executeClusterersButton);
 		mainPanel.add(distanceSelector, new Integer(1));
+
+		final JLabel minPtsLabel = new JLabel("MinPts:");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, minPtsLabel, 0, SpringLayout.VERTICAL_CENTER,
+				distanceSelector);
+		layout.putConstraint(SpringLayout.WEST, minPtsLabel, OUTER_SPACE, SpringLayout.WEST, mainPanel);
+		mainPanel.add(minPtsLabel, new Integer(1));
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, minPTSField, 0, SpringLayout.VERTICAL_CENTER, minPtsLabel);
+		layout.putConstraint(SpringLayout.WEST, minPTSField, MainWindow.INNER_SPACE, SpringLayout.EAST, minPtsLabel);
+		mainPanel.add(minPTSField, new Integer(1));
+
+		final JLabel epsLabel = new JLabel("Eps:");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, epsLabel, 0, SpringLayout.VERTICAL_CENTER,
+				executeClusterersButton);
+		layout.putConstraint(SpringLayout.WEST, epsLabel, OUTER_SPACE, SpringLayout.WEST, mainPanel);
+		mainPanel.add(epsLabel, new Integer(1));
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, epsField, 0, SpringLayout.VERTICAL_CENTER, epsLabel);
+		layout.putConstraint(SpringLayout.WEST, epsField, 0, SpringLayout.WEST, minPTSField);
+		mainPanel.add(epsField, new Integer(1));
 
 		saveButton = new JButton("Save Wf");
 		saveButton.setEnabled(false);
@@ -373,11 +410,21 @@ public class ClusterWorkflow extends JFrame {
 
 		final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings, pointContainer.getHeaders());
 
-		final ClusteringViewer cv = new ClusteringViewer(sClusterings, getDistanceMeasure(), 1, Double.MAX_VALUE);// TODO:
-																													// editable
-																													// minPTS
-																													// and
-																													// eps
+		final NumberFormat format = NumberFormat.getInstance();
+		Number number = null;
+		try {
+			number = format.parse(epsField.getText());
+		} catch (final ParseException e1) {
+			e1.printStackTrace();
+
+		}
+
+		double eps = Double.MAX_VALUE;
+		if (number != null)
+			eps = number.doubleValue() < 0 ? Double.MAX_VALUE : number.doubleValue();
+		System.err.println(eps + " " + Integer.parseInt(minPTSField.getText()));
+		final ClusteringViewer cv = new ClusteringViewer(sClusterings, getDistanceMeasure(),
+				Integer.parseInt(minPTSField.getText()), eps);
 		cv.setSize(new Dimension(800, 600));
 		cv.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		cv.setLocationRelativeTo(null);
@@ -446,7 +493,7 @@ public class ClusterWorkflow extends JFrame {
 		wfPanel.setOpaque(false);
 
 		layout.putConstraint(SpringLayout.NORTH, wfScrollPane, MainWindow.INNER_SPACE, SpringLayout.SOUTH, wfLabel);
-		layout.putConstraint(SpringLayout.SOUTH, wfScrollPane, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
+		layout.putConstraint(SpringLayout.SOUTH, wfScrollPane, -OUTER_SPACE, SpringLayout.NORTH, distanceSelector);
 		layout.putConstraint(SpringLayout.WEST, wfScrollPane, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 		layout.putConstraint(SpringLayout.EAST, wfScrollPane, -2 * OUTER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
 				mainPanel);
