@@ -44,7 +44,6 @@ public class ImporterWindow extends JFrame {
 
 	public ImporterWindow(PointContainer pointContainer, MainWindow update) {
 		setTitle("Import");
-		setType(Type.UTILITY);
 		this.update = update;
 		this.pointContainer = pointContainer;
 		final JPanel thisPanel = new JPanel();

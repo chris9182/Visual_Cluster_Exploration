@@ -68,6 +68,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 			cw.setSize(new Dimension(800, 600));
 			cw.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			cw.setLocationRelativeTo(null);
+			cw.pack();
 			cw.setVisible(true);
 		});
 
@@ -77,6 +78,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 			ms.setSize(new Dimension(800, 600));
 			ms.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			ms.setLocationRelativeTo(null);
+			ms.pack();
 			ms.setVisible(true);
 		});
 
@@ -84,6 +86,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 		importButton.addActionListener(e -> {
 			final JFrame importerFrame = new ImporterWindow(pointContainer, MainWindow.this);
 			importerFrame.setSize(new Dimension(450, 420));
+			importerFrame.setResizable(false);
 			importerFrame.setLocationRelativeTo(null);
 			importerFrame.setVisible(true);
 		});

@@ -153,6 +153,7 @@ public class ClusteringViewer extends JFrame {
 			ms.setSize(new Dimension(800, 600));
 			ms.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			ms.setLocationRelativeTo(null);
+			ms.pack();
 			ms.setVisible(true);
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, scatterMatrixButton, 0, SpringLayout.VERTICAL_CENTER,
