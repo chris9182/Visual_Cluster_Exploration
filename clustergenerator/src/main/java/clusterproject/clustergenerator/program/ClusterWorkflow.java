@@ -336,15 +336,7 @@ public class ClusterWorkflow extends JFrame {
 			final ObjectInputStream in = new ObjectInputStream(fileIn);
 			final List<ClusteringResult> sClusterings = (List<ClusteringResult>) in.readObject();
 
-			final ClusteringViewer cv = new ClusteringViewer(sClusterings, getDistanceMeasure(), 1, Double.MAX_VALUE);// TODO:
-																														// editable
-																														// minPTS
-																														// and
-																														// eps
-			cv.setSize(new Dimension(800, 600));
-			cv.setExtendedState(JFrame.MAXIMIZED_BOTH);
-			cv.setLocationRelativeTo(null);
-			cv.setVisible(true);
+			openClusterViewer(sClusterings);
 			in.close();
 			fileIn.close();
 		} catch (final IOException i) {
@@ -410,6 +402,11 @@ public class ClusterWorkflow extends JFrame {
 
 		final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings, pointContainer.getHeaders());
 
+		openClusterViewer(sClusterings);
+
+	}
+
+	private void openClusterViewer(List<ClusteringResult> clusterings) {
 		final NumberFormat format = NumberFormat.getInstance();
 		Number number = null;
 		try {
@@ -418,18 +415,16 @@ public class ClusterWorkflow extends JFrame {
 			e1.printStackTrace();
 
 		}
-
 		double eps = Double.MAX_VALUE;
 		if (number != null)
 			eps = number.doubleValue() < 0 ? Double.MAX_VALUE : number.doubleValue();
-		// System.err.println(eps + " " + Integer.parseInt(minPTSField.getText()));
-		final ClusteringViewer cv = new ClusteringViewer(sClusterings, getDistanceMeasure(),
+		final ClusteringViewer cv = new ClusteringViewer(clusterings, getDistanceMeasure(),
 				Integer.parseInt(minPTSField.getText()), eps);
 		cv.setSize(new Dimension(800, 600));
 		cv.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		cv.setLocationRelativeTo(null);
+		cv.pack();
 		cv.setVisible(true);
-
 	}
 
 	private IDistanceMeasure getDistanceMeasure() {
