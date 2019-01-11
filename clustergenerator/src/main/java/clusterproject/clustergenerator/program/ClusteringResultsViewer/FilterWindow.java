@@ -288,7 +288,9 @@ public class FilterWindow extends JPanel {
 
 					final Rectangle sliderRectangle = ((RangeSliderUI) slider.getUI()).getTrackRectangle();
 					int bins = MAX_BINS;
-					if (parameters.get(i).get(j).get(0) instanceof Integer)
+					if (parameters.get(i).get(j).size() < 1)
+						bins = 1;
+					else if (parameters.get(i).get(j).get(0) instanceof Integer)
 						bins = (int) (max - min + 1);// TODO check if this is good
 					else if (parameters.get(i).get(j).get(0) instanceof Boolean)
 						bins = 2;
@@ -645,9 +647,9 @@ public class FilterWindow extends JPanel {
 					}
 					if (max != Double.MIN_VALUE) {
 						int bins = MAX_BINS;
-						if (parameters.get(i).get(j).size() < 1) {
+						if (parameters.get(i).get(j).size() < 1)
 							bins = 1;
-						} else if (parameters.get(i).get(j).get(0) instanceof Integer)
+						else if (parameters.get(i).get(j).get(0) instanceof Integer)
 							bins = (int) (max - min + 1);// TODO check if this is good
 						else if (parameters.get(i).get(j).get(0) instanceof Boolean)
 							bins = 2;

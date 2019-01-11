@@ -43,7 +43,6 @@ public class PCAReducer implements IDimensionalityReduction {
 		data = container.getPoints().toArray(data);
 		final LinkedList<Vector> rowsList = new LinkedList<>();
 		for (int i = 0; i < data.length; i++) {
-			System.err.println(data[i][0]);
 			final Vector currentRow = Vectors.dense(data[i]);
 			rowsList.add(currentRow);
 		}
@@ -72,8 +71,7 @@ public class PCAReducer implements IDimensionalityReduction {
 		newWindow.setLocationRelativeTo(null);
 		newWindow.setVisible(true);
 		newWindow.update();
-		// for (int i = 0; i < output.length; i++)
-		// System.out.println(output[0][i] + " " + output[1][i]);
+
 		return true;
 	}
 
