@@ -1,8 +1,10 @@
 package clusterproject.clustergenerator.program.ClusterViewerElement;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Path2D;
@@ -16,6 +18,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.PointContainer;
@@ -37,6 +40,10 @@ public class PointCanvas extends JPanel {
 
 	private final PointContainer pointContainer;
 	private final ScatterPlot clusterViewer;
+
+	private Point down;
+
+	private Point current;
 
 	public PointCanvas(PointContainer pointContainer, ScatterPlot clusterViewer) {
 		this.pointContainer = pointContainer;
@@ -149,7 +156,18 @@ public class PointCanvas extends JPanel {
 				}
 			}
 		}
-
+		if (down != null && current != null) {
+			g2.setColor(Color.gray);
+			g2.setComposite(AlphaComposite.SrcOver.derive(0.5f));
+			final int x = (int) (down.getX() < current.getX() ? down.getX() : current.getX());
+			final int y = (int) (down.getY() < current.getY() ? down.getY() : current.getY());
+			final int xu = (int) (down.getX() > current.getX() ? down.getX() : current.getX());
+			final int yu = (int) (down.getY() > current.getY() ? down.getY() : current.getY());
+			g2.fillRect(x, y, xu - x, yu - y);
+			g2.setColor(Color.black);
+			g2.setComposite(AlphaComposite.SrcOver);
+			g2.drawRect(x, y, xu - x, yu - y);
+		}
 	}
 
 	private static Shape createDefaultStar(double radius, double centerX, double centerY) {
@@ -181,6 +199,13 @@ public class PointCanvas extends JPanel {
 		}
 		path.closePath();
 		return path;
+	}
+
+	public void setSelection(Point down, Point current) {
+		this.down = down;
+		this.current = current;
+		SwingUtilities.invokeLater(() -> repaint());
+
 	}
 
 }

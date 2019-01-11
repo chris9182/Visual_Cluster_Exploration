@@ -263,4 +263,9 @@ public class ScatterPlot extends JLayeredPane {
 		canvas.addMouseMotionListener(mouseAdapter);
 	}
 
+	public void setSelection(Point down, Point current) {
+		canvas.setSelection(down, current);
+
+	}
+
 }

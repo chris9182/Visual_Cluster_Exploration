@@ -532,8 +532,8 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private void initDistances() {
-		distances.add(new ClusteringError());
 		distances.add(new VariationOfInformation());
+		distances.add(new ClusteringError());
 	}
 
 	private void initClusterers() {

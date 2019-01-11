@@ -273,6 +273,7 @@ public class ClusteringViewer extends JFrame {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				current = (Point) e.getPoint().clone();
+				mdsPlot.setSelection(down, current);
 			}
 
 			@Override
@@ -280,6 +281,7 @@ public class ClusteringViewer extends JFrame {
 				if (current != null)
 					rangeSelect(down, current, !e.isControlDown());
 				current = null;// TODO: bug
+				mdsPlot.setSelection(null, null);
 			}
 		};
 
