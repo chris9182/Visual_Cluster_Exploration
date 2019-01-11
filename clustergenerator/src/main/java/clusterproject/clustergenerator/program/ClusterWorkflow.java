@@ -31,7 +31,6 @@ import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.data.PointContainer;
-import clusterproject.clustergenerator.program.Clustering.CLIQUEClustering;
 import clusterproject.clustergenerator.program.Clustering.DBScan;
 import clusterproject.clustergenerator.program.Clustering.DiSHClustering;
 import clusterproject.clustergenerator.program.Clustering.IClusterer;
@@ -500,7 +499,7 @@ public class ClusterWorkflow extends JFrame {
 	private void initClusterers() {
 		clusterers.add(new DBScan());
 		clusterers.add(new DiSHClustering());
-		clusterers.add(new CLIQUEClustering());
+		// clusterers.add(new CLIQUEClustering());//XXX this is bugged
 	}
 
 }

@@ -118,7 +118,8 @@ public class FilterWindow extends JPanel {
 				final double[] allParameters = new double[parameters.get(i).get(j).size()];
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
 					final Object parameter = parameters.get(i).get(j).get(k);
-					if (!(parameter instanceof Double) && !(parameter instanceof Integer)) {// TODO: handle other types
+					if (!(parameter instanceof Double) && !(parameter instanceof Integer)
+							&& !(parameter instanceof Boolean)) {// TODO: handle other types
 						System.err.println("unexpected value type");
 						continue;
 					}
@@ -127,6 +128,8 @@ public class FilterWindow extends JPanel {
 						value = (Double) parameter;
 					if (parameter instanceof Integer)
 						value = (double) (((Integer) parameter));
+					if (parameter instanceof Boolean)
+						value = (double) (((Boolean) parameter) ? 1 : 0);
 					if (value == Double.NaN) {
 						System.err.println("unexpected value type");
 						continue;
@@ -185,7 +188,8 @@ public class FilterWindow extends JPanel {
 				allParametersMap.put(clusteringName + " " + parameterName, allParameters);
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
 					final Object parameter = parameters.get(i).get(j).get(k);
-					if (!(parameter instanceof Double) && !(parameter instanceof Integer)) {// TODO: handle other types
+					if (!(parameter instanceof Double) && !(parameter instanceof Integer)
+							&& !(parameter instanceof Boolean)) {// TODO: handle other types
 						System.err.println("unexpected value type");
 						continue;
 					}
@@ -194,6 +198,8 @@ public class FilterWindow extends JPanel {
 						value = (Double) parameter;
 					if (parameter instanceof Integer)
 						value = (double) (((Integer) parameter));
+					if (parameter instanceof Boolean)
+						value = (double) (((Boolean) parameter) ? 1 : 0);
 					if (value == Double.NaN) {
 						System.err.println("unexpected value type");
 						continue;
@@ -241,7 +247,8 @@ public class FilterWindow extends JPanel {
 				final double[] allParameters = allParametersMap.get(clusteringName + " " + parameterName);
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
 					final Object parameter = parameters.get(i).get(j).get(k);
-					if (!(parameter instanceof Double) && !(parameter instanceof Integer)) {// TODO: handle other types
+					if (!(parameter instanceof Double) && !(parameter instanceof Integer)
+							&& !(parameter instanceof Boolean)) {// TODO: handle other types
 						selectors.put(clusteringName + " " + parameterName, null);
 						System.err.println("unexpected value type");
 						continue;
@@ -251,6 +258,8 @@ public class FilterWindow extends JPanel {
 						value = (Double) parameter;
 					if (parameter instanceof Integer)
 						value = (double) (((Integer) parameter));
+					if (parameter instanceof Boolean)
+						value = (double) (((Boolean) parameter) ? 1 : 0);
 					if (value == Double.NaN) {
 						System.err.println("unexpected value type");
 						continue;
@@ -276,6 +285,8 @@ public class FilterWindow extends JPanel {
 					int bins = MAX_BINS;
 					if (parameters.get(i).get(j).get(0) instanceof Integer)
 						bins = (int) (max - min + 1);// TODO check if this is good
+					else if (parameters.get(i).get(j).get(0) instanceof Boolean)
+						bins=2;
 					if (bins < 1)
 						bins = 1;
 					if (bins > MAX_BINS)
@@ -469,7 +480,6 @@ public class FilterWindow extends JPanel {
 						for (final String param : params.keySet()) {
 							final Object selector = selectors.get(clusteringName + " " + param);
 							if (selector == null) {
-								System.err.println(clusteringName + " " + param);
 								System.err.println("not implemented type");
 								continue;
 							}
@@ -482,6 +492,8 @@ public class FilterWindow extends JPanel {
 									value = (Double) paramVal;
 								if (paramVal instanceof Integer)
 									value = (double) (((Integer) paramVal));
+								if (paramVal instanceof Boolean)
+									value = (double) (((Boolean) paramVal) ? 1 : 0);
 								if (value == Double.NaN) {
 									System.err.println("unexpected value type");
 									continue;
@@ -550,6 +562,8 @@ public class FilterWindow extends JPanel {
 							value = (Double) paramVal;
 						if (paramVal instanceof Integer)
 							value = (double) (((Integer) paramVal));
+						if (paramVal instanceof Boolean)
+							value = (double) (((Boolean) paramVal) ? 1 : 0);
 						if (value == Double.NaN) {
 							System.err.println("unexpected value type");
 							continue;
@@ -604,8 +618,9 @@ public class FilterWindow extends JPanel {
 						filteredParametersD = new double[filteredParameters.get(i).get(j).size()];
 						for (int k = 0; k < filteredParameters.get(i).get(j).size(); ++k) {
 							final Object parameter = filteredParameters.get(i).get(j).get(k);
-							if (!(parameter instanceof Double) && !(parameter instanceof Integer)) {// TODO: handle
-																									// other types
+							if (!(parameter instanceof Double) && !(parameter instanceof Integer)
+									&& !(parameter instanceof Boolean)) {// TODO: handle
+								// other types
 								System.err.println("unexpected value type");
 								continue;
 							}
@@ -614,6 +629,8 @@ public class FilterWindow extends JPanel {
 								value = (Double) parameter;
 							if (parameter instanceof Integer)
 								value = (double) (((Integer) parameter));
+							if (parameter instanceof Boolean)
+								value = (double) (((Boolean) parameter) ? 1 : 0);
 							if (value == Double.NaN) {
 								System.err.println("unexpected value type");
 								continue;
@@ -627,6 +644,8 @@ public class FilterWindow extends JPanel {
 							bins = 1;
 						} else if (parameters.get(i).get(j).get(0) instanceof Integer)
 							bins = (int) (max - min + 1);// TODO check if this is good
+						else if (parameters.get(i).get(j).get(0) instanceof Boolean)
+							bins=2;
 						if (bins < 1)
 							bins = 1;
 						if (bins > MAX_BINS)
