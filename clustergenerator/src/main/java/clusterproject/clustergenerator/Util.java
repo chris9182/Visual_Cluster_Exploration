@@ -18,6 +18,7 @@ import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
 
 public class Util {
 	public static final String GROUND_TRUTH = "Ground Truth";
+	public static final float FILTER_ALPHA = 0.3f;
 
 	public static void drawRotate(Graphics2D g2d, double x, double y, int angle, String text) {
 		g2d.translate((float) x, (float) y);

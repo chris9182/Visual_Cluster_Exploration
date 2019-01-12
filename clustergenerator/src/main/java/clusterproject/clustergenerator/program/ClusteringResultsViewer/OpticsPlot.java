@@ -1,5 +1,6 @@
 package clusterproject.clustergenerator.program.ClusteringResultsViewer;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -191,6 +192,10 @@ public class OpticsPlot extends JLayeredPane {
 		clusteringViewer.highlight(highlighted, replace);
 	}
 
+	public int getTruth() {
+		return clusteringViewer.getGroundTruth();
+	}
+
 	private class OpticsBar extends JComponent {
 		/**
 		 *
@@ -211,59 +216,33 @@ public class OpticsPlot extends JLayeredPane {
 
 		@Override
 		public void paint(Graphics g) {
+			final Graphics2D g2 = (Graphics2D) g;
 			final boolean highlighted = plot.getHighlighted().contains(myid);
 			final Set<Integer> filtered = plot.getFilteredIndexes();
+			final int truth = plot.getTruth();
+			if (filtered != null && !filtered.contains(myid) && myid != truth)
+				g2.setComposite(AlphaComposite.SrcOver.derive(Util.FILTER_ALPHA));
+			else
+				g2.setComposite(AlphaComposite.SrcOver);
+
 			if (getWidth() - INNER_SPACE > BORDER_MIN_SIZE && !highlighted) {
-				if (filtered == null) {
-					g.setColor(color);
-				} else {
-					if (filtered.contains(myid)) {
-						g.setColor(color);
-					} else {
-						g.setColor(Color.GRAY);
-					}
-				}
-				g.fillRect(INNER_SPACE / 2, (int) (getHeight() * (1 - heightPercent)) + 1, getWidth() - INNER_SPACE,
+				g2.setColor(color);
+				g2.fillRect(INNER_SPACE / 2, (int) (getHeight() * (1 - heightPercent)) + 1, getWidth() - INNER_SPACE,
 						(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
-				if (filtered == null) {
-					g.setColor(Color.BLACK);
-				} else {
-					if (filtered.contains(myid)) {
-						g.setColor(Color.BLACK);
-					} else {
-						g.setColor(Color.GRAY);
-					}
-				}
-				g.setColor(Color.black);
-				g.drawRect(INNER_SPACE / 2, (int) Math.min((getHeight() * (1 - heightPercent)), getHeight() - 2),
+				g2.setColor(Color.BLACK);
+				g2.drawRect(INNER_SPACE / 2, (int) Math.min((getHeight() * (1 - heightPercent)), getHeight() - 2),
 						getWidth() - INNER_SPACE,
 						(getHeight() - (int) Math.min((getHeight() * (1 - heightPercent)), getHeight() - 2)) - 1);
 			} else {
 				if (highlighted) {
-					g.setColor(Color.lightGray);
-					g.fillRect(0, 0, getWidth(), getHeight());
-					if (filtered == null) {
-						g.setColor(Color.ORANGE);
-					} else {
-						if (filtered.contains(myid)) {
-							g.setColor(Color.ORANGE);
-						} else {
-							g.setColor(Color.gray);
-						}
-					}
-					g.fillRect(0, (int) (getHeight() * (1 - heightPercent)), getWidth(),
+					g2.setColor(Color.lightGray);
+					g2.fillRect(0, 0, getWidth(), getHeight());
+					g2.setColor(Color.ORANGE);
+					g2.fillRect(0, (int) (getHeight() * (1 - heightPercent)), getWidth(),
 							(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
 				} else {
-					if (filtered == null) {
-						g.setColor(color);
-					} else {
-						if (filtered.contains(myid)) {
-							g.setColor(color);
-						} else {
-							g.setColor(Color.GRAY);
-						}
-					}
-					g.fillRect(0, (int) (getHeight() * (1 - heightPercent)), getWidth(),
+					g2.setColor(color);
+					g2.fillRect(0, (int) (getHeight() * (1 - heightPercent)), getWidth(),
 							(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
 				}
 			}
@@ -282,4 +261,5 @@ public class OpticsPlot extends JLayeredPane {
 			return heightPercent;
 		}
 	}
+
 }

@@ -156,6 +156,7 @@ public class ClusterWorkflow extends JFrame {
 			chooserFrame.add(fileChooser);
 			chooserFrame.setSize(new Dimension(400, 400));
 			chooserFrame.setLocationRelativeTo(null);
+			chooserFrame.setResizable(false);
 			chooserFrame.setVisible(true);
 
 			fileChooser.addActionListener(ev -> {
@@ -223,6 +224,7 @@ public class ClusterWorkflow extends JFrame {
 			chooserFrame.add(fileChooser);
 			chooserFrame.setSize(new Dimension(400, 400));
 			chooserFrame.setLocationRelativeTo(null);
+			chooserFrame.setResizable(false);
 			chooserFrame.setVisible(true);
 
 			fileChooser.addActionListener(ev -> {
@@ -261,6 +263,7 @@ public class ClusterWorkflow extends JFrame {
 			chooserFrame.add(fileChooser);
 			chooserFrame.setSize(new Dimension(400, 400));
 			chooserFrame.setLocationRelativeTo(null);
+			chooserFrame.setResizable(false);
 			chooserFrame.setVisible(true);
 
 			fileChooser.addActionListener(ev -> {
@@ -420,7 +423,7 @@ public class ClusterWorkflow extends JFrame {
 			eps = number.doubleValue() < 0 ? Double.MAX_VALUE : number.doubleValue();
 		final ClusteringViewer cv = new ClusteringViewer(clusterings, getDistanceMeasure(),
 				Integer.parseInt(minPTSField.getText()), eps);
-		cv.setSize(new Dimension(800, 600));
+		cv.setMinimumSize(new Dimension(800, 600));
 		cv.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		cv.setLocationRelativeTo(null);
 		cv.pack();

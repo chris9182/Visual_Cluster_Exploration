@@ -1,5 +1,6 @@
 package clusterproject.clustergenerator.program.ClusteringResultsViewer;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -96,6 +97,10 @@ public class HeatMap extends JLayeredPane {
 		return clusteringViewer.getFilteredIndexes();
 	}
 
+	public int getTruth() {
+		return clusteringViewer.getGroundTruth();
+	}
+
 	private class HeatCell extends JComponent {
 		private static final long serialVersionUID = -1175380889963981647L;
 
@@ -114,22 +119,20 @@ public class HeatMap extends JLayeredPane {
 
 		@Override
 		public void paint(Graphics g) {
+			final Graphics2D g2 = (Graphics2D) g;
 			final Set<Integer> filtered = heatMap.getFilteredIndexes();
 			final LinkedHashSet<Integer> highlighted = heatMap.getHighlighted();
-			g.setColor(myColor);
+			final int truth = heatMap.getTruth();
+			g2.setColor(myColor);
 			if (i == j) {
-				if (highlighted.contains(i))
-					g.setColor(Color.ORANGE);
-				if (filtered != null) {
-					if (!filtered.contains(i)) {
-						if (highlighted.contains(i))
-							g.setColor(Color.darkGray);
-						else
-							g.setColor(Color.GRAY);
-					}
-				}
-			}
+				if (filtered != null && !filtered.contains(i) && i != truth)
+					g2.setComposite(AlphaComposite.SrcOver.derive(Util.FILTER_ALPHA));
+				else
+					g2.setComposite(AlphaComposite.SrcOver);
 
+				if (highlighted.contains(i))
+					g2.setColor(Color.ORANGE);
+			}
 			g.fillRect(0, 0, getWidth(), getHeight());
 		}
 

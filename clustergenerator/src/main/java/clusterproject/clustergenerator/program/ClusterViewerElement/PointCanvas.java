@@ -84,6 +84,8 @@ public class PointCanvas extends JPanel {
 			final Stream<Integer> stream = clusterIDs.stream().distinct();
 			final Map<Integer, Color> colorMap = new HashMap<Integer, Color>();
 			final Set<Integer> filtered = pointContainer.getFilteredIndexes();
+			final LinkedHashSet<Integer> highlighted = pointContainer.getHighlighted();
+			final int truth = pointContainer.getGroundTruth();
 			final Iterator<Integer> iter = stream.iterator();
 			while (iter.hasNext()) {
 				final int i = iter.next();
@@ -91,18 +93,14 @@ public class PointCanvas extends JPanel {
 			}
 
 			for (int i = 0; i < pointCount; ++i) {
-				if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]))
+				if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]) || highlighted.contains(i))
 					continue;
+				if (filtered != null && !filtered.contains(i))
+					g2.setComposite(AlphaComposite.SrcOver.derive(Util.FILTER_ALPHA));
+				else
+					g2.setComposite(AlphaComposite.SrcOver);
 
-				if (filtered == null) {
-					g2.setColor(colorMap.get(clusterIDs.get(i)));
-				} else {
-					if (filtered.contains(i)) {
-						g2.setColor(colorMap.get(clusterIDs.get(i)));
-					} else {
-						g2.setColor(Color.WHITE);
-					}
-				}
+				g2.setColor(colorMap.get(clusterIDs.get(i)));
 
 				g2.fillOval((int) xCoordinates[i] - pointWidth / 2, (int) yCoordinates[i] - pointWidth / 2, pointWidth,
 						pointWidth);
@@ -122,17 +120,19 @@ public class PointCanvas extends JPanel {
 				}
 
 			}
-			final LinkedHashSet<Integer> highlighted = pointContainer.getHighlighted();
-			final int truth = pointContainer.getGroundTruth();
+
 			if (!(highlighted.size() <= 1 && highlighted.iterator().next() == -1))
 
 				for (final int hIndex : highlighted) {
 					if (hIndex == truth)
 						continue;
-					if (filtered == null || filtered.contains(hIndex))
-						g2.setColor(HIGHLIGHT_COLOR);
+					if (filtered != null && !filtered.contains(hIndex))
+						g2.setComposite(AlphaComposite.SrcOver.derive(Util.FILTER_ALPHA));
 					else
-						g2.setColor(Color.lightGray);
+						g2.setComposite(AlphaComposite.SrcOver);
+
+					g2.setColor(HIGHLIGHT_COLOR);
+
 					g2.fillOval((int) (xCoordinates[hIndex] - pointWidth * HIGHLIGHT_FACTOR / 2),
 							(int) (yCoordinates[hIndex] - pointWidth * HIGHLIGHT_FACTOR / 2),
 							pointWidth * HIGHLIGHT_FACTOR, pointWidth * HIGHLIGHT_FACTOR);
@@ -145,6 +145,7 @@ public class PointCanvas extends JPanel {
 				}
 
 			if (truth >= 0) {
+				g2.setComposite(AlphaComposite.SrcOver);
 				g2.setColor(colorMap.get(clusterIDs.get(truth)));
 				if (highlighted.contains(truth))
 					g2.setColor(HIGHLIGHT_COLOR);

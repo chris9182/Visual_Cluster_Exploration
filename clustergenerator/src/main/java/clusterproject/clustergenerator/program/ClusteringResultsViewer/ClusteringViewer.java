@@ -172,6 +172,7 @@ public class ClusteringViewer extends JFrame {
 			chooserFrame.add(fileChooser);
 			chooserFrame.setSize(new Dimension(400, 400));
 			chooserFrame.setLocationRelativeTo(null);
+			chooserFrame.setResizable(false);
 			chooserFrame.setVisible(true);
 
 			fileChooser.addActionListener(ev -> {
