@@ -211,8 +211,10 @@ public class ClusteringViewer extends JFrame {
 		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
 		if (groundTruth >= 0) {
 			for (int i = 0; i < clusterings.size(); ++i) {
-				if (clusterings.get(i).getParameter().getParameters().containsKey(Util.GROUND_TRUTH))
-					clusterings.get(i).getParameter().addParameter(Util.GROUND_TRUTH, distanceMatrix[groundTruth][i]);
+				// if
+				// (clusterings.get(i).getParameter().getParameters().containsKey(Util.GROUND_TRUTH))
+				// continue;
+				clusterings.get(i).getParameter().addParameter(Util.GROUND_TRUTH, distanceMatrix[groundTruth][i]);
 			}
 		}
 
