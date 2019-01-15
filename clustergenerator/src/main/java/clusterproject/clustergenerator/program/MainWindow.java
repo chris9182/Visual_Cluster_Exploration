@@ -24,6 +24,7 @@ import clusterproject.clustergenerator.program.DimensionalityReduction.TSNEReduc
 import clusterproject.clustergenerator.program.Generator.ELKIGenerator;
 import clusterproject.clustergenerator.program.Generator.IGenerator;
 import clusterproject.clustergenerator.program.Generator.SinglePointGenerator;
+import clusterproject.clustergenerator.program.Normalizers.INormalizer;
 
 public class MainWindow extends JFrame implements IClickHandler {
 
@@ -41,8 +42,10 @@ public class MainWindow extends JFrame implements IClickHandler {
 	private final SpringLayout mainLayout;
 	private final List<IGenerator> generators;
 	private final List<IDimensionalityReduction> reducers;
+	private final List<INormalizer> normalizers;
 	private IGenerator activeGenerator = null;
 	private IDimensionalityReduction activeReducer = null;
+	private INormalizer activeNormalizer = null;
 	final JComboBox<String> selector;
 	private final PointContainer pointContainer;
 	final ScatterPlot clusterViewer;
@@ -100,6 +103,8 @@ public class MainWindow extends JFrame implements IClickHandler {
 			}
 			if (activeReducer != null)
 				done = activeReducer.reduce(pointContainer);
+			if (activeNormalizer != null)
+				done = activeNormalizer.normalize(pointContainer);
 			if (done) {
 				clusterViewer.autoAdjust();
 				update();
@@ -111,6 +116,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 		mainPanel = new JLayeredPane();
 		generators = new ArrayList<IGenerator>();
 		reducers = new ArrayList<IDimensionalityReduction>();
+		normalizers = new ArrayList<INormalizer>();
 		add(mainPanel);
 		mainLayout = new SpringLayout();
 		mainPanel.setLayout(mainLayout);
@@ -119,6 +125,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 		initGenerators();
 		initReducers();
+		initNormalizers();
 
 		final List<String> generatorNames = new ArrayList<String>();
 		for (final IGenerator generator : generators)
@@ -128,9 +135,14 @@ public class MainWindow extends JFrame implements IClickHandler {
 		for (final IDimensionalityReduction reducer : reducers)
 			reducerNames.add(reducer.getName());
 
-		final String[][] elements = new String[2][];
+		final List<String> normalizerNames = new ArrayList<String>();
+		for (final INormalizer normalizer : normalizers)
+			normalizerNames.add(normalizer.getName());
+
+		final String[][] elements = new String[3][];
 		elements[0] = generatorNames.toArray(new String[generatorNames.size()]);
 		elements[1] = reducerNames.toArray(new String[reducerNames.size()]);
+		elements[2] = normalizerNames.toArray(new String[normalizerNames.size()]);
 
 		selector = new JComboBox<String>(ComboBoxRenderer.makeVectorData(elements));
 		selector.setRenderer(new ComboBoxRenderer());
@@ -178,19 +190,68 @@ public class MainWindow extends JFrame implements IClickHandler {
 	}
 
 	private void setActiveElement() {
+		// System.err.println(selector.getSelectedIndex() + " " + (generators.size() +
+		// reducers.size()));
 		if (selector.getSelectedIndex() < generators.size()) {
 			setActiveGenerator((String) selector.getSelectedItem());
-			if (activeReducer != null)
-				activeReducer.getOptionsPanel().setVisible(false);
-		} else {
+		} else if (selector.getSelectedIndex() < generators.size() + reducers.size() + 1
+				&& selector.getSelectedIndex() > generators.size()) {
 			setActiveDimReduction((String) selector.getSelectedItem());
-			if (activeGenerator != null)
-				activeGenerator.getOptionsPanel().setVisible(false);
+		} else if (selector.getSelectedIndex() < generators.size() + reducers.size() + normalizers.size() + 2
+				&& selector.getSelectedIndex() > generators.size() + reducers.size() + 1) {
+			setActiveNormalizer((String) selector.getSelectedItem());
 		}
 		SwingUtilities.invokeLater(() -> {
 			revalidate();
 			repaint();
 		});
+	}
+
+	private void setActiveNormalizer(String name) {
+		INormalizer newNormalizer = null;
+		for (final INormalizer normalizer : normalizers)
+			if (normalizer.getName().equals(name))
+				newNormalizer = normalizer;
+		if (newNormalizer == null)
+			return;
+
+		removeActive();
+
+		activeNormalizer = newNormalizer;
+
+		mainLayout.putConstraint(SpringLayout.NORTH, activeNormalizer.getOptionsPanel(), INNER_SPACE,
+				SpringLayout.SOUTH, selector);
+		mainLayout.putConstraint(SpringLayout.EAST, activeNormalizer.getOptionsPanel(), -INNER_SPACE, SpringLayout.EAST,
+				mainPanel);
+		mainLayout.putConstraint(SpringLayout.WEST, activeNormalizer.getOptionsPanel(), -INNER_SPACE - OPTIONS_WIDTH,
+				SpringLayout.EAST, mainPanel);
+		mainLayout.putConstraint(SpringLayout.SOUTH, activeNormalizer.getOptionsPanel(), -INNER_SPACE,
+				SpringLayout.NORTH, activationButton);
+
+		mainPanel.add(activeNormalizer.getOptionsPanel(), new Integer(1));
+		activeNormalizer.getOptionsPanel().setVisible(true);
+		activationButton.setText("Apply");
+		activationButton.setVisible(true);
+
+	}
+
+	private void removeActive() {
+		if (activeGenerator != null) {
+			mainPanel.remove(activeGenerator.getOptionsPanel());
+			activeGenerator.getOptionsPanel().setVisible(false);
+			activeGenerator = null;
+		}
+		if (activeReducer != null) {
+			mainPanel.remove(activeReducer.getOptionsPanel());
+			activeReducer.getOptionsPanel().setVisible(false);
+			activeReducer = null;
+		}
+		if (activeNormalizer != null) {
+			mainPanel.remove(activeNormalizer.getOptionsPanel());
+			activeNormalizer.getOptionsPanel().setVisible(false);
+			activeNormalizer = null;
+		}
+
 	}
 
 	private void setActiveDimReduction(String name) {
@@ -200,14 +261,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 				newReducer = reducer;
 		if (newReducer == null)
 			return;
-		if (activeGenerator != null) {
-			mainPanel.remove(activeGenerator.getOptionsPanel());
-			activeGenerator = null;
-		}
-		if (activeReducer != null) {
-			mainPanel.remove(activeReducer.getOptionsPanel());
-			activeReducer.getOptionsPanel().setVisible(false);
-		}
+		removeActive();
 		activeReducer = newReducer;
 
 		mainLayout.putConstraint(SpringLayout.NORTH, activeReducer.getOptionsPanel(), INNER_SPACE, SpringLayout.SOUTH,
@@ -233,14 +287,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 				newGenerator = generator;
 		if (newGenerator == null)
 			return;
-		if (activeGenerator != null) {
-			mainPanel.remove(activeGenerator.getOptionsPanel());
-			activeGenerator.getOptionsPanel().setVisible(false);
-		}
-		if (activeReducer != null) {
-			mainPanel.remove(activeReducer.getOptionsPanel());
-			activeReducer = null;
-		}
+		removeActive();
 		activeGenerator = newGenerator;
 
 		mainLayout.putConstraint(SpringLayout.NORTH, activeGenerator.getOptionsPanel(), INNER_SPACE, SpringLayout.SOUTH,
@@ -268,6 +315,11 @@ public class MainWindow extends JFrame implements IClickHandler {
 	private void initReducers() {
 		reducers.add(new PCAReducer());
 		reducers.add(new TSNEReducer());
+	}
+
+	private void initNormalizers() {
+		// normalizers.add(new Normalize());
+
 	}
 
 	@Override
