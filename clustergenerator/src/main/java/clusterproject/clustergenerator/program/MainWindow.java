@@ -85,7 +85,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 		importButton = new JButton("Import");
 		importButton.addActionListener(e -> {
 			final JFrame importerFrame = new ImporterWindow(pointContainer, MainWindow.this);
-			importerFrame.setSize(new Dimension(450, 420));
+			importerFrame.setSize(new Dimension(450, 400));
 			importerFrame.setResizable(false);
 			importerFrame.setLocationRelativeTo(null);
 			importerFrame.setVisible(true);

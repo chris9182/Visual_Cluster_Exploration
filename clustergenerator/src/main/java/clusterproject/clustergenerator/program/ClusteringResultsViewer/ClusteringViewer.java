@@ -233,7 +233,7 @@ public class ClusteringViewer extends JFrame {
 			layout.putConstraint(SpringLayout.SOUTH, mdsPlot, -VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
 			layout.putConstraint(SpringLayout.EAST, mdsPlot, -VIEWER_SPACE - RIGHT_PANEL_WIDTH, SpringLayout.EAST,
 					mainPanel);
-			mainPanel.add(mdsPlot, new Integer(9));
+			mainPanel.add(mdsPlot, new Integer(13));
 
 			final JLabel mdsLabel = new JLabel("MDS Plot");
 			layout.putConstraint(SpringLayout.VERTICAL_CENTER, mdsLabel, 0, SpringLayout.VERTICAL_CENTER,

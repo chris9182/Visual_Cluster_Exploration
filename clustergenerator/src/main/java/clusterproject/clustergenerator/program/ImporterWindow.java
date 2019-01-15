@@ -11,7 +11,6 @@ import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
@@ -36,7 +35,6 @@ public class ImporterWindow extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private final JFileChooser fileChooser;
-	private final JCheckBox addBox;
 	private final JFormattedTextField labelIndexField;
 	private File selectedFile;
 	private PointContainer pointContainer;
@@ -73,8 +71,6 @@ public class ImporterWindow extends JFrame {
 			else if (filter2.accept(selectedFile))
 				importARFFFile();
 		});
-		addBox = new JCheckBox("Add");
-		thisPanel.add(addBox);
 		final JPanel indexPanel = new JPanel();
 		indexPanel.setLayout(new BoxLayout(indexPanel, BoxLayout.X_AXIS));
 		final NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
@@ -97,25 +93,49 @@ public class ImporterWindow extends JFrame {
 			in = new FileReader(selectedFile);
 			final ArffReader reader = new ArffReader(in);
 			final Instances data = reader.getData();
+			int labelIndex = -1;
+			try {
+				labelIndex = Integer.parseInt(labelIndexField.getText());
+			} catch (final Exception e) {
+			}
 
-			final int size = data.numInstances();
 			final List<String> headers = new ArrayList<String>();
 			for (int i = 0; i < data.numAttributes(); i++) {
+				if (i == labelIndex)
+					continue;
 				headers.add(data.attribute(i).name());
 			}
-
-			final int newDim = headers.size();
-			if (newDim != pointContainer.getDim() && !replacePoints()) {
-				return false;// TODO set error
-			}
-
-			if (replacePoints())
-				pointContainer.empty();
+			pointContainer.empty();
 
 			pointContainer.setHeaders(headers);
-			for (int i = 0; i < data.numInstances(); i++) {
-				final double[] point = data.instance(i).toDoubleArray();
-				pointContainer.addPoint(point);
+			final int size = data.numInstances();
+
+			if (labelIndex > -1) {
+				data.setClassIndex(labelIndex);
+				pointContainer.setUpClusters();
+				for (int i = 0; i < size; i++) {
+					int classval = (int) data.instance(i).classValue();
+					if (classval < 0)
+						classval = -1;
+					pointContainer.addClusterID(classval);
+				}
+				for (int i = 0; i < size; i++) {
+					final double[] point = data.instance(i).toDoubleArray();
+					final double[] addPoint = new double[point.length - 1];
+					for (int j = 0; j < point.length; ++j) {
+						if (j == labelIndex)
+							continue;
+						final int index = j >= labelIndex ? j - 1 : j;
+						addPoint[index] = point[j];
+					}
+					pointContainer.addPoint(addPoint);
+
+				}
+			} else {
+				for (int i = 0; i < size; i++) {
+					final double[] point = data.instance(i).toDoubleArray();
+					pointContainer.addPoint(point);
+				}
 			}
 
 		} catch (final FileNotFoundException e) {
@@ -168,14 +188,7 @@ public class ImporterWindow extends JFrame {
 			if (hasHeaders)
 				parser.getHeaderMap().keySet().forEach(t -> headers.add(t));
 
-			final int newDim = headers.size();
-			if (newDim != pointContainer.getDim() && !replacePoints()) {
-				parser.close();
-				return false;// TODO set error
-			}
-
-			if (replacePoints())
-				pointContainer.empty();
+			pointContainer.empty();
 
 			pointContainer.setHeaders(headers);
 			final List<CSVRecord> records = parser.getRecords();
@@ -266,10 +279,6 @@ public class ImporterWindow extends JFrame {
 
 	public File getFile() {
 		return selectedFile;
-	}
-
-	public boolean replacePoints() {
-		return !addBox.isSelected();
 	}
 
 }

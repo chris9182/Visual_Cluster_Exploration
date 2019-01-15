@@ -63,6 +63,7 @@ public class FilterWindow extends JPanel {
 	private final Map<String, double[]> allParametersMap;
 	private final Map<String, Double> allParametersMinMap;
 	private final Map<String, Double> allParametersMaxMap;
+	private final Map<String, Integer> bucketsMap;
 	private final ClusteringViewer clusteringViewer;
 
 	private final Set<ClusteringResult> filteredSet = new HashSet<ClusteringResult>();
@@ -105,6 +106,7 @@ public class FilterWindow extends JPanel {
 		allParametersMap = new HashMap<String, double[]>();
 		allParametersMaxMap = new HashMap<String, Double>();
 		allParametersMinMap = new HashMap<String, Double>();
+		bucketsMap = new HashMap<String, Integer>();
 		selectors = new HashMap<String, Object>();
 		rebuild(clusteringBaseResults);
 		final Iterator<String> clusteringNamesIt = clusteringNames.iterator();
@@ -144,6 +146,18 @@ public class FilterWindow extends JPanel {
 					if (value > max)
 						max = value;
 				}
+				int bins = MAX_BINS;
+				if (parameters.get(i).get(j).size() <= 1)
+					bins = 1;
+				else if (parameters.get(i).get(j).get(0) instanceof Integer)
+					bins = (int) (max - min + 1);// TODO check if this is good
+				else if (parameters.get(i).get(j).get(0) instanceof Boolean)
+					bins = 2;
+				if (bins < 1)
+					bins = 1;
+				if (bins > MAX_BINS)
+					bins = MAX_BINS;
+				bucketsMap.put(clusteringName + " " + parameterName, bins);
 				allParametersMaxMap.put(clusteringName + " " + parameterName, max);
 				allParametersMinMap.put(clusteringName + " " + parameterName, min);
 			}
@@ -286,17 +300,7 @@ public class FilterWindow extends JPanel {
 					this.add(slider, new Integer(3));
 
 					final Rectangle sliderRectangle = ((RangeSliderUI) slider.getUI()).getTrackRectangle();
-					int bins = MAX_BINS;
-					if (parameters.get(i).get(j).size() <= 1)
-						bins = 1;
-					else if (parameters.get(i).get(j).get(0) instanceof Integer)
-						bins = (int) (max - min + 1);// TODO check if this is good
-					else if (parameters.get(i).get(j).get(0) instanceof Boolean)
-						bins = 2;
-					if (bins < 1)
-						bins = 1;
-					if (bins > MAX_BINS)
-						bins = MAX_BINS;
+					final int bins = bucketsMap.get(clusteringName + " " + parameterName);
 					final CategoryDataset dataset = createDataset(allParameters, null, bins, min, max);
 					final JFreeChart chart = createChart(dataset);
 					charts.put(clusteringName + " " + parameterName, chart);
@@ -647,17 +651,7 @@ public class FilterWindow extends JPanel {
 						}
 					}
 					if (max != Double.MIN_VALUE) {
-						int bins = MAX_BINS;
-						if (parameters.get(i).get(j).size() <= 1)
-							bins = 1;
-						else if (parameters.get(i).get(j).get(0) instanceof Integer)
-							bins = (int) (max - min + 1);// TODO check if this is good
-						else if (parameters.get(i).get(j).get(0) instanceof Boolean)
-							bins = 2;
-						if (bins < 1)
-							bins = 1;
-						if (bins > MAX_BINS)
-							bins = MAX_BINS;
+						final int bins = bucketsMap.get(clusteringName + " " + parameterName);
 
 						final CategoryDataset dataset = createDataset(allParameters, filteredParametersD, bins, min,
 								max);
