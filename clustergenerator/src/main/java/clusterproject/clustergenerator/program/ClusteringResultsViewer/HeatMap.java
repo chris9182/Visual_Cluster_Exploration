@@ -47,7 +47,7 @@ public class HeatMap extends JLayeredPane {
 		setOpaque(false);
 		heatMap.setOpaque(false);
 		heatMap.setLayout(new GridLayout(distances.length, distances.length));
-		double maxDistance = Double.MIN_VALUE;
+		double maxDistance = -Double.MAX_VALUE;
 		for (int i = 0; i < distances.length; ++i)
 			for (int j = i; j < distances.length; ++j) {
 				if (distances[i][j] > maxDistance)

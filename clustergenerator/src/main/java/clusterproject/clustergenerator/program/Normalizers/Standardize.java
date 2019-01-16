@@ -6,11 +6,11 @@ import javax.swing.JPanel;
 
 import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.program.MainWindow;
-import clusterproject.clustergenerator.program.Normalizers.Panel.NormalizeOptions;
+import clusterproject.clustergenerator.program.Normalizers.Panel.StandardizeOptions;
 
-public class Normalize implements INormalizer {
+public class Standardize implements INormalizer {
 
-	NormalizeOptions options = new NormalizeOptions();
+	StandardizeOptions options = new StandardizeOptions();
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -19,7 +19,7 @@ public class Normalize implements INormalizer {
 
 	@Override
 	public String getName() {
-		return "Normalize";
+		return "Standardize";
 	}
 
 	@Override
@@ -28,20 +28,33 @@ public class Normalize implements INormalizer {
 		data = container.getPoints().toArray(data);
 
 		final double[] min = new double[data[0].length];
-		final double[] max = new double[data[0].length];
+		final double[] dev = new double[data[0].length];
+		final double[] mean = new double[data[0].length];
 
 		for (int i = 0; i < data[0].length; ++i) {
 			min[i] = Double.MAX_VALUE;
-			max[i] = -Double.MAX_VALUE;
+			dev[i] = 0;
+			mean[i] = 0;
 		}
 
 		for (int i = 0; i < data.length; ++i) {
 			for (int j = 0; j < data[i].length; ++j) {
 				if (data[i][j] < min[j])
 					min[j] = data[i][j];
-				if (data[i][j] > max[j])
-					max[j] = data[i][j];
+				mean[j] += data[i][j];
 			}
+		}
+
+		for (int i = 0; i < data[0].length; ++i) {
+			mean[i] /= data.length;
+		}
+		for (int i = 0; i < data.length; ++i) {
+			for (int j = 0; j < data[i].length; ++j) {
+				dev[j] += Math.pow(data[i][j] - mean[j], 2);
+			}
+		}
+		for (int i = 0; i < data[0].length; ++i) {
+			dev[i] = Math.sqrt(dev[i] / (data.length - 1));
 		}
 
 		final double[][] newdata = new double[container.getPoints().size()][];
@@ -49,7 +62,7 @@ public class Normalize implements INormalizer {
 		for (int i = 0; i < data.length; i++) {
 			newdata[i] = new double[data[i].length];
 			for (int j = 0; j < data[i].length; j++) {
-				newdata[i][j] = (data[i][j] - min[j]) / (max[j] - min[j]);
+				newdata[i][j] = (data[i][j] - mean[j]) / dev[j];
 			}
 		}
 

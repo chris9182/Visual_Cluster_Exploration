@@ -66,7 +66,7 @@ public class PointContainer {
 	}
 
 	public double getMaxFrom(int dimension) {
-		double max = Double.MIN_VALUE;
+		double max = -Double.MAX_VALUE;
 		for (final double[] point : points) {
 			if (max < point[dimension])
 				max = point[dimension];

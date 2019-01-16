@@ -25,6 +25,8 @@ import clusterproject.clustergenerator.program.Generator.ELKIGenerator;
 import clusterproject.clustergenerator.program.Generator.IGenerator;
 import clusterproject.clustergenerator.program.Generator.SinglePointGenerator;
 import clusterproject.clustergenerator.program.Normalizers.INormalizer;
+import clusterproject.clustergenerator.program.Normalizers.Normalize;
+import clusterproject.clustergenerator.program.Normalizers.Standardize;
 
 public class MainWindow extends JFrame implements IClickHandler {
 
@@ -318,7 +320,8 @@ public class MainWindow extends JFrame implements IClickHandler {
 	}
 
 	private void initNormalizers() {
-		// normalizers.add(new Normalize());
+		normalizers.add(new Normalize());
+		normalizers.add(new Standardize());
 
 	}
 

@@ -119,7 +119,7 @@ public class FilterWindow extends JPanel {
 			final Iterator<String> parameterNamesIt = parameterNames.get(i).iterator();
 			for (int j = 0; j < parameterNames.get(i).size(); ++j) {
 				final String parameterName = parameterNamesIt.next();
-				double max = Double.MIN_VALUE;
+				double max = -Double.MAX_VALUE;
 				double min = Double.MAX_VALUE;
 				final double[] allParameters = new double[parameters.get(i).get(j).size()];
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
@@ -283,7 +283,7 @@ public class FilterWindow extends JPanel {
 						continue;
 					}
 				}
-				if (max != Double.MIN_VALUE) {
+				if (max != -Double.MAX_VALUE) {
 					final RangeSlider slider = new MyRangeSlider(min, max, this);
 					// slider.setSize(new Dimension(getWidth(), SLIDERHEIGHT));
 					// if (min == max)
@@ -650,7 +650,7 @@ public class FilterWindow extends JPanel {
 							filteredParametersD[k] = value;
 						}
 					}
-					if (max != Double.MIN_VALUE) {
+					if (max != -Double.MAX_VALUE) {
 						final int bins = bucketsMap.get(clusteringName + " " + parameterName);
 
 						final CategoryDataset dataset = createDataset(allParameters, filteredParametersD, bins, min,
