@@ -99,6 +99,7 @@ public class ClusteringViewer extends JFrame {
 		for (int i = 0; i < clusterings.size(); ++i)
 			if (clusterings.get(i).getParameter().getName().equals(Util.GROUND_TRUTH))
 				groundTruth = i;
+
 		highlighted.add(-1);
 		this.minPTS = minPTS;
 		this.eps = eps;
@@ -209,14 +210,14 @@ public class ClusteringViewer extends JFrame {
 		mainPanel.add(distLabel, new Integer(1));
 
 		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
+		// XXX add aditional filter params
 		if (groundTruth >= 0) {
 			for (int i = 0; i < clusterings.size(); ++i) {
-				// if
-				// (clusterings.get(i).getParameter().getParameters().containsKey(Util.GROUND_TRUTH))
-				// continue;
 				clusterings.get(i).getParameter().addParameter(Util.GROUND_TRUTH, distanceMatrix[groundTruth][i]);
 			}
 		}
+		for (final ClusteringResult result : clusterings)
+			result.getParameter().getParameters().put(Util.CLUSTER_COUNT, result.getData().length);
 
 		MDS mds = null;
 		try {

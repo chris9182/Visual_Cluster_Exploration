@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import clusterproject.clustergenerator.data.ClusteringResult;
@@ -18,7 +19,13 @@ import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
 
 public class Util {
 	public static final String GROUND_TRUTH = "Ground Truth";
+	public static final String CLUSTER_COUNT = "# Clusters";
 	public static final float FILTER_ALPHA = 0.3f;
+	public static Set<String> META_PARAMS = new HashSet<String>();
+	static {
+		META_PARAMS.add(GROUND_TRUTH);
+		META_PARAMS.add(CLUSTER_COUNT);
+	}
 
 	public static void drawRotate(Graphics2D g2d, double x, double y, int angle, String text) {
 		g2d.translate((float) x, (float) y);

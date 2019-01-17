@@ -65,6 +65,10 @@ public class DBScan implements IClusterer {
 			final DBSCAN<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(DBSCAN.class, params);
 			final Clustering<Model> result = dbscan.run(db);
 			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
+
+			// System.err.println(calcEps + " " + calcMinPTS);
+			// System.err.println(result.getAllClusters().get(0).size());
+			// System.err.println(result.getAllClusters().get(1).size());
 			result.getAllClusters().forEach(cluster -> {
 				final List<NumberVector> pointList = new ArrayList<NumberVector>();
 
