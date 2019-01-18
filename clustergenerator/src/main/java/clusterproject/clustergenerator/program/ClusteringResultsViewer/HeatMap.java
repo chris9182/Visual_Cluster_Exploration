@@ -131,7 +131,7 @@ public class HeatMap extends JLayeredPane {
 					g2.setComposite(AlphaComposite.SrcOver);
 
 				if (highlighted.contains(i))
-					g2.setColor(Color.ORANGE);
+					g2.setColor(Util.HIGHLIGHT_COLOR);
 			}
 			g.fillRect(0, 0, getWidth(), getHeight());
 		}

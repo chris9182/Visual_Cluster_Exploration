@@ -20,6 +20,7 @@ import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
 public class Util {
 	public static final String GROUND_TRUTH = "Ground Truth";
 	public static final String CLUSTER_COUNT = "# Clusters";
+	public static final Color HIGHLIGHT_COLOR = Color.ORANGE;
 	public static final float FILTER_ALPHA = 0.3f;
 	public static Set<String> META_PARAMS = new HashSet<String>();
 	static {

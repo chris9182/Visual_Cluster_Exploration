@@ -244,7 +244,7 @@ public class OpticsPlot extends JLayeredPane {
 				if (highlighted) {
 					g2.setColor(Color.lightGray);
 					g2.fillRect(0, 0, getWidth(), getHeight());
-					g2.setColor(Color.ORANGE);
+					g2.setColor(Util.HIGHLIGHT_COLOR);
 					g2.fillRect(0, (int) (getHeight() * (1 - heightPercent)), getWidth(),
 							(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
 				} else {

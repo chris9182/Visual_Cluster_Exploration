@@ -34,7 +34,7 @@ public class PointCanvas extends JPanel {
 
 	private static final int MIN_WIDTH_FOR_BORDER = 5;
 
-	private static final Color HIGHLIGHT_COLOR = Color.ORANGE;
+	private static final Color HIGHLIGHT_COLOR = Util.HIGHLIGHT_COLOR;
 
 	private static final double TRUTH_FACTOR = 1.5;
 
