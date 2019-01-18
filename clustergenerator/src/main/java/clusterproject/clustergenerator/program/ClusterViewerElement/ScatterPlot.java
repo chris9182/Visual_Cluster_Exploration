@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import javax.swing.JButton;
 import javax.swing.JLayeredPane;
@@ -255,16 +254,13 @@ public class ScatterPlot extends JLayeredPane {
 
 	}
 
-	public void addCanvasMouseListener(MouseListener listener) {
-		canvas.addMouseListener(listener);
-	}
-
-	public void addCanvasMouseMotionListener(MouseAdapter mouseAdapter) {
-		canvas.addMouseMotionListener(mouseAdapter);
-	}
-
 	public void setSelection(Point down, Point current) {
 		canvas.setSelection(down, current);
+
+	}
+
+	public PointCanvas getCanvas() {
+		return canvas;
 
 	}
 

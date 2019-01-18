@@ -210,6 +210,7 @@ public class ClusteringViewer extends JFrame {
 		mainPanel.add(distLabel, new Integer(1));
 
 		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
+
 		// XXX add aditional filter params
 		if (groundTruth >= 0) {
 			for (int i = 0; i < clusterings.size(); ++i) {
@@ -291,8 +292,8 @@ public class ClusteringViewer extends JFrame {
 		};
 
 		if (mdsPlot != null) {
-			mdsPlot.addCanvasMouseMotionListener(mouseAdapter);
-			mdsPlot.addCanvasMouseListener(mouseAdapter);
+			mdsPlot.getCanvas().addMouseMotionListener(mouseAdapter);
+			mdsPlot.getCanvas().addMouseListener(mouseAdapter);
 			mdsPlot.getPointContainer().setGroundTruth(groundTruth);
 		}
 
@@ -569,5 +570,11 @@ public class ClusteringViewer extends JFrame {
 
 	public int getGroundTruth() {
 		return groundTruth;
+	}
+
+	public Double getDistanceToTruth(int i) {
+		if (groundTruth < 0)
+			return Double.NaN;
+		return distanceMatrix[i][groundTruth];
 	}
 }

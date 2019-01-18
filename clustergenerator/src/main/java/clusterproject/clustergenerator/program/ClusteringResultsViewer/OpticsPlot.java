@@ -196,6 +196,10 @@ public class OpticsPlot extends JLayeredPane {
 		return clusteringViewer.getGroundTruth();
 	}
 
+	public Double getDistanceToTruth(int i) {
+		return clusteringViewer.getDistanceToTruth(i);
+	}
+
 	private class OpticsBar extends JComponent {
 		/**
 		 *
@@ -212,6 +216,9 @@ public class OpticsPlot extends JLayeredPane {
 			this.plot = plot;
 			this.heightPercent = heightPercent;
 			this.myid = myid;
+			final Double dist = plot.getDistanceToTruth(myid);
+			if (!dist.equals(Double.NaN))
+				setToolTipText("Distance to Ground Truth: " + Float.toString((float) ((double) dist)));
 		}
 
 		@Override
