@@ -1,4 +1,4 @@
-package clusterproject.clustergenerator.program.slider;
+package clusterproject.clustergenerator.program.Slider;
 
 import java.awt.Color;
 import java.awt.Dimension;

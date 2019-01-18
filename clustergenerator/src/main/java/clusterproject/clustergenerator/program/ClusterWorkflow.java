@@ -24,6 +24,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -360,6 +361,10 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private void executeWorkflow() {
+		if (pointContainer.getPoints().size() < 2) {
+			JOptionPane.showMessageDialog(null, "Not enought data points!");
+			return;
+		}
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 
 		double[][] data = new double[pointContainer.getPoints().size()][];

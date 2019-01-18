@@ -45,8 +45,8 @@ import org.jfree.data.general.DatasetUtils;
 import clusterproject.clustergenerator.Util;
 import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.program.MainWindow;
-import clusterproject.clustergenerator.program.slider.RangeSlider;
-import clusterproject.clustergenerator.program.slider.RangeSliderUI;
+import clusterproject.clustergenerator.program.Slider.RangeSlider;
+import clusterproject.clustergenerator.program.Slider.RangeSliderUI;
 
 public class FilterWindow extends JPanel {
 
