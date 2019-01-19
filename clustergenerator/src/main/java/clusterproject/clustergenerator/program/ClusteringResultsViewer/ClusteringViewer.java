@@ -217,8 +217,13 @@ public class ClusteringViewer extends JFrame {
 				clusterings.get(i).getParameter().addParameter(Util.GROUND_TRUTH, distanceMatrix[groundTruth][i]);
 			}
 		}
-		for (final ClusteringResult result : clusterings)
-			result.getParameter().getParameters().put(Util.CLUSTER_COUNT, result.getData().length);
+		for (final ClusteringResult result : clusterings) {
+			int length = 0;
+			for (final double[][] cluster : result.getData())
+				if (cluster.length > 0)
+					++length;
+			result.getParameter().getParameters().put(Util.CLUSTER_COUNT, length);
+		}
 
 		MDS mds = null;
 		try {
