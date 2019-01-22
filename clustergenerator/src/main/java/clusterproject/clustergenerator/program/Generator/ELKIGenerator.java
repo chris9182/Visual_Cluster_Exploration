@@ -84,6 +84,8 @@ public class ELKIGenerator implements IGenerator {
 
 		final int newDim = ArrayLikeUtil.toPrimitiveDoubleArray(rel.get(rel.getDBIDs().iter())).length;
 		if (newDim != container.getDim() && !optionsPanel.replacePoints()) {
+			final File file1 = new File(tempInName);
+			file1.delete();
 			return false;// TODO set error
 		}
 
