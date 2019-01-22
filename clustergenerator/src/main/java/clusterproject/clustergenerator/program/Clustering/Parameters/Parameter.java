@@ -16,6 +16,8 @@ public class Parameter implements Serializable {
 	private final String name;
 
 	private final Map<String, Object> parameters = new HashMap<String, Object>();
+	private final Map<String, Object> additionalParameters = new HashMap<String, Object>();
+	private final Map<String, Object> allParameters = new HashMap<String, Object>();
 
 	public Parameter(String name) {
 		this.name = name;
@@ -23,6 +25,12 @@ public class Parameter implements Serializable {
 
 	public void addParameter(String name, Object parameter) {
 		parameters.put(name, parameter);
+		allParameters.put(name, parameter);
+	}
+
+	public void addAdditionalParameter(String name, Object parameter) {
+		additionalParameters.put(name, parameter);
+		allParameters.put(name, parameter);
 	}
 
 	public String getName() {
@@ -42,6 +50,14 @@ public class Parameter implements Serializable {
 
 	public Map<String, Object> getParameters() {
 		return parameters;
+	}
+
+	public Map<String, Object> getAdditionalParameters() {
+		return additionalParameters;
+	}
+
+	public Map<String, Object> getAllParameters() {
+		return allParameters;
 	}
 
 }

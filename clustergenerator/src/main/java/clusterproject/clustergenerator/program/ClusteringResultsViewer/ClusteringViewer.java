@@ -211,19 +211,7 @@ public class ClusteringViewer extends JFrame {
 
 		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
 
-		// XXX add aditional filter params
-		if (groundTruth >= 0) {
-			for (int i = 0; i < clusterings.size(); ++i) {
-				clusterings.get(i).getParameter().addParameter(Util.GROUND_TRUTH, distanceMatrix[groundTruth][i]);
-			}
-		}
-		for (final ClusteringResult result : clusterings) {
-			int length = 0;
-			for (final double[][] cluster : result.getData())
-				if (cluster.length > 0)
-					++length;
-			result.getParameter().getParameters().put(Util.CLUSTER_COUNT, length);
-		}
+		addParameters();
 
 		MDS mds = null;
 		try {
@@ -340,6 +328,23 @@ public class ClusteringViewer extends JFrame {
 		mainPanel.add(viewerPanel, new Integer(10));
 
 		showViewer(0, false);
+	}
+
+	private void addParameters() {
+		// XXX add aditional filter params
+		if (groundTruth >= 0) {
+			for (int i = 0; i < clusterings.size(); ++i) {
+				clusterings.get(i).getParameter().addAdditionalParameter(Util.GROUND_TRUTH,
+						distanceMatrix[groundTruth][i]);
+			}
+		}
+		for (final ClusteringResult result : clusterings) {
+			int length = 0;
+			for (final double[][] cluster : result.getData())
+				if (cluster.length > 0)
+					++length;
+			result.getParameter().addAdditionalParameter(Util.CLUSTER_COUNT, length);
+		}
 	}
 
 	protected void rangeSelect(Point down, Point current, boolean replace) {

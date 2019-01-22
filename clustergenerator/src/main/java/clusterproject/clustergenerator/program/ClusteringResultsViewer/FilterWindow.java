@@ -95,8 +95,13 @@ public class FilterWindow extends JPanel {
 				cList.add(clusteringName);
 				final List<String> pList = new ArrayList<>(result.getParameter().getParameters().keySet());
 				Collections.sort(pList);
+				final List<String> pListAdditional = new ArrayList<>(
+						result.getParameter().getAdditionalParameters().keySet());
+				Collections.sort(pListAdditional);
 				final LinkedHashSet<String> clusteringParameterNames = new LinkedHashSet<String>();
 				clusteringParameterNames.addAll(pList);
+				clusteringParameterNames.addAll(pListAdditional);
+
 				parameterNames.add(clusteringParameterNames);
 			}
 		}
@@ -186,7 +191,7 @@ public class FilterWindow extends JPanel {
 				final List<Object> nameParameters = new ArrayList<Object>();
 				for (final ClusteringResult result : this.clusteringResults) {
 					if (result.getParameter().getName().equals(clusteringName)) {
-						nameParameters.add(result.getParameter().getParameters().get(clusteringParameterName));
+						nameParameters.add(result.getParameter().getAllParameters().get(clusteringParameterName));
 					}
 				}
 				clusteringParameters.add(nameParameters);
@@ -484,7 +489,7 @@ public class FilterWindow extends JPanel {
 					filteredSet.clear();
 					for (final ClusteringResult result : clusteringBaseResults) {
 						final String clusteringName = result.getParameter().getName();
-						final Map<String, Object> params = result.getParameter().getParameters();
+						final Map<String, Object> params = result.getParameter().getAllParameters();
 						boolean add = true;
 						for (final String param : params.keySet()) {
 							final Object selector = selectors.get(clusteringName + " " + param);
@@ -556,7 +561,7 @@ public class FilterWindow extends JPanel {
 			final Set<ClusteringResult> visualResult = new HashSet<ClusteringResult>();
 			for (final ClusteringResult result : clusteringResults) {
 				final String clusteringName = result.getParameter().getName();
-				final Map<String, Object> params = result.getParameter().getParameters();
+				final Map<String, Object> params = result.getParameter().getAllParameters();
 				boolean add = true;
 				for (final String param : params.keySet()) {
 					final Object selector = selectors.get(clusteringName + " " + param);
@@ -605,7 +610,7 @@ public class FilterWindow extends JPanel {
 					final List<Object> nameParameters = new ArrayList<Object>();
 					for (final ClusteringResult result : visualResult) {
 						if (result.getParameter().getName().equals(clusteringName)) {
-							nameParameters.add(result.getParameter().getParameters().get(clusteringParameterName));
+							nameParameters.add(result.getParameter().getAllParameters().get(clusteringParameterName));
 						}
 					}
 					clusteringParameters.add(nameParameters);
