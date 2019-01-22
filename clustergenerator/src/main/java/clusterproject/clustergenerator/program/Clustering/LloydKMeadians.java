@@ -8,11 +8,11 @@ import javax.swing.JPanel;
 import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.program.Clustering.Panel.KMeansOptions;
 import clusterproject.clustergenerator.program.Clustering.Parameters.Parameter;
-import de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.parallel.ParallelLloydKMeans;
+import de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMediansLloyd;
 import de.lmu.ifi.dbs.elki.data.Clustering;
 import de.lmu.ifi.dbs.elki.data.DoubleVector;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
-import de.lmu.ifi.dbs.elki.data.model.KMeansModel;
+import de.lmu.ifi.dbs.elki.data.model.MeanModel;
 import de.lmu.ifi.dbs.elki.data.type.TypeUtil;
 import de.lmu.ifi.dbs.elki.database.Database;
 import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
@@ -20,7 +20,7 @@ import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
-public class LloydKMeans implements IClusterer {
+public class LloydKMeadians implements IClusterer {
 	private static final long serialVersionUID = -5466140815704959353L;
 
 	private transient KMeansOptions optionsPanel = new KMeansOptions();
@@ -34,7 +34,7 @@ public class LloydKMeans implements IClusterer {
 
 	@Override
 	public String getName() {
-		return "LloydKMeans";
+		return "LloydKMeadians";
 	}
 
 	@Override
@@ -51,10 +51,10 @@ public class LloydKMeans implements IClusterer {
 			final int calcK = i;
 
 			final ListParameterization params = new ListParameterization();
-			params.addParameter(ParallelLloydKMeans.K_ID, calcK);
-			final ParallelLloydKMeans<DoubleVector> dbscan = ClassGenericsUtil
-					.parameterizeOrAbort(ParallelLloydKMeans.class, params);
-			final Clustering<KMeansModel> result = dbscan.run(db);
+			params.addParameter(KMediansLloyd.K_ID, calcK);
+			final KMediansLloyd<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(KMediansLloyd.class,
+					params);
+			final Clustering<MeanModel> result = dbscan.run(db);
 			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
 			result.getAllClusters().forEach(cluster -> {
 				final List<NumberVector> pointList = new ArrayList<NumberVector>();
@@ -78,7 +78,7 @@ public class LloydKMeans implements IClusterer {
 
 	@Override
 	public IClusterer duplicate() {
-		return new LloydKMeans();
+		return new LloydKMeadians();
 	}
 
 	@Override

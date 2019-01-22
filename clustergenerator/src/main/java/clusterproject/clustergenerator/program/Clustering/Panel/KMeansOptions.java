@@ -7,7 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
-public class LloydKMeansOptions extends JPanel {
+public class KMeansOptions extends JPanel {
 	private static final long serialVersionUID = 559822521256476978L;
 
 	private final JFormattedTextField lowerKField;
@@ -15,7 +15,7 @@ public class LloydKMeansOptions extends JPanel {
 
 	private static final int INNER_PAD = 2;
 
-	public LloydKMeansOptions() {
+	public KMeansOptions() {
 		setOpaque(false);
 		final SpringLayout layout = new SpringLayout();
 		setLayout(layout);

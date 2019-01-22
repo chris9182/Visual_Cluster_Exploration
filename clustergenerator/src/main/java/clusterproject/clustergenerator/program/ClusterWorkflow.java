@@ -39,7 +39,9 @@ import clusterproject.clustergenerator.data.PointContainer;
 import clusterproject.clustergenerator.program.Clustering.DBScan;
 import clusterproject.clustergenerator.program.Clustering.DiSHClustering;
 import clusterproject.clustergenerator.program.Clustering.IClusterer;
+import clusterproject.clustergenerator.program.Clustering.LloydKMeadians;
 import clusterproject.clustergenerator.program.Clustering.LloydKMeans;
+import clusterproject.clustergenerator.program.Clustering.MacQueenKMeans;
 import clusterproject.clustergenerator.program.Clustering.SNN;
 import clusterproject.clustergenerator.program.Clustering.Parameters.Parameter;
 import clusterproject.clustergenerator.program.ClusteringResultsViewer.ClusteringViewer;
@@ -546,6 +548,9 @@ public class ClusterWorkflow extends JFrame {
 
 		// clusterers.add(new CLIQUEClustering());//XXX this is bugged
 		clusterers.add(new LloydKMeans());
+		clusterers.add(new MacQueenKMeans());
+		clusterers.add(new LloydKMeadians());
+
 	}
 
 }
