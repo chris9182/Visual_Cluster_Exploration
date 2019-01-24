@@ -4,7 +4,7 @@ import clusterproject.clustergenerator.data.ClusteringResult;
 
 public class ClusteringWithDistance {
 	public int inIndex;
-	public double distance = Float.MAX_VALUE;
+	public double distance = Double.MAX_VALUE;
 	public boolean flag;
 	public int tag;
 	private final ClusteringResult clustering;

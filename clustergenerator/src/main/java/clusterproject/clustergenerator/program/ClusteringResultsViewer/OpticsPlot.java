@@ -60,8 +60,7 @@ public class OpticsPlot extends JLayeredPane {
 		layout.putConstraint(SpringLayout.SOUTH, opticsBars, 0, SpringLayout.SOUTH, this);
 		layout.putConstraint(SpringLayout.WEST, opticsBars, BAR_OFFSET, SpringLayout.WEST, this);
 		for (int i = 1; i < clusteringList.size(); ++i) {
-			// XXX this check is not safe: clusteringList.get(i).distance < Float.MAX_VALUE
-			if (clusteringList.get(i).distance > max && clusteringList.get(i).distance < Float.MAX_VALUE)
+			if (clusteringList.get(i).distance > max && clusteringList.get(i).distance < Double.MAX_VALUE)
 				max = clusteringList.get(i).distance;
 		}
 		if (max == 0)
