@@ -97,7 +97,7 @@ public class ClusterWorkflow extends JFrame {
 		final NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
 		integerFieldFormatter.setGroupingUsed(false);
 		minPTSField = new JFormattedTextField(integerFieldFormatter);
-		minPTSField.setValue(1);
+		minPTSField.setValue(2);
 		minPTSField.setColumns(5);
 		minPTSField.setHorizontalAlignment(JTextField.RIGHT);
 		final NumberFormat doubleFieldFormatter = NumberFormat.getNumberInstance();
@@ -426,10 +426,12 @@ public class ClusterWorkflow extends JFrame {
 
 		}
 		double eps = Double.MAX_VALUE;
+		int minPTS = Integer.parseInt(minPTSField.getText());
+		if (minPTS < 2)
+			minPTS = 2;
 		if (number != null)
 			eps = number.doubleValue() < 0 ? Double.MAX_VALUE : number.doubleValue();
-		final ClusteringViewer cv = new ClusteringViewer(clusterings, getDistanceMeasure(),
-				Integer.parseInt(minPTSField.getText()), eps);
+		final ClusteringViewer cv = new ClusteringViewer(clusterings, getDistanceMeasure(), minPTS, eps);
 		cv.setMinimumSize(new Dimension(800, 600));
 		cv.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		cv.setLocationRelativeTo(null);
