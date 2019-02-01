@@ -407,7 +407,7 @@ public class ClusterWorkflow extends JFrame {
 				++i;
 			}
 			final Parameter param = new Parameter(Util.GROUND_TRUTH);
-			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
+			clusterings.add(0, new NumberVectorClusteringResult(clustersArr, param));
 		}
 
 		final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings, pointContainer.getHeaders());

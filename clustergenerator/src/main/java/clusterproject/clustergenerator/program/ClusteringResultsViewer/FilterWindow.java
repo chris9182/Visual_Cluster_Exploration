@@ -47,6 +47,7 @@ import clusterproject.clustergenerator.data.ClusteringResult;
 import clusterproject.clustergenerator.program.MainWindow;
 import clusterproject.clustergenerator.program.Slider.RangeSlider;
 import clusterproject.clustergenerator.program.Slider.RangeSliderUI;
+import smile.math.Math;
 
 public class FilterWindow extends JPanel {
 
@@ -151,7 +152,7 @@ public class FilterWindow extends JPanel {
 					if (value > max)
 						max = value;
 				}
-				int bins = MAX_BINS;
+				int bins = (int) Math.sqrt(allParameters.length);// TODO check if this is good
 				if (parameters.get(i).get(j).size() <= 1)
 					bins = 1;
 				else if (parameters.get(i).get(j).get(0) instanceof Integer)
