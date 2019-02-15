@@ -20,7 +20,7 @@ import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
 import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
-import scala.collection.mutable.BitSet;
+//import scala.collection.mutable.BitSet;
 
 public class DiSHClustering implements IClusterer {
 	private static final long serialVersionUID = -7172931268458883217L;
@@ -68,7 +68,7 @@ public class DiSHClustering implements IClusterer {
 			result.getAllClusters().forEach(cluster -> {// what about the hierarchy?
 				// XXX debug
 				// import scala.collection.mutable.BitSet;
-				final BitSet bits = new BitSet(cluster.getModel().getDimensions());
+//				final BitSet bits = new BitSet(cluster.getModel().getDimensions());
 				// System.err.println(bits);
 				// XXX debug end
 

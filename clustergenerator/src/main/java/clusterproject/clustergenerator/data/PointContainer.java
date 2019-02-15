@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.spark.mllib.linalg.Vector;
-
 public class PointContainer {
 	private List<double[]> points = new ArrayList<double[]>();
 	private List<String> headers;
@@ -96,12 +94,6 @@ public class PointContainer {
 	public void addPoints(double[][] pointArr) {
 		for (int i = 0; i < pointArr.length; ++i) {
 			points.add(pointArr[i]);
-		}
-	}
-
-	public void addPoints(Vector[] vectors) {
-		for (int i = 0; i < vectors.length; ++i) {
-			points.add(vectors[i].toArray());
 		}
 	}
 
