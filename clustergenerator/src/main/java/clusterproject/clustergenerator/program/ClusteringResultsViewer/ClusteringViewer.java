@@ -258,8 +258,13 @@ public class ClusteringViewer extends JFrame {
 				final int closest = getClosestPoint(e.getPoint());
 				if (closest != -1) {
 					final List<Integer> highlighted = new ArrayList<Integer>();
-					highlighted.add(closest);
-					highlight(highlighted, !e.isControlDown());
+
+					if (e.getClickCount() < 2) {
+						highlighted.add(closest);
+						highlight(highlighted, !e.isControlDown());
+					} else {
+						// TODO get cluster id of closest and highlight cluster
+					}
 				}
 			}
 
