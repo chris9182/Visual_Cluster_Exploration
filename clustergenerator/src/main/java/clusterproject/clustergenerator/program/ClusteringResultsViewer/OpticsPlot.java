@@ -77,7 +77,7 @@ public class OpticsPlot extends JLayeredPane {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 
-					highlight(selection, !e.isControlDown());
+					highlight(selection, !e.isControlDown(), e.getClickCount() == 1);
 
 				}
 			});
@@ -188,10 +188,10 @@ public class OpticsPlot extends JLayeredPane {
 		}
 	}
 
-	public void highlight(int selection, boolean replace) {
+	public void highlight(int selection, boolean replace, boolean singleClick) {
 		final List<Integer> highlighted = new ArrayList<Integer>();
 		highlighted.add(selection);
-		clusteringViewer.highlight(highlighted, replace);
+		clusteringViewer.mouseHighlight(selection, replace, singleClick);
 	}
 
 	public int getTruth() {

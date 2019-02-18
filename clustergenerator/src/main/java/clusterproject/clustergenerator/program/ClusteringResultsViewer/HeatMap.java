@@ -11,7 +11,6 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,7 +61,7 @@ public class HeatMap extends JLayeredPane {
 				cell.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseClicked(MouseEvent e) {
-						highlight(selected, !e.isControlDown());
+						highlight(selected, !e.isControlDown(), e.getClickCount() == 1);
 
 					}
 				});
@@ -87,10 +86,8 @@ public class HeatMap extends JLayeredPane {
 		return clusteringViewer.getHighlighted();
 	}
 
-	public void highlight(int selection, boolean replace) {
-		final List<Integer> highlighted = new ArrayList<Integer>();
-		highlighted.add(selection);
-		clusteringViewer.highlight(highlighted, replace);
+	public void highlight(int selection, boolean replace, boolean singleClick) {
+		clusteringViewer.mouseHighlight(selection, replace, singleClick);
 	}
 
 	public Set<Integer> getFilteredIndexes() {

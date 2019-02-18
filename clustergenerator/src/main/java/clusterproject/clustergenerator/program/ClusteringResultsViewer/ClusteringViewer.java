@@ -62,6 +62,7 @@ public class ClusteringViewer extends JFrame {
 	public static final int RIGHT_PANEL_WIDTH = 300;
 
 	private final List<ClusteringResult> clusterings;
+	private final List<ClusteringWithDistance> clusteredList;
 	private final ScatterPlot[] viewers;
 	private ScatterPlot visibleViewer;
 	private JPanel viewerPanel;
@@ -239,8 +240,8 @@ public class ClusteringViewer extends JFrame {
 		}
 
 		final OpticsMetaClustering optics = new OpticsMetaClustering(clusterings, distanceMatrix, minPTS, eps);
-		final List<ClusteringWithDistance> list = optics.runOptics();
-		oPlot = new OpticsPlot(this, list);
+		clusteredList = optics.runOptics();
+		oPlot = new OpticsPlot(this, clusteredList);
 		layout.putConstraint(SpringLayout.NORTH, oPlot, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
 		layout.putConstraint(SpringLayout.WEST, oPlot, VIEWER_SPACE - RIGHT_PANEL_WIDTH / 2,
 				SpringLayout.HORIZONTAL_CENTER, mainPanel);
@@ -256,16 +257,7 @@ public class ClusteringViewer extends JFrame {
 				down = null;
 				current = null;
 				final int closest = getClosestPoint(e.getPoint());
-				if (closest != -1) {
-					final List<Integer> highlighted = new ArrayList<Integer>();
-
-					if (e.getClickCount() < 2) {
-						highlighted.add(closest);
-						highlight(highlighted, !e.isControlDown());
-					} else {
-						// TODO get cluster id of closest and highlight cluster
-					}
-				}
+				mouseHighlight(closest, !e.isControlDown(), e.getClickCount() == 1);
 			}
 
 			@Override
@@ -294,7 +286,7 @@ public class ClusteringViewer extends JFrame {
 			mdsPlot.getPointContainer().setGroundTruth(groundTruth);
 		}
 
-		heatMap = new HeatMap(Util.getSortedDistances(list, distanceMatrix), this, list);
+		heatMap = new HeatMap(Util.getSortedDistances(clusteredList, distanceMatrix), this, clusteredList);
 		layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
 		layout.putConstraint(SpringLayout.EAST, heatMap, -VIEWER_SPACE - RIGHT_PANEL_WIDTH / 2,
 				SpringLayout.HORIZONTAL_CENTER, mainPanel);
@@ -487,10 +479,71 @@ public class ClusteringViewer extends JFrame {
 		return i;
 	}
 
-	public void highlight(Collection<Integer> i, boolean replace) {
+	public void mouseHighlight(int index, boolean replace, boolean singleClick) {
+		if (index >= 0) {
+			final List<Integer> newhighlighted = new ArrayList<Integer>();
+			newhighlighted.add(index);
+			if (singleClick) {
+				highlight(newhighlighted, replace);
+			} else {
+				clusterHighlight(index, replace);
+			}
+		}
+	}
+
+	private void clusterHighlight(int closest, boolean replace) {
+
+		int clusterid = -3;
+		for (final ClusteringWithDistance clustering : clusteredList) {
+			if (clustering.inIndex == closest) {
+				clusterid = clustering.tag;
+				break;
+			}
+		}
+		final List<Integer> indices = new ArrayList<Integer>();
+		for (final ClusteringWithDistance clustering : clusteredList) {
+			if (clustering.tag == clusterid) {
+				indices.add(clustering.inIndex);
+			}
+		}
+		if (clusterid < -2)
+			return;
+		if (highlighted.contains(closest)) {
+			forceHighlight(indices, true, replace);
+		} else {
+			forceHighlight(indices, false, replace);
+		}
+
+	}
+
+	private void forceHighlight(List<Integer> indices, boolean select, boolean replace) {
 		if (!dohighlight.get())
 			return;
 		dohighlight.set(false);
+		final int backup = highlighted.iterator().next();
+		if (replace) {
+			highlighted.clear();
+		}
+		if (select) {
+			for (final int ind : indices) {
+				highlighted.add(ind);
+			}
+		} else {
+			for (final int ind : indices) {
+				highlighted.remove(ind);
+			}
+		}
+		updateHighlight(backup);
+		dohighlight.set(true);
+
+	}
+
+	private void highlight(Collection<Integer> i, boolean replace) {
+
+		if (!dohighlight.get())
+			return;
+		dohighlight.set(false);// TODO: propper lock
+		final int backup = highlighted.iterator().next();
 		if (replace) {
 			highlighted.clear();
 			highlighted.addAll(i);
@@ -503,6 +556,13 @@ public class ClusteringViewer extends JFrame {
 			}
 		}
 
+		updateHighlight(backup);
+		dohighlight.set(true);
+	}
+
+	private void updateHighlight(int backup) {
+		if (highlighted.isEmpty())
+			highlighted.add(backup);
 		if (highlighted.size() > 1) {
 			final List<ClusteringResult> results = new ArrayList<>();
 			highlighted.forEach(i1 -> results.add(clusterings.get(i1)));
@@ -515,8 +575,6 @@ public class ClusteringViewer extends JFrame {
 			}
 		}
 
-		if (highlighted.isEmpty())
-			highlighted.add(-1);
 		if (mdsPlot != null)
 			mdsPlot.getPointContainer().setHighlighted(highlighted);
 		if (highlighted.size() > 1 || highlighted.iterator().next() == -1)
@@ -524,10 +582,8 @@ public class ClusteringViewer extends JFrame {
 				callRepaint();
 			} else
 				showViewer(highlighted.iterator().next());
-
 		else
 			showViewer(highlighted.iterator().next());
-		dohighlight.set(true);
 	}
 
 	public LinkedHashSet<Integer> getHighlighted() {
