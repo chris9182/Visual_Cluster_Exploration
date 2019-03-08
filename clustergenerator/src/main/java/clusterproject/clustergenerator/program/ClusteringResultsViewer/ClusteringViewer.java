@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -95,12 +96,14 @@ public class ClusteringViewer extends JFrame {
 	private int selectedViewer = 0;
 	private int groundTruth = -1;
 
+	private JButton diffButton;
+
 	public ClusteringViewer(List<ClusteringResult> clusterings, IDistanceMeasure metaDistance, int minPTS, double eps) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 		for (int i = 0; i < clusterings.size(); ++i)
 			if (clusterings.get(i).getParameter().getName().equals(Util.GROUND_TRUTH))
 				groundTruth = i;
-
+		viewers = new ScatterPlot[clusterings.size()];
 		highlighted.add(-1);
 		this.minPTS = minPTS;
 		this.eps = eps;
@@ -110,7 +113,24 @@ public class ClusteringViewer extends JFrame {
 		layout = new SpringLayout();
 		mainPanel.setLayout(layout);
 		add(mainPanel);
-		viewers = new ScatterPlot[clusterings.size()];
+		diffButton = new JButton("Difference");
+		diffButton.addActionListener(e -> {
+			if (highlighted.size() != 2)
+				return;
+			final Iterator<Integer> hIter = highlighted.iterator();
+			final int id1 = hIter.next();
+			final PointContainer c1 = viewers[id1].getPointContainer();
+			final int id2 = hIter.next();
+			final PointContainer c2 = viewers[id2].getPointContainer();
+			c2.setClusterIDs(getNewColors(id1, id2));
+			final DifferenceWindow newWindow = new DifferenceWindow(c1, c2);
+			newWindow.setSize(new Dimension(1000, 800));
+			newWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			newWindow.setLocationRelativeTo(null);
+			newWindow.setVisible(true);
+			// newWindow.update();
+
+		});
 		final IntStream viewerPrepareStream = IntStream.range(0, clusterings.size());
 		viewerPrepareStream.parallel().forEach(i -> {
 			final ClusteringResult clustering = clusterings.get(i);
@@ -313,6 +333,11 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, scrollPaneFilter, -RIGHT_PANEL_WIDTH, SpringLayout.EAST, mainPanel);
 		mainPanel.add(scrollPaneFilter, new Integer(11));
 
+		layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, diffButton, 0, SpringLayout.HORIZONTAL_CENTER,
+				scrollPaneFilter);
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, diffButton, 0, SpringLayout.VERTICAL_CENTER, distLabel);
+		mainPanel.add(diffButton, new Integer(12));
+
 		viewerPanel = new JPanel();
 		viewerPanel.setOpaque(false);
 		viewerPanel.setLayout(new BorderLayout());
@@ -400,7 +425,7 @@ public class ClusteringViewer extends JFrame {
 		clustereringSelector.setSelectedIndex(i);
 		final ScatterPlot newViewer = viewers[i];
 		if (visibleViewer != null) {
-			final List<Integer> newClusterIDs = getNewColors(i);
+			final List<Integer> newClusterIDs = getNewColors(selectedViewer, i);
 			newViewer.getPointContainer().setClusterIDs(newClusterIDs);
 			newViewer.setSelectedDimX(visibleViewer.getSelectedDimX());
 			newViewer.setSelectedDimY(visibleViewer.getSelectedDimY());
@@ -429,11 +454,12 @@ public class ClusteringViewer extends JFrame {
 
 	}
 
-	private List<Integer> getNewColors(int i) { // TODO: maybe something with cluster size for color selection?
-		final ClusteringResult oldClustering = clusterings.get(selectedViewer);
-		final ClusteringResult newClustering = clusterings.get(i);
+	private List<Integer> getNewColors(int previous, int other) { // TODO: maybe something with cluster size for color
+																	// selection?
+		final ClusteringResult oldClustering = clusterings.get(previous);
+		final ClusteringResult newClustering = clusterings.get(other);
 		final Map<Integer, Integer> oldIDMap = visibleViewer.getPointContainer().getIDMap();
-		final List<Integer> currentIDs = viewers[i].getPointContainer().getOriginalClusterIDs();
+		final List<Integer> currentIDs = viewers[other].getPointContainer().getOriginalClusterIDs();
 		final int matrixSize = oldClustering.getData().length > newClustering.getData().length
 				? oldClustering.getData().length
 				: newClustering.getData().length;
@@ -464,7 +490,7 @@ public class ClusteringViewer extends JFrame {
 			} else
 				idMap.put(assignment[idx][0], assignment[idx][1]);
 		}
-		viewers[i].getPointContainer().setIDMap(idMap);
+		viewers[other].getPointContainer().setIDMap(idMap);
 		for (int idx = 0; idx < currentIDs.size(); ++idx) {
 			newIDs.add(idMap.get(currentIDs.get(idx)));
 		}
@@ -575,6 +601,7 @@ public class ClusteringViewer extends JFrame {
 			}
 		}
 
+		diffButton.setVisible(highlighted.size() == 2);
 		if (mdsPlot != null)
 			mdsPlot.getPointContainer().setHighlighted(highlighted);
 		if (highlighted.size() > 1 || highlighted.iterator().next() == -1)
@@ -584,6 +611,7 @@ public class ClusteringViewer extends JFrame {
 				showViewer(highlighted.iterator().next());
 		else
 			showViewer(highlighted.iterator().next());
+
 	}
 
 	public LinkedHashSet<Integer> getHighlighted() {
