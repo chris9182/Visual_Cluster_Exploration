@@ -12,7 +12,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -104,8 +103,10 @@ public class ClusteringViewer extends JFrame {
 		for (int i = 0; i < clusterings.size(); ++i) {
 			if (clusterings.get(i).getParameter().getName().equals(Util.GROUND_TRUTH)) {
 				groundTruth = 0;
-				if (i != 0)
-					Collections.swap(clusterings, i, 0);
+				if (i != 0) {
+					final ClusteringResult result = clusterings.remove(i);
+					clusterings.add(0, result);
+				}
 				break;
 			}
 
