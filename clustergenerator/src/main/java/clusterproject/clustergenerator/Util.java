@@ -23,6 +23,7 @@ public class Util {
 	public static final Color HIGHLIGHT_COLOR = Color.ORANGE;
 	public static final float FILTER_ALPHA = 0.3f;
 	public static Set<String> META_PARAMS = new HashSet<String>();
+	public static Map<Integer, Color> colorCache = new HashMap<Integer, Color>();
 	static {
 		META_PARAMS.add(GROUND_TRUTH);
 		META_PARAMS.add(CLUSTER_COUNT);
@@ -50,7 +51,13 @@ public class Util {
 
 	// https://stackoverflow.com/questions/309149/generate-distinctly-different-rgb-colors-in-graphs
 	public static Color getColor(int i) {
-		return new Color(getRGB(i));
+		// return new Color(getRGB(i));
+		Color color = colorCache.get(i);
+		if (color == null) {
+			color = new Color(getRGB(i));
+			colorCache.put(i, color);
+		}
+		return color;
 	}
 
 	public static int getRGB(int index) {
