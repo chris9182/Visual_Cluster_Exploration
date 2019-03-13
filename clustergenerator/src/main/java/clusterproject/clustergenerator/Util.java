@@ -22,6 +22,7 @@ public class Util {
 	public static final String CLUSTER_COUNT = "# Clusters";
 	public static final Color HIGHLIGHT_COLOR = Color.ORANGE;
 	public static final float FILTER_ALPHA = 0.3f;
+	private static final int COLOR_CACHE_SIZE = 1000;
 	public static Set<String> META_PARAMS = new HashSet<String>();
 	public static Map<Integer, Color> colorCache = new HashMap<Integer, Color>();
 	static {
@@ -55,7 +56,8 @@ public class Util {
 		Color color = colorCache.get(i);
 		if (color == null) {
 			color = new Color(getRGB(i));
-			colorCache.put(i, color);
+			if (i < COLOR_CACHE_SIZE)
+				colorCache.put(i, color);
 		}
 		return color;
 	}
