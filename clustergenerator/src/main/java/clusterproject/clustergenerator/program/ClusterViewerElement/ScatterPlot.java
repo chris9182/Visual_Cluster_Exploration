@@ -34,9 +34,8 @@ public class ScatterPlot extends JLayeredPane {
 	private int selectedDimY = 0;
 	private int pointDiameter = 6;
 
-	public ScatterPlot(IClickHandler handler, PointContainer pointContainer, boolean showAxies) {
+	public ScatterPlot(PointContainer pointContainer, boolean showAxies) {
 		this.pointContainer = pointContainer;
-		clickHandler = handler;
 
 		if (!showAxies) {
 			axisWidth = AXIS_WIDTH_NONE;
@@ -45,14 +44,16 @@ public class ScatterPlot extends JLayeredPane {
 
 		layout = new SpringLayout();
 		setLayout(layout);
-		if (clickHandler != null)
-			addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
+
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (clickHandler != null) {
 					final double[] translation = getCoordinates(e.getPoint());
 					clickHandler.handleClick(translation);
 				}
-			});
+			}
+		});
 		final double[] xInterval = new double[2];
 		final double[] yInterval = new double[2];
 		xInterval[0] = 0;
@@ -243,15 +244,6 @@ public class ScatterPlot extends JLayeredPane {
 
 	public void setClickHandler(IClickHandler clickHandler) {
 		this.clickHandler = clickHandler;
-		if (clickHandler != null)
-			addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					final double[] translation = getCoordinates(e.getPoint());
-					clickHandler.handleClick(translation);
-				}
-			});
-
 	}
 
 	public void setSelection(Point down, Point current) {

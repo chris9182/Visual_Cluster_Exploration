@@ -64,7 +64,8 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 	public MainWindow(PointContainer container) {
 		pointContainer = container;
-		clusterViewer = new ScatterPlot(this, pointContainer, true);
+		clusterViewer = new ScatterPlot(pointContainer, true);
+		clusterViewer.setClickHandler(this);
 		clusterViewer.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.gray));
 
 		clusterButton = new JButton("Clustering");

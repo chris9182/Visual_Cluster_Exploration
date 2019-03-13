@@ -144,7 +144,7 @@ public class ClusteringViewer extends JFrame {
 			final ClusteringResult clustering = clusterings.get(i);
 			final PointContainer container = clustering.toPointContainer();
 			container.setHeaders(clustering.getHeaders());
-			final ScatterPlot plot = new ScatterPlot(null, container, true);
+			final ScatterPlot plot = new ScatterPlot(container, true);
 			plot.autoAdjust();
 			plot.addAutoAdjust();
 			plot.addAutoColor();
@@ -247,7 +247,7 @@ public class ClusteringViewer extends JFrame {
 			final double[][] coords = mds.getCoordinates();
 			final PointContainer mdsContainer = new PointContainer(coords[0].length);
 			mdsContainer.addPoints(coords);
-			mdsPlot = new ScatterPlot(null, mdsContainer, true);
+			mdsPlot = new ScatterPlot(mdsContainer, true);
 			mdsPlot.addAutoAdjust();
 			mdsPlot.autoAdjust();
 			layout.putConstraint(SpringLayout.NORTH, mdsPlot, VIEWER_SPACE, SpringLayout.SOUTH, clustereringSelector);

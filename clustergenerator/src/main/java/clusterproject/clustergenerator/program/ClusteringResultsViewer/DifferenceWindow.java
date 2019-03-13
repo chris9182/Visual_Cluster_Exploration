@@ -25,11 +25,11 @@ public class DifferenceWindow extends JFrame {
 		container1 = c1;
 		container2 = c2;
 		setLayout(new GridLayout(1, 3));
-		scatterPlot1 = new ScatterPlot(null, c1, true);
+		scatterPlot1 = new ScatterPlot(c1, true);
 		scatterPlot1.autoAdjust();
 		scatterPlot1.addAutoAdjust();
 
-		scatterPlot2 = new ScatterPlot(null, c2, true);
+		scatterPlot2 = new ScatterPlot(c2, true);
 		scatterPlot2.autoAdjust();
 		scatterPlot2.addAutoAdjust();
 
@@ -57,7 +57,7 @@ public class DifferenceWindow extends JFrame {
 		setTitle(((float) ((double) differentCount / size) * 100) + "% Different");
 		intersection.setFilteredResults(filtered);
 
-		intersectionScatterPlot = new ScatterPlot(null, intersection, true);
+		intersectionScatterPlot = new ScatterPlot(intersection, true);
 		intersectionScatterPlot.autoAdjust();
 		intersectionScatterPlot.addAutoAdjust();
 		add(scatterPlot1);

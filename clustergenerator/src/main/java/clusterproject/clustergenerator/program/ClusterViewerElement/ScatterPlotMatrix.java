@@ -77,7 +77,7 @@ public class ScatterPlotMatrix extends JFrame {
 
 		for (int i = 0; i < dim; i++) {
 			for (int j = 0; j < dim; j++) {
-				final ScatterPlot scatterPlot = new ScatterPlot(null, pointContainer, false);
+				final ScatterPlot scatterPlot = new ScatterPlot(pointContainer, false);
 				matr[i][j] = scatterPlot;
 				scatterPlot.setSelectedDimX(j);
 				scatterPlot.setSelectedDimY(i);
