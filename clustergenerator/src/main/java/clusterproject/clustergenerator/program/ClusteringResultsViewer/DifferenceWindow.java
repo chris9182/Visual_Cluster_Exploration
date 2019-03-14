@@ -21,17 +21,21 @@ public class DifferenceWindow extends JFrame {
 	private final ScatterPlot scatterPlot2;
 	private final ScatterPlot intersectionScatterPlot;
 
-	public DifferenceWindow(PointContainer c1, PointContainer c2) {
-		container1 = c1;
-		container2 = c2;
+	public DifferenceWindow(ScatterPlot viewer1, ScatterPlot viewer2) {
+		container1 = viewer1.getPointContainer();
+		container2 = viewer2.getPointContainer();
 		setLayout(new GridLayout(1, 3));
-		scatterPlot1 = new ScatterPlot(c1, true);
-		scatterPlot1.autoAdjust();
+		scatterPlot1 = new ScatterPlot(container1, true);
 		scatterPlot1.addAutoAdjust();
+		scatterPlot1.setSelectedDimX(viewer1.getSelectedDimX());
+		scatterPlot1.setSelectedDimY(viewer1.getSelectedDimY());
+		scatterPlot1.autoAdjust();
 
-		scatterPlot2 = new ScatterPlot(c2, true);
-		scatterPlot2.autoAdjust();
+		scatterPlot2 = new ScatterPlot(container2, true);
 		scatterPlot2.addAutoAdjust();
+		scatterPlot2.setSelectedDimX(viewer1.getSelectedDimX());
+		scatterPlot2.setSelectedDimY(viewer1.getSelectedDimY());
+		scatterPlot2.autoAdjust();
 
 		intersection = new PointContainer(container1.getDim());
 		intersection.addPoints(container1.getPoints());
@@ -58,8 +62,10 @@ public class DifferenceWindow extends JFrame {
 		intersection.setFilteredResults(filtered);
 
 		intersectionScatterPlot = new ScatterPlot(intersection, true);
-		intersectionScatterPlot.autoAdjust();
 		intersectionScatterPlot.addAutoAdjust();
+		intersectionScatterPlot.setSelectedDimX(viewer1.getSelectedDimX());
+		intersectionScatterPlot.setSelectedDimY(viewer1.getSelectedDimY());
+		intersectionScatterPlot.autoAdjust();
 		add(scatterPlot1);
 		add(intersectionScatterPlot);
 		add(scatterPlot2);

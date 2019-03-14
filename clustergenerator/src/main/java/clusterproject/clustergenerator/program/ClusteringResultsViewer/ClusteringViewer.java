@@ -131,7 +131,7 @@ public class ClusteringViewer extends JFrame {
 			final int id2 = hIter.next();
 			final PointContainer c2 = viewers[id2].getPointContainer();
 			c2.setClusterIDs(getNewColors(id1, id2));
-			final DifferenceWindow newWindow = new DifferenceWindow(c1, c2);
+			final DifferenceWindow newWindow = new DifferenceWindow(viewers[id1], viewers[id2]);
 			newWindow.setSize(new Dimension(1000, 800));
 			newWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			newWindow.setLocationRelativeTo(null);
