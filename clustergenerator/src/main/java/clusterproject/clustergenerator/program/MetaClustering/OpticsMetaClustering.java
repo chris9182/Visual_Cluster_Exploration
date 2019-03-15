@@ -2,6 +2,7 @@ package clusterproject.clustergenerator.program.MetaClustering;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import clusterproject.clustergenerator.data.ClusteringResult;
@@ -92,25 +93,29 @@ public class OpticsMetaClustering {
 	}
 
 	private double coredist(List<Double> distances, int minPTS) {
-		double lowerbound = -1;
-		double smalest = distances.get(0);
-		int count = 1;
-		for (int i = 0; i < minPTS - 1; i++) {
-			for (int j = 0; j < distances.size(); j++) {
-				final double distance = distances.get(j);
-				if (distance < smalest && distance > lowerbound) {
-					smalest = distance;
-					count = 1;
-				} else if (distance == lowerbound)
-					count++;
-			}
-			if (i + count >= minPTS - 1)
-				return smalest;
-			count = 0;
-			lowerbound = smalest;
-			smalest = Float.MAX_VALUE;
-		}
-		return lowerbound;
+		//TODO: check if this is right now
+		final List<Double> distCopy = new ArrayList<Double>(distances);
+		Collections.sort(distCopy, Comparator.comparingDouble(e -> e));
+		return distCopy.get(minPTS - 2);
+//		double lowerbound = -1;
+//		double smalest = distances.get(0);
+//		int count = 1;
+//		for (int i = 0; i < minPTS - 1; i++) {
+//			for (int j = 0; j < distances.size(); j++) {
+//				final double distance = distances.get(j);
+//				if (distance < smalest && distance > lowerbound) {
+//					smalest = distance;
+//					count = 1;
+//				} else if (distance == lowerbound)
+//					count++;
+//			}
+//			if (i + count >= minPTS - 1)
+//				return smalest;
+//			count = 0;
+//			lowerbound = smalest;
+//			smalest = Float.MAX_VALUE;
+//		}
+//		return lowerbound;
 	}
 
 }

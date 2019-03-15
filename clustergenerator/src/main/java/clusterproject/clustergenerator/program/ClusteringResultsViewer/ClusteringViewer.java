@@ -78,9 +78,6 @@ public class ClusteringViewer extends JFrame {
 	private final LinkedHashSet<Integer> highlighted = new LinkedHashSet<>();
 	private final AtomicBoolean dohighlight = new AtomicBoolean(true);
 
-	private int minPTS = 1;
-	private double eps = 2;// TODO settings
-
 	private final JButton scatterMatrixButton;
 
 	private final FilterWindow filterWindow;
@@ -113,8 +110,7 @@ public class ClusteringViewer extends JFrame {
 		}
 		viewers = new ScatterPlot[clusterings.size()];
 		highlighted.add(-1);
-		this.minPTS = minPTS;
-		this.eps = eps;
+
 		this.metaDistance = metaDistance;
 		this.clusterings = clusterings;
 		mainPanel = new JLayeredPane();
