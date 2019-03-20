@@ -85,6 +85,7 @@ public class ClusteringViewer extends JFrame {
 	private JButton saveButton;
 	private JButton mainWindowButton;
 	private JButton diffButton;
+	private JButton resetFilterButton;
 
 	private Set<Integer> filteredIndexes;
 	private int selectedViewer = 0;
@@ -112,24 +113,7 @@ public class ClusteringViewer extends JFrame {
 		layout = new SpringLayout();
 		mainPanel.setLayout(layout);
 		add(mainPanel);
-		diffButton = new JButton("Difference");
-		diffButton.addActionListener(e -> {
-			if (highlighted.size() != 2)
-				return;
-			final Iterator<Integer> hIter = highlighted.iterator();
-			final int id1 = hIter.next();
-			final PointContainer c1 = viewers[id1].getPointContainer();
-			final int id2 = hIter.next();
-			final PointContainer c2 = viewers[id2].getPointContainer();
-			c2.setClusterIDs(getNewColors(id1, id2));
-			final DifferenceWindow newWindow = new DifferenceWindow(viewers[id1], viewers[id2]);
-			newWindow.setSize(new Dimension(1000, 800));
-			newWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
-			newWindow.setLocationRelativeTo(null);
-			newWindow.setVisible(true);
-			// newWindow.update();
 
-		});
 		final IntStream viewerPrepareStream = IntStream.range(0, clusterings.size());
 		viewerPrepareStream.parallel().forEach(i -> {
 			final ClusteringResult clustering = clusterings.get(i);
@@ -336,10 +320,35 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, scrollPaneFilter, -RIGHT_PANEL_WIDTH, SpringLayout.EAST, mainPanel);
 		mainPanel.add(scrollPaneFilter, new Integer(11));
 
-		layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, diffButton, 0, SpringLayout.HORIZONTAL_CENTER,
-				scrollPaneFilter);
+		diffButton = new JButton("Difference");
+		diffButton.addActionListener(e -> {
+			if (highlighted.size() != 2)
+				return;
+			final Iterator<Integer> hIter = highlighted.iterator();
+			final int id1 = hIter.next();
+			final PointContainer c1 = viewers[id1].getPointContainer();
+			final int id2 = hIter.next();
+			final PointContainer c2 = viewers[id2].getPointContainer();
+			c2.setClusterIDs(getNewColors(id1, id2));
+			final DifferenceWindow newWindow = new DifferenceWindow(viewers[id1], viewers[id2]);
+			newWindow.setSize(new Dimension(1000, 800));
+			newWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			newWindow.setLocationRelativeTo(null);
+			newWindow.setVisible(true);
+			// newWindow.update();
+
+		});
+
+		layout.putConstraint(SpringLayout.EAST, diffButton, 0, SpringLayout.WEST, scrollPaneFilter);
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, diffButton, 0, SpringLayout.VERTICAL_CENTER, distLabel);
 		mainPanel.add(diffButton, new Integer(12));
+
+		resetFilterButton = new JButton("Reset Filters");
+		resetFilterButton.addActionListener(e -> filterWindow.resetFilters());
+		layout.putConstraint(SpringLayout.EAST, resetFilterButton, 0, SpringLayout.EAST, scrollPaneFilter);
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, resetFilterButton, 0, SpringLayout.VERTICAL_CENTER,
+				distLabel);
+		mainPanel.add(resetFilterButton, new Integer(12));
 
 		viewerPanel = new JPanel();
 		viewerPanel.setOpaque(false);

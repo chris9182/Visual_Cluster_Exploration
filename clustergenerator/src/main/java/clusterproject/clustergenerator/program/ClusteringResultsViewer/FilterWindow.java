@@ -75,7 +75,7 @@ public class FilterWindow extends JPanel {
 	private List<List<List<Object>>> parameters;
 	private final Map<String, JFreeChart> charts;
 	private final List<ClusteringResult> clusteringBaseResults;
-	private final boolean ignoreChange = false;
+	private boolean ignoreChange = false;
 
 	public FilterWindow(List<ClusteringResult> clusteringResults, ClusteringViewer clusteringViewer) {
 		mainLayout = new SpringLayout();
@@ -424,7 +424,7 @@ public class FilterWindow extends JPanel {
 		rangeAxis.setVisible(false);
 		rangeAxis.setLowerMargin(0);
 		rangeAxis.setUpperMargin(0);
-		// rangeAxis.setRange(rangeAxis.getLowerBound(), rangeAxis.getUpperBound());
+		rangeAxis.setRange(rangeAxis.getLowerBound(), rangeAxis.getUpperBound());
 
 		final CategoryItemRenderer renderer = plot.getRenderer();
 		renderer.setDefaultItemLabelsVisible(false);
@@ -526,6 +526,11 @@ public class FilterWindow extends JPanel {
 
 		public void handleChange() {
 			handleChange(false);
+		}
+
+		public void reset() {
+			setValue(0);
+			setUpperValue(TICK_COUNT);
 		}
 
 		public void handleChange(boolean forceUpdate) {
@@ -732,6 +737,19 @@ public class FilterWindow extends JPanel {
 				filteredSet.add(result);
 		}
 		comitFilteredData();
+	}
+
+	public void resetFilters() {
+		if (selectors != null) {
+			ignoreChange = true;
+			selectors.values().forEach(t -> {
+				if (t instanceof MyRangeSlider)
+					((MyRangeSlider) t).reset();
+			});
+			ignoreChange = false;
+			applyFilter();
+		}
+
 	}
 
 }
