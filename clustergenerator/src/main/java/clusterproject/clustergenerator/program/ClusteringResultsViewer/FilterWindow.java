@@ -38,6 +38,7 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.AreaRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.chart.util.SortOrder;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.general.DatasetUtils;
@@ -312,15 +313,25 @@ public class FilterWindow extends JPanel {
 					charts.put(clusteringName + " " + parameterName, chart);
 
 					final ChartPanel chartPanel = new ChartPanel(chart);
+					final MouseAdapter adapter = new MouseAdapter() {
+						@Override
+						public void mouseMoved(MouseEvent e) {
+
+							// System.err.println(e.getX());
+							super.mouseMoved(e);
+						}
+					};
+					chartPanel.addMouseMotionListener(adapter);
 					chartPanel.setRangeZoomable(false);
 					chartPanel.setDomainZoomable(false);
 					chartPanel.setPopupMenu(null);
+					chartPanel.setBorder(null);
 					mainLayout.putConstraint(SpringLayout.NORTH, chartPanel, -ABOVE_BAR_SPACE, SpringLayout.NORTH,
 							slider);
 					mainLayout.putConstraint(SpringLayout.SOUTH, chartPanel, 0, SpringLayout.NORTH, slider);
-					mainLayout.putConstraint(SpringLayout.WEST, chartPanel, (int) sliderRectangle.getX() - 11,
+					mainLayout.putConstraint(SpringLayout.WEST, chartPanel, (int) sliderRectangle.getX() - 2,
 							SpringLayout.WEST, this);
-					mainLayout.putConstraint(SpringLayout.EAST, chartPanel, (int) (-sliderRectangle.getX() + 10),
+					mainLayout.putConstraint(SpringLayout.EAST, chartPanel, (int) (-sliderRectangle.getX() + 2),
 							SpringLayout.EAST, this);
 					this.add(chartPanel, new Integer(4));
 				} else {
@@ -402,17 +413,23 @@ public class FilterWindow extends JPanel {
 		final CategoryAxis domainAxis = plot.getDomainAxis();
 		domainAxis.setLowerMargin(0.0);
 		domainAxis.setUpperMargin(0.0);
-		domainAxis.setVisible(false);
+
 		domainAxis.setCategoryMargin(0);
+		domainAxis.setVisible(false);
 
 		// change the auto tick unit selection to integer units only...
 		final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+		// rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 		rangeAxis.setVisible(false);
-		rangeAxis.setRange(rangeAxis.getLowerBound(), rangeAxis.getUpperBound());
+		rangeAxis.setLowerMargin(0);
+		rangeAxis.setUpperMargin(0);
+		// rangeAxis.setRange(rangeAxis.getLowerBound(), rangeAxis.getUpperBound());
 
 		final CategoryItemRenderer renderer = plot.getRenderer();
 		renderer.setDefaultItemLabelsVisible(false);
+
+		plot.setInsets(new RectangleInsets(0, 0, 0, 0));
+		chart.setPadding(new RectangleInsets(0, 0, 0, 0));
 
 		return chart;
 
