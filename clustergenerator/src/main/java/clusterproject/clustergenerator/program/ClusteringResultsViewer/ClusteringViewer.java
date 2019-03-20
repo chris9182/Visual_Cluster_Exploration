@@ -61,6 +61,7 @@ public class ClusteringViewer extends JFrame {
 	private static final int OUTER_SPACE = 20;
 	public static final int VIEWER_SPACE = 4;
 	public static final int RIGHT_PANEL_WIDTH = 300;
+	private static final int MAX_HEATMAP_SIZE = 130;
 
 	private final List<ClusteringResult> clusterings;
 	private final List<ClusteringWithDistance> clusteredList;
@@ -304,13 +305,17 @@ public class ClusteringViewer extends JFrame {
 			mdsPlot.getPointContainer().setGroundTruth(groundTruth);
 		}
 
-		heatMap = new HeatMap(Util.getSortedDistances(clusteredList, distanceMatrix), this, clusteredList);
-		layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
-		layout.putConstraint(SpringLayout.EAST, heatMap, -VIEWER_SPACE - RIGHT_PANEL_WIDTH / 2,
-				SpringLayout.HORIZONTAL_CENTER, mainPanel);
-		layout.putConstraint(SpringLayout.SOUTH, heatMap, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
-		layout.putConstraint(SpringLayout.WEST, heatMap, VIEWER_SPACE, SpringLayout.WEST, mainPanel);
-		mainPanel.add(heatMap, new Integer(10));
+		if (clusterings.size() <= MAX_HEATMAP_SIZE) {
+			heatMap = new HeatMap(Util.getSortedDistances(clusteredList, distanceMatrix), this, clusteredList);
+			layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
+			layout.putConstraint(SpringLayout.EAST, heatMap, -VIEWER_SPACE - RIGHT_PANEL_WIDTH / 2,
+					SpringLayout.HORIZONTAL_CENTER, mainPanel);
+			layout.putConstraint(SpringLayout.SOUTH, heatMap, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
+			layout.putConstraint(SpringLayout.WEST, heatMap, VIEWER_SPACE, SpringLayout.WEST, mainPanel);
+			mainPanel.add(heatMap, new Integer(10));
+		} else {
+			layout.putConstraint(SpringLayout.WEST, oPlot, VIEWER_SPACE, SpringLayout.WEST, mainPanel);
+		}
 
 		clustereringSelector.addActionListener(e -> {
 			final String selected = (String) clustereringSelector.getSelectedItem();
@@ -446,7 +451,8 @@ public class ClusteringViewer extends JFrame {
 			oPlot.repaint();
 			if (mdsPlot != null)
 				mdsPlot.repaint();
-			heatMap.repaint();
+			if (heatMap != null)
+				heatMap.repaint();
 			filterWindow.repaint();
 		});
 
@@ -653,8 +659,10 @@ public class ClusteringViewer extends JFrame {
 		}
 
 		SwingUtilities.invokeLater(() -> {
-			heatMap.repaint();
-			mdsPlot.repaint();
+			if (heatMap != null)
+				heatMap.repaint();
+			if (mdsPlot != null)
+				mdsPlot.repaint();
 			oPlot.repaint();
 		});
 
