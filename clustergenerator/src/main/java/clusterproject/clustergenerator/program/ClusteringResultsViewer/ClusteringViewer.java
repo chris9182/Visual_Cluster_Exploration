@@ -83,6 +83,7 @@ public class ClusteringViewer extends JFrame {
 	private final JButton scatterMatrixButton;
 	private final FilterWindow filterWindow;
 	private JButton saveButton;
+	private JButton consensusButton;
 	private JButton mainWindowButton;
 	private JButton diffButton;
 	private JButton resetFilterButton;
@@ -206,10 +207,21 @@ public class ClusteringViewer extends JFrame {
 				scatterMatrixButton);
 		mainPanel.add(saveButton, new Integer(1));
 
+		consensusButton = new JButton("Consensus");
+		consensusButton.addActionListener(e -> {
+			final ConsensusWindow newWindow = new ConsensusWindow(ClusteringViewer.this);
+			newWindow.setSize(new Dimension(1000, 800));
+			newWindow.setLocationRelativeTo(null);
+			newWindow.setVisible(true);
+		});
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, consensusButton, 0, SpringLayout.VERTICAL_CENTER,
+				saveButton);
+		layout.putConstraint(SpringLayout.WEST, consensusButton, MainWindow.INNER_SPACE, SpringLayout.EAST, saveButton);
+		mainPanel.add(consensusButton, new Integer(1));
+
 		final JLabel distLabel = new JLabel("Measure: " + metaDistance.getName());
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, distLabel, 0, SpringLayout.VERTICAL_CENTER,
-				scatterMatrixButton);
-		layout.putConstraint(SpringLayout.WEST, distLabel, OUTER_SPACE, SpringLayout.EAST, saveButton);
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, distLabel, 0, SpringLayout.VERTICAL_CENTER, consensusButton);
+		layout.putConstraint(SpringLayout.WEST, distLabel, OUTER_SPACE, SpringLayout.EAST, consensusButton);
 		mainPanel.add(distLabel, new Integer(1));
 
 		distanceMatrix = DistanceCalculation.calculateDistanceMatrix(clusterings, metaDistance);
@@ -361,6 +373,10 @@ public class ClusteringViewer extends JFrame {
 		mainPanel.add(viewerPanel, new Integer(10));
 
 		showViewer(0, false);
+	}
+
+	public List<ClusteringResult> getClusterings() {
+		return clusterings;
 	}
 
 	private void addParameters() {
