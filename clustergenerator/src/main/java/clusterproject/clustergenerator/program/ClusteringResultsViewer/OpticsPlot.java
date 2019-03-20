@@ -26,20 +26,17 @@ import clusterproject.clustergenerator.program.MetaClustering.ClusteringWithDist
 
 public class OpticsPlot extends JLayeredPane {
 
-	/**
-	 *
-	 */
+	private static final long serialVersionUID = 7515062269771305939L;
+
 	private final static int BAR_OFFSET = 20;
 	private static final int LABLE_OFFSET = 5;
 
-	private static final long serialVersionUID = 1L;
 	private final List<ClusteringWithDistance> clusteringList;
 	private final JPanel opticsBars;
 	private final SpringLayout layout;
 	private final List<OpticsBar> bars;
 	private double threshhold = 0.5;
 	private double max = 0;
-
 	private final ClusteringViewer clusteringViewer;
 	private final int NOISE_TAG = -2;
 
@@ -71,12 +68,13 @@ public class OpticsPlot extends JLayeredPane {
 		for (int i = 0; i < clusteringList.size(); ++i) {
 			final int selection = clusteringList.get(i).inIndex;
 			final OpticsBar bar = new OpticsBar(this, Math.min(clusteringList.get(i).distance / max, 1),
-					clusteringList.get(i).inIndex);// XXX
-			// distances!=0?
+					clusteringList.get(i).inIndex);
 			bar.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-
+					// if(e.isShiftDown())
+					// shiftHighlight(selection);//TODO: maybe shift selection?
+					// else
 					highlight(selection, !e.isControlDown(), e.getClickCount() == 1);
 
 				}
@@ -86,6 +84,8 @@ public class OpticsPlot extends JLayeredPane {
 		}
 		add(opticsBars, new Integer(20));
 		final JPanel threshholdClicker = new JPanel() {
+			private static final long serialVersionUID = -343022910473819436L;
+
 			@Override
 			public void paint(Graphics g) {
 				super.paint(g);

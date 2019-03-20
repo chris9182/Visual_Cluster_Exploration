@@ -75,11 +75,18 @@ public class FilterWindow extends JPanel {
 	private List<List<List<Object>>> parameters;
 	private final Map<String, JFreeChart> charts;
 	private final List<ClusteringResult> clusteringBaseResults;
+	private final boolean ignoreChange = false;
 
 	public FilterWindow(List<ClusteringResult> clusteringResults, ClusteringViewer clusteringViewer) {
-		setBackground(MainWindow.BACKGROUND_COLOR);
 		mainLayout = new SpringLayout();
 		charts = new HashMap<String, JFreeChart>();
+		this.clusteringViewer = clusteringViewer;
+		allParametersMap = new HashMap<String, double[]>();
+		allParametersMaxMap = new HashMap<String, Double>();
+		allParametersMinMap = new HashMap<String, Double>();
+		bucketsMap = new HashMap<String, Integer>();
+		selectors = new HashMap<String, Object>();
+		setBackground(MainWindow.BACKGROUND_COLOR);
 		setLayout(mainLayout);
 		clusteringBaseResults = new ArrayList<ClusteringResult>(clusteringResults);
 		final List<ClusteringResult> removeTruth = new ArrayList<ClusteringResult>();
@@ -109,17 +116,11 @@ public class FilterWindow extends JPanel {
 		}
 		clusteringNames = new LinkedHashSet<String>(cList);
 
-		this.clusteringViewer = clusteringViewer;
-		allParametersMap = new HashMap<String, double[]>();
-		allParametersMaxMap = new HashMap<String, Double>();
-		allParametersMinMap = new HashMap<String, Double>();
-		bucketsMap = new HashMap<String, Integer>();
-		selectors = new HashMap<String, Object>();
 		rebuild(clusteringBaseResults);
 		final Iterator<String> clusteringNamesIt = clusteringNames.iterator();
 		final Component lastComponent = Box.createVerticalStrut(0);
 		mainLayout.putConstraint(SpringLayout.NORTH, lastComponent, 0, SpringLayout.NORTH, this);
-		this.add(lastComponent, new Integer(0));
+		add(lastComponent, new Integer(0));
 
 		for (int i = 0; i < clusteringNames.size(); ++i) {
 			final String clusteringName = clusteringNamesIt.next();
@@ -502,50 +503,9 @@ public class FilterWindow extends JPanel {
 				public void mouseReleased(MouseEvent e) {
 					if (e.isConsumed())
 						return;
+					filterWindow.applyFilter();
 					e.consume();
 					tooltipFrame.setVisible(false);
-					filteredSet.clear();
-					for (final ClusteringResult result : clusteringBaseResults) {
-						final String clusteringName = result.getParameter().getName();
-						final Map<String, Object> params = result.getParameter().getAllParameters();
-						boolean add = true;
-						for (final String param : params.keySet()) {
-							final Object selector = selectors.get(clusteringName + " " + param);
-							if (selector == null) {
-								System.err.println("not implemented type");
-								continue;
-							}
-							if (selector instanceof MyRangeSlider) {// TODO: other selectors
-								if (((MyRangeSlider) selector).isFullRange())
-									continue;
-								if (((MyRangeSlider) selector).isEmptyRange()) {
-									add = false;
-									continue;
-								}
-								final Object paramVal = params.get(param);
-								Double value = Double.NaN;
-								if (paramVal instanceof Double)
-									value = (Double) paramVal;
-								if (paramVal instanceof Integer)
-									value = (double) (((Integer) paramVal));
-								if (paramVal instanceof Boolean)
-									value = (double) (((Boolean) paramVal) ? 1 : 0);
-								if (value == Double.NaN) {
-									System.err.println("unexpected value type");
-									continue;
-								}
-								if (value * 0.99999 >= ((MyRangeSlider) selector).getUpperValueD()
-										|| value * 1.00001 <= ((MyRangeSlider) selector).getLowerValue()) {
-									add = false;
-								}
-							} else {
-								System.err.println("not implemented type");
-							}
-						}
-						if (add)
-							filteredSet.add(result);
-					}
-					filterWindow.comitFilteredData();
 
 				}
 
@@ -725,6 +685,53 @@ public class FilterWindow extends JPanel {
 
 	public List<ClusteringResult> getClusterings() {
 		return clusteringResults;
+	}
+
+	protected void applyFilter() {
+		if (ignoreChange)
+			return;
+		filteredSet.clear();
+		for (final ClusteringResult result : clusteringBaseResults) {
+			final String clusteringName = result.getParameter().getName();
+			final Map<String, Object> params = result.getParameter().getAllParameters();
+			boolean add = true;
+			for (final String param : params.keySet()) {
+				final Object selector = selectors.get(clusteringName + " " + param);
+				if (selector == null) {
+					System.err.println("not implemented type");
+					continue;
+				}
+				if (selector instanceof MyRangeSlider) {// TODO: other selectors
+					if (((MyRangeSlider) selector).isFullRange())
+						continue;
+					if (((MyRangeSlider) selector).isEmptyRange()) {
+						add = false;
+						continue;
+					}
+					final Object paramVal = params.get(param);
+					Double value = Double.NaN;
+					if (paramVal instanceof Double)
+						value = (Double) paramVal;
+					if (paramVal instanceof Integer)
+						value = (double) (((Integer) paramVal));
+					if (paramVal instanceof Boolean)
+						value = (double) (((Boolean) paramVal) ? 1 : 0);
+					if (value == Double.NaN) {
+						System.err.println("unexpected value type");
+						continue;
+					}
+					if (value * 0.99999 >= ((MyRangeSlider) selector).getUpperValueD()
+							|| value * 1.00001 <= ((MyRangeSlider) selector).getLowerValue()) {
+						add = false;
+					}
+				} else {
+					System.err.println("not implemented type");
+				}
+			}
+			if (add)
+				filteredSet.add(result);
+		}
+		comitFilteredData();
 	}
 
 }

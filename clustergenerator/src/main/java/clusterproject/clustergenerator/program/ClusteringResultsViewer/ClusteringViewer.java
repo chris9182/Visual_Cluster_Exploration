@@ -72,28 +72,22 @@ public class ClusteringViewer extends JFrame {
 	private final JLayeredPane mainPanel;
 	private final SpringLayout layout;
 	private final IDistanceMeasure metaDistance;
-	private final OpticsPlot oPlot;
 	private final double[][] distanceMatrix;
+	private final OpticsPlot oPlot;
+	private HeatMap heatMap;
 	private ScatterPlot mdsPlot;
 	private final LinkedHashSet<Integer> highlighted = new LinkedHashSet<>();
 	private final AtomicBoolean dohighlight = new AtomicBoolean(true);
 
 	private final JButton scatterMatrixButton;
-
 	private final FilterWindow filterWindow;
-
 	private JButton saveButton;
-
 	private JButton mainWindowButton;
-
-	private HeatMap heatMap;
+	private JButton diffButton;
 
 	private Set<Integer> filteredIndexes;
-
 	private int selectedViewer = 0;
 	private int groundTruth = -1;
-
-	private JButton diffButton;
 
 	public ClusteringViewer(List<ClusteringResult> clusterings, IDistanceMeasure metaDistance, int minPTS, double eps) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
