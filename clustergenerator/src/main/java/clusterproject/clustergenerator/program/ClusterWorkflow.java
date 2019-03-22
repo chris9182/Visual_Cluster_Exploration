@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
@@ -92,6 +93,8 @@ public class ClusterWorkflow extends JFrame {
 	private JScrollPane wfScrollPane;
 	private final JButton saveButton;
 	private JButton loadClusterButton;
+	private JProgressBar progressBar;
+	private Thread worker;
 
 	public ClusterWorkflow(PointContainer container) {
 		final NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
@@ -105,6 +108,10 @@ public class ClusterWorkflow extends JFrame {
 		epsField.setValue(new Double(-1.0));
 		epsField.setColumns(5);
 		epsField.setHorizontalAlignment(JTextField.RIGHT);
+		progressBar = new JProgressBar(0, 100);
+		progressBar.addChangeListener(e -> progressBar.repaint());
+		progressBar.setStringPainted(true);
+		progressBar.setString("Waiting");
 
 		pointContainer = container;
 		mainPanel = new JLayeredPane();
@@ -192,6 +199,13 @@ public class ClusterWorkflow extends JFrame {
 		layout.putConstraint(SpringLayout.EAST, executeClusterersButton, -OPTIONS_WIDTH - 3 * OUTER_SPACE,
 				SpringLayout.EAST, mainPanel);
 		mainPanel.add(executeClusterersButton, new Integer(1));
+
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, progressBar, 0, SpringLayout.VERTICAL_CENTER,
+				executeClusterersButton);
+		layout.putConstraint(SpringLayout.EAST, progressBar, -MainWindow.INNER_SPACE, SpringLayout.WEST,
+				executeClusterersButton);
+		mainPanel.add(progressBar, new Integer(1));
+		progressBar.setVisible(false);
 
 		layout.putConstraint(SpringLayout.SOUTH, distanceSelector, -MainWindow.INNER_SPACE, SpringLayout.NORTH,
 				executeClusterersButton);
@@ -356,6 +370,8 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private void addToWorkflow() {
+		progressBar.setValue(0);
+		progressBar.setString("Waiting");
 		workflow.add(selectedClusterer);
 		showWorkflow();
 		openClustererSettings(selectedClusterer.getName());
@@ -363,10 +379,14 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private void executeWorkflow() {
+		if (worker != null && worker.isAlive())
+			return;
 		if (pointContainer.getPoints().size() < 2) {
 			JOptionPane.showMessageDialog(null, "Not enought data points!");
 			return;
 		}
+		progressBar.setValue(0);
+		progressBar.setMaximum(workflow.size());
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 
 		double[][] data = new double[pointContainer.getPoints().size()][];
@@ -374,45 +394,57 @@ public class ClusterWorkflow extends JFrame {
 		final DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data);
 		final Database db = new StaticArrayDatabase(dbc, null);
 		db.initialize();
+		int maximum = 0;
 		for (final IClusterer clusterer : workflow) {
-			final List<NumberVectorClusteringResult> results = clusterer.cluster(db);
-			clusterings.addAll(results);
+			maximum += clusterer.getCount();
 		}
-		if (pointContainer.hasClusters()) {
-			final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
+		progressBar.setMaximum(maximum);
+		worker = new Thread(() -> {
+			progressBar.setString("Calculating Clusterings");
+			for (final IClusterer clusterer : workflow) {
+				final List<NumberVectorClusteringResult> results = clusterer.cluster(db, progressBar);
+				clusterings.addAll(results);
+			}
+			progressBar.setString("Converting Results");
+			if (pointContainer.hasClusters()) {
+				final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
-			final List<List<NumberVector>> pointList = new ArrayList<List<NumberVector>>();
-			final Set<Integer> clusterIDs = new HashSet<Integer>(pointContainer.getClusterIDs());
-			final int maxInt = Collections.max(clusterIDs) + 1;
-			for (int j = 0; j < maxInt; ++j) {
-				pointList.add(new ArrayList<NumberVector>());
+				final List<List<NumberVector>> pointList = new ArrayList<List<NumberVector>>();
+				final Set<Integer> clusterIDs = new HashSet<Integer>(pointContainer.getClusterIDs());
+				final int maxInt = Collections.max(clusterIDs) + 1;
+				for (int j = 0; j < maxInt; ++j) {
+					pointList.add(new ArrayList<NumberVector>());
+				}
+				int i = 0;
+				for (final DBIDIter it = rel.iterDBIDs(); it.valid(); it.advance()) {
+					pointList.get(pointContainer.getClusterIDs().get(i)).add(rel.get(it));
+					i++;
+				}
+				final List<List<NumberVector>> betterPointList = new ArrayList<List<NumberVector>>();
+				for (final List<NumberVector> lNV1 : pointList) {
+					if (lNV1.isEmpty())
+						continue;
+					betterPointList.add(lNV1);
+				}
+				final NumberVector[][] clustersArr = new NumberVector[betterPointList.size()][];
+				i = 0;
+				for (final List<NumberVector> lNV2 : betterPointList) {
+					NumberVector[] clusterArr = new NumberVector[pointList.size()];
+					clusterArr = lNV2.toArray(clusterArr);
+					clustersArr[i] = clusterArr;
+					++i;
+				}
+				final Parameter param = new Parameter(Util.GROUND_TRUTH);
+				clusterings.add(0, new NumberVectorClusteringResult(clustersArr, param));
 			}
-			int i = 0;
-			for (final DBIDIter it = rel.iterDBIDs(); it.valid(); it.advance()) {
-				pointList.get(pointContainer.getClusterIDs().get(i)).add(rel.get(it));
-				i++;
-			}
-			final List<List<NumberVector>> betterPointList = new ArrayList<List<NumberVector>>();
-			for (final List<NumberVector> lNV : pointList) {
-				if (lNV.isEmpty())
-					continue;
-				betterPointList.add(lNV);
-			}
-			final NumberVector[][] clustersArr = new NumberVector[betterPointList.size()][];
-			i = 0;
-			for (final List<NumberVector> lNV : betterPointList) {
-				NumberVector[] clusterArr = new NumberVector[pointList.size()];
-				clusterArr = lNV.toArray(clusterArr);
-				clustersArr[i] = clusterArr;
-				++i;
-			}
-			final Parameter param = new Parameter(Util.GROUND_TRUTH);
-			clusterings.add(0, new NumberVectorClusteringResult(clustersArr, param));
-		}
 
-		final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings, pointContainer.getHeaders());
+			final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings,
+					pointContainer.getHeaders());
 
-		openClusterViewer(sClusterings);
+			progressBar.setString("Calculating Meta");
+			openClusterViewer(sClusterings);
+		});
+		worker.start();
 
 	}
 
@@ -484,11 +516,13 @@ public class ClusterWorkflow extends JFrame {
 			wfLabel.setVisible(false);
 			loadClusterButton.setVisible(true);
 			executeClusterersButton.setVisible(false);
+			progressBar.setVisible(false);
 			return;
 		}
 		wfLabel.setVisible(true);
 		loadClusterButton.setVisible(false);
 		executeClusterersButton.setVisible(true);
+		progressBar.setVisible(true);
 		if (wfScrollPane != null)
 			mainPanel.remove(wfScrollPane);
 		final SpringLayout wfLayout = new SpringLayout();

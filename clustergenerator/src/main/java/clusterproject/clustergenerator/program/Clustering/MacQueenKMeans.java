@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.program.Clustering.Panel.KMeansOptions;
@@ -25,7 +26,7 @@ public class MacQueenKMeans implements IClusterer {
 
 	private transient KMeansOptions optionsPanel = new KMeansOptions();
 	private int minK;
-	private int minKBound;
+	private int maxK;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -38,16 +39,16 @@ public class MacQueenKMeans implements IClusterer {
 	}
 
 	@Override
-	public List<NumberVectorClusteringResult> cluster(Database db) {
+	public List<NumberVectorClusteringResult> cluster(Database db, JProgressBar progress) {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
 		if (optionsPanel != null) {
 			minK = optionsPanel.getLBK();
-			minKBound = optionsPanel.getUBK();
+			maxK = optionsPanel.getUBK();
 		}
 
-		for (int i = minK; i <= minKBound; ++i) {
+		for (int i = minK; i <= maxK; ++i) {
 			final int calcK = i;
 
 			final ListParameterization params = new ListParameterization();
@@ -72,6 +73,10 @@ public class MacQueenKMeans implements IClusterer {
 			final Parameter param = new Parameter(getName());
 			param.addParameter("k", calcK);
 			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
+
+			synchronized (progress) {
+				progress.setValue(progress.getValue() + 1);
+			}
 		}
 		return clusterings;
 	}
@@ -85,8 +90,17 @@ public class MacQueenKMeans implements IClusterer {
 	public String getSettingsString() {
 		if (optionsPanel != null) {
 			minK = optionsPanel.getLBK();
-			minKBound = optionsPanel.getUBK();
+			maxK = optionsPanel.getUBK();
 		}
-		return "k:{LB:" + minK + " UB:" + minKBound + "} ";
+		return "k:{LB:" + minK + " UB:" + maxK + "} ";
+	}
+
+	@Override
+	public int getCount() {
+		if (optionsPanel != null) {
+			minK = optionsPanel.getLBK();
+			maxK = optionsPanel.getUBK();
+		}
+		return maxK - minK;
 	}
 }

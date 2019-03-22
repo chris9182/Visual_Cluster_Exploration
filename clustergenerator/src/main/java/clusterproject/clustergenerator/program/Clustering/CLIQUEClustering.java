@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.program.Clustering.Panel.CLIQUEOptions;
@@ -42,7 +43,7 @@ public class CLIQUEClustering implements IClusterer {
 	}
 
 	@Override
-	public List<NumberVectorClusteringResult> cluster(Database db) {
+	public List<NumberVectorClusteringResult> cluster(Database db, JProgressBar progress) {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
@@ -86,7 +87,9 @@ public class CLIQUEClustering implements IClusterer {
 			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));// TODO:
 			// show
 			// pruning
-
+			synchronized (progress) {
+				progress.setValue(progress.getValue() + 1);
+			}
 		}
 		return clusterings;
 	}
@@ -110,4 +113,15 @@ public class CLIQUEClustering implements IClusterer {
 		// pruning
 	}
 
+	@Override
+	public int getCount() {
+		if (optionsPanel != null) {
+			tau = optionsPanel.getLBtau();
+			tauBound = optionsPanel.getUBtau();
+			xsi = optionsPanel.getLBxsi();
+			xsiBound = optionsPanel.getUBxsi();
+			samples = optionsPanel.getNSamples();
+		}
+		return samples;
+	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 import clusterproject.clustergenerator.data.NumberVectorClusteringResult;
 import clusterproject.clustergenerator.program.Clustering.Panel.DiSHOptions;
@@ -43,7 +44,7 @@ public class DiSHClustering implements IClusterer {
 	}
 
 	@Override
-	public List<NumberVectorClusteringResult> cluster(Database db) {
+	public List<NumberVectorClusteringResult> cluster(Database db, JProgressBar progress) {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 		if (optionsPanel != null) {
@@ -68,7 +69,7 @@ public class DiSHClustering implements IClusterer {
 			result.getAllClusters().forEach(cluster -> {// what about the hierarchy?
 				// XXX debug
 				// import scala.collection.mutable.BitSet;
-//				final BitSet bits = new BitSet(cluster.getModel().getDimensions());
+				// final BitSet bits = new BitSet(cluster.getModel().getDimensions());
 				// System.err.println(bits);
 				// XXX debug end
 
@@ -88,6 +89,9 @@ public class DiSHClustering implements IClusterer {
 			param.addParameter("Epsilon", calcEps);
 			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
 
+			synchronized (progress) {
+				progress.setValue(progress.getValue() + 1);
+			}
 		}
 		return clusterings;
 	}
@@ -108,6 +112,18 @@ public class DiSHClustering implements IClusterer {
 		}
 		return "Mu{LB:" + Mu + " UB:" + MuBound + "} " + "Epsilon{LB:" + eps + " UB:" + epsBound + " Samples{" + samples
 				+ "}";
+	}
+
+	@Override
+	public int getCount() {
+		if (optionsPanel != null) {
+			eps = optionsPanel.getLBEps();
+			epsBound = optionsPanel.getUBEps();
+			Mu = optionsPanel.getLBMu();
+			MuBound = optionsPanel.getUBMu();
+			samples = optionsPanel.getNSamples();
+		}
+		return samples;
 	}
 
 }
