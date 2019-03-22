@@ -450,6 +450,7 @@ public class ClusterWorkflow extends JFrame {
 
 			progressBar.setString("Calculating Meta");
 			openClusterViewer(sClusterings);
+			progressBar.setString("Done");
 		});
 		worker.start();
 
