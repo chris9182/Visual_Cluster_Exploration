@@ -273,6 +273,8 @@ public class ClusterWorkflow extends JFrame {
 
 		final JButton loadButton = new JButton("Load Wf");
 		loadButton.addActionListener(e -> {
+			if (worker != null && worker.isAlive())
+				return;
 			final JFileChooser fileChooser = new JFileChooser();
 			fileChooser.addChoosableFileFilter(cwffilter);
 			fileChooser.setFileFilter(cwffilter);
@@ -333,6 +335,8 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private void loadCWFFile(File selectedFile) {
+		if (worker != null && worker.isAlive())
+			return;
 		try {
 			final FileInputStream fileIn = new FileInputStream(selectedFile);
 			final ObjectInputStream in = new ObjectInputStream(fileIn);
@@ -370,6 +374,8 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private void addToWorkflow() {
+		if (worker != null && worker.isAlive())
+			return;
 		progressBar.setValue(0);
 		progressBar.setString("Waiting");
 		workflow.add(selectedClusterer);
