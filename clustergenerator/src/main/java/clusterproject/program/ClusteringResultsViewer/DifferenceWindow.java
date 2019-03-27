@@ -1,7 +1,6 @@
 package clusterproject.program.ClusteringResultsViewer;
 
 import java.awt.GridLayout;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,13 +40,11 @@ public class DifferenceWindow extends JFrame {
 		intersection.addPoints(container1.getPoints());
 		intersection.setUpClusters();
 		final List<double[]> c1Points = container1.getPoints();
-		final List<double[]> c2Points = container2.getPoints();
 		final List<Integer> c1IDs = container1.getClusterIDs();
-		final List<Integer> c2IDs = container2.getClusterIDs();
+
 		final int size = container1.getClusterIDs().size();
-		final Map<double[], Integer> idMapc2 = new HashMap<double[], Integer>();
-		for (int i = 0; i < size; ++i)
-			idMapc2.put(c2Points.get(i), c2IDs.get(i));
+		final Map<double[], Integer> idMapc2 = container2.getLabelMap();
+
 		final Set<Integer> filtered = new HashSet<Integer>();
 		for (int i = 0; i < size; ++i) {
 			final double[] point = c1Points.get(i);

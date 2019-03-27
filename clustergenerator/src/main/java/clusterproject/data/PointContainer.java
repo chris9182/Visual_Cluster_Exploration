@@ -2,6 +2,7 @@ package clusterproject.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -212,5 +213,14 @@ public class PointContainer {
 
 	public int getGroundTruth() {
 		return groundTruth;
+	}
+
+	public Map<double[], Integer> getLabelMap() {
+		if (!hasClusters())
+			return null;
+		final Map<double[], Integer> assignments = new HashMap<double[], Integer>();
+		for (int i = 0; i < points.size(); ++i)
+			assignments.put(points.get(i), clusterIDs.get(i));
+		return assignments;
 	}
 }

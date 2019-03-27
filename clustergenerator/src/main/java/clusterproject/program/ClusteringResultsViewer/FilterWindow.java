@@ -675,14 +675,14 @@ public class FilterWindow extends JPanel {
 		}
 
 		public double getUpperValueD() {
-			// if (getUpperValue() == TICK_COUNT)
-			// return maxLbl;
+			if (getUpperValue() == TICK_COUNT)
+				return Double.MAX_VALUE;
 			return (maxLbl - minLbl) * ((double) getUpperValue() / TICK_COUNT) + minLbl;
 		}
 
 		public double getLowerValue() {
-			// if (getValue() == 0)
-			// return minLbl;
+			if (getValue() == 0)
+				return -Double.MAX_VALUE;
 			return (maxLbl - minLbl) * ((double) getValue() / TICK_COUNT) + minLbl;
 		}
 

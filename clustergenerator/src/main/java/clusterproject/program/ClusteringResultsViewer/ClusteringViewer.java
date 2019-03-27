@@ -207,7 +207,7 @@ public class ClusteringViewer extends JFrame {
 				scatterMatrixButton);
 		mainPanel.add(saveButton, new Integer(1));
 
-		consensusButton = new JButton("Consensus");
+		consensusButton = new JButton("Consensus - BETA");
 		consensusButton.addActionListener(e -> {
 			final ConsensusWindow newWindow = new ConsensusWindow(ClusteringViewer.this);
 			newWindow.setSize(new Dimension(1000, 800));
@@ -705,5 +705,14 @@ public class ClusteringViewer extends JFrame {
 		if (groundTruth < 0)
 			return Double.NaN;
 		return distanceMatrix[i][groundTruth];
+	}
+
+	public List<PointContainer> getRelevantContainers() {// XXX: will be removed later for propper selection
+		final List<PointContainer> containers = new ArrayList<PointContainer>();
+		final List<Integer> tags = mdsPlot.getPointContainer().getClusterIDs();
+		for (int i = 0; i < tags.size(); ++i)
+			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i)))
+				containers.add(viewers[i].getPointContainer());
+		return containers;
 	}
 }
