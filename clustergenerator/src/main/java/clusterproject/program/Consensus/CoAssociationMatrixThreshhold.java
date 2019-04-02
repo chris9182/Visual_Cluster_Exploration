@@ -29,7 +29,7 @@ public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 
 		IntStream.range(0, pointCount).parallel().forEach(i -> {
 			final double[] pointi = points.get(i);
-			for (int j = 0; j < pointCount; ++j) {
+			for (int j = i + 1; j < pointCount; ++j) {
 				final double[] pointj = points.get(j);
 				coAssociationMatrix[i][j] = 0;
 				for (int t = 0; t < resultCount; ++t) {
@@ -49,7 +49,7 @@ public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 		}
 
 		for (int i = 0; i < pointCount; ++i) {
-			for (int j = 0; j < pointCount; ++j) {
+			for (int j = i + 1; j < pointCount; ++j) {
 				if (coAssociationMatrix[i][j] > threshhold) {
 					int set1 = -1;
 					int set2 = -1;

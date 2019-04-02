@@ -7,7 +7,7 @@ import javax.swing.SpringLayout;
 
 import clusterproject.program.MainWindow;
 import clusterproject.program.ClusterViewerElement.ScatterPlot;
-import clusterproject.program.Consensus.CoAssociationMatrixThreshhold;
+import clusterproject.program.Consensus.CoAssociationMatrixAverageLink;
 
 public class ConsensusWindow extends JFrame {
 
@@ -21,13 +21,13 @@ public class ConsensusWindow extends JFrame {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 		mainPanel.setLayout(mainLayout);
 		final JLabel betaLabel = new JLabel(
-				"BETA - currently only works with good preselection (magic threshhold in CoAssociationMatrixThreshhold.java)");
+				"BETA - should work well in most cases (magic threshhold in CoAssociationMatrixAverageLink.java)");
 		mainPanel.add(betaLabel, new Integer(1));
 		mainLayout.putConstraint(SpringLayout.NORTH, betaLabel, 0, SpringLayout.NORTH, this);
 		mainLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, betaLabel, 0, SpringLayout.HORIZONTAL_CENTER,
 				mainPanel);
 
-		final CoAssociationMatrixThreshhold function = new CoAssociationMatrixThreshhold();
+		final CoAssociationMatrixAverageLink function = new CoAssociationMatrixAverageLink();
 		final ScatterPlot plot = new ScatterPlot(function.calculateConsensus(clusteringViewer.getRelevantContainers()),
 				true);
 		plot.autoAdjust();
