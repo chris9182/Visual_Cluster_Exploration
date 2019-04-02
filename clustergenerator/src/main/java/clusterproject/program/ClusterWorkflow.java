@@ -396,8 +396,7 @@ public class ClusterWorkflow extends JFrame {
 		progressBar.setMaximum(workflow.size());
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 
-		double[][] data = new double[pointContainer.getPoints().size()][];
-		data = pointContainer.getPoints().toArray(data);
+		final double[][] data = pointContainer.getPoints().toArray(new double[pointContainer.getPoints().size()][]);
 		final DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data);
 		final Database db = new StaticArrayDatabase(dbc, null);
 		db.initialize();
@@ -447,6 +446,14 @@ public class ClusterWorkflow extends JFrame {
 
 			final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings,
 					pointContainer.getHeaders());
+
+			double[][] customData = data;
+			if (sClusterings.size() > 0) {
+				customData = new double[pointContainer.getPoints().size()][];
+				customData = sClusterings.get(0).toPointContainer().getPoints().toArray(customData);
+			}
+			// customData can now be used as a reference to the points for non elki
+			// clustering algorithms
 
 			progressBar.setString("Calculating Meta");
 			openClusterViewer(sClusterings);
