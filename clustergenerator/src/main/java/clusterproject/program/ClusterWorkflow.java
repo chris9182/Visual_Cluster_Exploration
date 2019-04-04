@@ -435,8 +435,8 @@ public class ClusterWorkflow extends JFrame {
 				final NumberVector[][] clustersArr = new NumberVector[betterPointList.size()][];
 				i = 0;
 				for (final List<NumberVector> lNV2 : betterPointList) {
-					NumberVector[] clusterArr = new NumberVector[pointList.size()];
-					clusterArr = lNV2.toArray(clusterArr);
+				  NumberVector[] clusterArr = new NumberVector[lNV2.size()];
+		          clusterArr = lNV2.toArray(clusterArr);
 					clustersArr[i] = clusterArr;
 					++i;
 				}
