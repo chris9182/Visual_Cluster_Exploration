@@ -86,9 +86,9 @@ public class ImporterWindow extends JFrame {
 	}
 
 	private boolean importARFFFile() {
-		Reader in = null;
 		if (selectedFile == null)
 			return false;
+		Reader in = null;
 		try {
 			in = new FileReader(selectedFile);
 			final ArffReader reader = new ArffReader(in);
@@ -140,8 +140,10 @@ public class ImporterWindow extends JFrame {
 
 		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
+			return false;
 		} catch (final IOException e) {
 			e.printStackTrace();
+			return false;
 		} finally {
 			try {
 				if (in != null)
@@ -161,8 +163,9 @@ public class ImporterWindow extends JFrame {
 	}
 
 	private boolean importCSVFile() {
+		if (selectedFile == null)
+			return false;
 		final NumberFormat format = NumberFormat.getInstance();
-
 		int labelIndex = -1;
 		try {
 			labelIndex = Integer.parseInt(labelIndexField.getText());
@@ -170,12 +173,8 @@ public class ImporterWindow extends JFrame {
 		}
 		Reader in = null;
 		try {
-			if (selectedFile == null)
-				return false;
-
 			in = new FileReader(selectedFile);
 			final CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-
 			final int size = parser.getHeaderMap().size();
 			final List<String> headers = new ArrayList<String>();
 			boolean hasHeaders = false;
@@ -258,8 +257,10 @@ public class ImporterWindow extends JFrame {
 			parser.close();
 		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
+			return false;
 		} catch (final IOException e) {
 			e.printStackTrace();
+			return false;
 		} finally {
 			try {
 				if (in != null)
