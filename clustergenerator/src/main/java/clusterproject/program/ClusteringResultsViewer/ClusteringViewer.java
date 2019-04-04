@@ -394,6 +394,28 @@ public class ClusteringViewer extends JFrame {
 					++length;
 			result.getParameter().addAdditionalParameter(Util.CLUSTER_COUNT, length);
 		}
+
+		// for (final ClusteringResult result : clusterings) {
+		// int length = 0;
+		// int size = 0;
+		// for (final double[][] cluster : result.getData()) {
+		// if (cluster.length > 0) {
+		// ++length;
+		// size += cluster.length;
+		// }
+		// }
+		// final double mean = size / length;
+		// double sd = 0;
+		// for (final double[][] cluster : result.getData()) {
+		// if (cluster.length > 0)
+		// sd += Math.pow(cluster.length - mean, 2);
+		// }
+		// sd /= length;
+		// sd = Math.sqrt(sd);
+		// result.getParameter().addAdditionalParameter(Util.CLUSTER_SIZE_VARIATION_COEF,
+		// sd / mean);
+		// }
+
 	}
 
 	protected void rangeSelect(Point down, Point current, boolean replace) {

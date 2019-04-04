@@ -417,13 +417,15 @@ public class ClusterWorkflow extends JFrame {
 
 				final List<List<NumberVector>> pointList = new ArrayList<List<NumberVector>>();
 				final Set<Integer> clusterIDs = new HashSet<Integer>(pointContainer.getClusterIDs());
-				final int maxInt = Collections.max(clusterIDs) + 1;
-				for (int j = 0; j < maxInt; ++j) {
+				final int minID = Collections.min(clusterIDs);
+				final int size = Collections.max(clusterIDs) + 1 - minID;
+
+				for (int j = 0; j < size; ++j) {
 					pointList.add(new ArrayList<NumberVector>());
 				}
 				int i = 0;
 				for (final DBIDIter it = rel.iterDBIDs(); it.valid(); it.advance()) {
-					pointList.get(pointContainer.getClusterIDs().get(i)).add(rel.get(it));
+					pointList.get(pointContainer.getClusterIDs().get(i) - minID).add(rel.get(it));
 					i++;
 				}
 				final List<List<NumberVector>> betterPointList = new ArrayList<List<NumberVector>>();
@@ -435,8 +437,8 @@ public class ClusterWorkflow extends JFrame {
 				final NumberVector[][] clustersArr = new NumberVector[betterPointList.size()][];
 				i = 0;
 				for (final List<NumberVector> lNV2 : betterPointList) {
-				  NumberVector[] clusterArr = new NumberVector[lNV2.size()];
-		          clusterArr = lNV2.toArray(clusterArr);
+					NumberVector[] clusterArr = new NumberVector[lNV2.size()];
+					clusterArr = lNV2.toArray(clusterArr);
 					clustersArr[i] = clusterArr;
 					++i;
 				}
