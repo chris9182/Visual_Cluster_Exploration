@@ -21,7 +21,6 @@ public class PointContainer {
 	private int groundTruth = -1;
 
 	public PointContainer(int dim) {
-		highlighted.add(-1);
 		this.dim = dim;
 		headers = new ArrayList<String>(dim);
 		for (int i = 0; i < dim; i++)
@@ -143,7 +142,8 @@ public class PointContainer {
 	}
 
 	public boolean hasClusters() {
-		return clusterIDs != null && clusterIDs.size() == points.size();
+		return clusterIDs != null && clusterIDs.size() == points.size() && originalClusterIDs != null
+				&& originalClusterIDs.size() == points.size();
 	}
 
 	public List<Integer> getClusterIDs() {
@@ -152,6 +152,12 @@ public class PointContainer {
 
 	public void setClusterIDs(List<Integer> clusterIDs) {
 		this.clusterIDs = clusterIDs;
+
+	}
+
+	public void setAllClusterIDs(ArrayList<Integer> clusterIDs) {
+		this.clusterIDs = clusterIDs;
+		this.originalClusterIDs = clusterIDs;
 
 	}
 
@@ -223,4 +229,39 @@ public class PointContainer {
 			assignments.put(points.get(i), clusterIDs.get(i));
 		return assignments;
 	}
+
+	public PointContainer getSample(int maxPoints) {
+		final PointContainer sampleContainer = new PointContainer(dim);
+		final int size = getPoints().size();
+		final int stride = size / maxPoints;
+		for (int i = 0; i < maxPoints; ++i) {
+			sampleContainer.addPoint(points.get(i * stride));
+		}
+		if (hasClusters()) {
+			sampleContainer.setUpClusters();
+			for (int i = 0; i < maxPoints; ++i) {
+				sampleContainer.originalClusterIDs.add(originalClusterIDs.get(i * stride));
+			}
+			if (clusterIDs != null && !clusterIDs.isEmpty())
+				for (int i = 0; i < maxPoints; ++i) {
+					sampleContainer.clusterIDs.add(clusterIDs.get(i * stride));
+				}
+		}
+		if (highlighted != null && !highlighted.isEmpty()) {
+			for (final Integer h : highlighted) {
+				if (h % stride == 0 && h / stride < maxPoints)
+					sampleContainer.highlighted.add(h / stride);
+			}
+		}
+		if (filteredResults != null && !filteredResults.isEmpty()) {
+			for (final Integer h : filteredResults) {
+				if (h % stride == 0 && h / stride < maxPoints)
+					sampleContainer.filteredResults.add(h / stride);
+			}
+		}
+		if (groundTruth % stride == 0 && groundTruth / stride < maxPoints)
+			sampleContainer.groundTruth = groundTruth / stride;
+		return sampleContainer;
+	}
+
 }

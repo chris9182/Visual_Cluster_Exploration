@@ -463,7 +463,7 @@ public class ClusteringViewer extends JFrame {
 		final Integer[] clusterIDs = new Integer[list.size()];
 		for (final ClusteringWithDistance clustering : list)
 			clusterIDs[clustering.inIndex] = clustering.tag;
-		mdsPlot.getPointContainer().setClusterIDs(new ArrayList<Integer>(Arrays.asList(clusterIDs)));
+		mdsPlot.getPointContainer().setAllClusterIDs(new ArrayList<Integer>(Arrays.asList(clusterIDs)));
 		SwingUtilities.invokeLater(() -> mdsPlot.repaint());
 	}
 

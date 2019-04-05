@@ -25,18 +25,13 @@ import clusterproject.util.Util;
 
 public class PointCanvas extends JPanel {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 1L;
 
 	private static final int HIGHLIGHT_FACTOR = 2;
-
 	private static final int MIN_WIDTH_FOR_BORDER = 5;
-
 	private static final Color HIGHLIGHT_COLOR = Util.HIGHLIGHT_COLOR;
-
 	private static final double TRUTH_FACTOR = 1.5;
+	private static final int MAX_POINTS = 10000;
 
 	private final PointContainer pointContainer;
 	private final ScatterPlot clusterViewer;
@@ -55,18 +50,21 @@ public class PointCanvas extends JPanel {
 	public void paint(Graphics g) {
 		final Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+		PointContainer drawingContainer = pointContainer;
+		if (drawingContainer.getPoints().size() > MAX_POINTS) {
+			drawingContainer = pointContainer.getSample(MAX_POINTS);
+		}
 		final int pointWidth = clusterViewer.getPointDiameter();
-		final int pointCount = pointContainer.getPoints().size();
+		final int pointCount = drawingContainer.getPoints().size();
 		final double[] yCoordinates = new double[pointCount];
 		final double[] xCoordinates = new double[pointCount];
 
-		final List<double[]> points = pointContainer.getPoints();
+		final List<double[]> points = drawingContainer.getPoints();
 
 		IntStream.range(0, yCoordinates.length).forEach(i -> yCoordinates[i] = clusterViewer.getPixelY(points.get(i)));
 		IntStream.range(0, xCoordinates.length).forEach(i -> xCoordinates[i] = clusterViewer.getPixelX(points.get(i)));
 
-		if (!pointContainer.hasClusters()) {
+		if (!drawingContainer.hasClusters()) {
 			for (int i = 0; i < pointCount; ++i) {
 				if (Double.isNaN(xCoordinates[i]) || Double.isNaN(yCoordinates[i]))
 					continue;
@@ -80,12 +78,12 @@ public class PointCanvas extends JPanel {
 
 			}
 		} else {
-			final List<Integer> clusterIDs = pointContainer.getClusterIDs();
+			final List<Integer> clusterIDs = drawingContainer.getClusterIDs();
 			final Stream<Integer> stream = clusterIDs.stream().distinct();
 			final Map<Integer, Color> colorMap = new HashMap<Integer, Color>();
-			final Set<Integer> filtered = pointContainer.getFilteredIndexes();
-			final LinkedHashSet<Integer> highlighted = pointContainer.getHighlighted();
-			final int truth = pointContainer.getGroundTruth();
+			final Set<Integer> filtered = drawingContainer.getFilteredIndexes();
+			final LinkedHashSet<Integer> highlighted = drawingContainer.getHighlighted();
+			final int truth = drawingContainer.getGroundTruth();
 			final Iterator<Integer> iter = stream.iterator();
 			while (iter.hasNext()) {
 				final int i = iter.next();
@@ -121,7 +119,7 @@ public class PointCanvas extends JPanel {
 
 			}
 
-			if (!(highlighted.size() <= 1 && highlighted.iterator().next() == -1))
+			if ((highlighted.size() >= 1))
 
 				for (final int hIndex : highlighted) {
 					if (hIndex == truth)
