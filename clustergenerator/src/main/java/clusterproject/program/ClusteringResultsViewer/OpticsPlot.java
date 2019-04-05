@@ -65,8 +65,8 @@ public class OpticsPlot extends JLayeredPane {
 		add(setHistogramDataButton, new Integer(22));
 		layout.putConstraint(SpringLayout.NORTH, setHistogramDataButton, 0, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.EAST, setHistogramDataButton, 0, SpringLayout.EAST, this);
-		final Color bgColor = setHistogramDataButton.getBackground();
-		setHistogramDataButton.setBackground(new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), 122));
+		setHistogramDataButton.setBackground(new Color(255, 255, 255, 0));// color doesnt matter just for transparancy
+																			// to kick in
 		setHistogramDataButton.setOpaque(false);
 		setHistogramDataButton.setFocusable(false);
 		opticsBars = new JPanel();
