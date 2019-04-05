@@ -50,6 +50,8 @@ public class PointCanvas extends JPanel {
 	public void paint(Graphics g) {
 		final Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+		g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
 		PointContainer drawingContainer = pointContainer;
 		if (drawingContainer.getPoints().size() > MAX_POINTS) {
 			drawingContainer = pointContainer.getSample(MAX_POINTS);
