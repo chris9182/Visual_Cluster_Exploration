@@ -86,7 +86,7 @@ public class ClusteringViewer extends JFrame {
 	private JButton consensusButton;
 	private JButton mainWindowButton;
 	private JButton diffButton;
-	private JButton resetFilterButton;
+	private JButton resetButton;
 
 	private Set<Integer> filteredIndexes;
 	private int selectedViewer = 0;
@@ -355,12 +355,16 @@ public class ClusteringViewer extends JFrame {
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, diffButton, 0, SpringLayout.VERTICAL_CENTER, distLabel);
 		mainPanel.add(diffButton, new Integer(12));
 
-		resetFilterButton = new JButton("Reset Filters");
-		resetFilterButton.addActionListener(e -> filterWindow.resetFilters());
-		layout.putConstraint(SpringLayout.EAST, resetFilterButton, 0, SpringLayout.EAST, scrollPaneFilter);
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, resetFilterButton, 0, SpringLayout.VERTICAL_CENTER,
-				distLabel);
-		mainPanel.add(resetFilterButton, new Integer(12));
+		resetButton = new JButton("Reset");
+		resetButton.addActionListener(e -> {
+			filterWindow.resetFilters();
+			final Set<Integer> newHighlight = new HashSet<Integer>();
+			newHighlight.add(selectedViewer);
+			highlight(newHighlight, true);
+		});
+		layout.putConstraint(SpringLayout.EAST, resetButton, 0, SpringLayout.EAST, scrollPaneFilter);
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, resetButton, 0, SpringLayout.VERTICAL_CENTER, distLabel);
+		mainPanel.add(resetButton, new Integer(12));
 
 		viewerPanel = new JPanel();
 		viewerPanel.setOpaque(false);
@@ -643,12 +647,10 @@ public class ClusteringViewer extends JFrame {
 		if (highlighted.size() > 1) {
 			final List<ClusteringResult> results = new ArrayList<>();
 			highlighted.forEach(i1 -> results.add(clusterings.get(i1)));
-			filterWindow.rebuild(results);
-			filterWindow.forceChange();
+			setHistogramData(results, "Selected Clusterings");
 		} else {
 			if (filterWindow.getClusterings() != clusterings) {
-				filterWindow.rebuild(clusterings);
-				filterWindow.forceChange();
+				setHistogramData(clusterings, "All Clusterings");
 			}
 		}
 
@@ -736,5 +738,12 @@ public class ClusteringViewer extends JFrame {
 			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i)))
 				containers.add(viewers[i].getPointContainer());
 		return containers;
+	}
+
+	public void setHistogramData(List<ClusteringResult> newData, String dataHeader) {
+		filterWindow.setHeader(dataHeader);
+		filterWindow.rebuild(newData);
+		filterWindow.forceChange();
+
 	}
 }

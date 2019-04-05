@@ -54,7 +54,7 @@ public class FilterWindow extends JPanel {
 
 	private static final long serialVersionUID = 1052960199516074256L;
 	private static final int SPACING = 10;
-	private static final int ABOVE_BAR_SPACE = 100;
+	private static final int ABOVE_BAR_SPACE = 120;
 	private static final int SLIDERHEIGHT = 30;
 	private static final int MAX_BINS = 21;
 
@@ -67,6 +67,7 @@ public class FilterWindow extends JPanel {
 	private final Map<String, Double> allParametersMaxMap;
 	private final Map<String, Integer> bucketsMap;
 	private final ClusteringViewer clusteringViewer;
+	private final JLabel headerLabel = new JLabel("All Clusterings");
 
 	private final Set<ClusteringResult> filteredSet = new HashSet<ClusteringResult>();
 	private List<List<List<Object>>> filteredParameters;
@@ -84,6 +85,7 @@ public class FilterWindow extends JPanel {
 		allParametersMap = new HashMap<String, double[]>();
 		allParametersMaxMap = new HashMap<String, Double>();
 		allParametersMinMap = new HashMap<String, Double>();
+
 		bucketsMap = new HashMap<String, Integer>();
 		selectors = new HashMap<String, Object>();
 		setBackground(MainWindow.BACKGROUND_COLOR);
@@ -239,11 +241,12 @@ public class FilterWindow extends JPanel {
 
 	private void adjust() {
 		final Iterator<String> clusteringNamesIt = clusteringNames.iterator();
-		Component lastComponent = Box.createVerticalStrut(0);
-		mainLayout.putConstraint(SpringLayout.NORTH, lastComponent, 0, SpringLayout.NORTH, this);
+		mainLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, headerLabel, 0, SpringLayout.HORIZONTAL_CENTER, this);
+		mainLayout.putConstraint(SpringLayout.NORTH, headerLabel, 0, SpringLayout.NORTH, this);
+		Component lastComponent = headerLabel;
 		this.add(lastComponent, new Integer(0));
 
-		int prefHeight = 0;
+		int prefHeight = (int) headerLabel.getPreferredSize().getHeight();
 
 		for (int i = 0; i < clusteringNames.size(); ++i) {
 			final String clusteringName = clusteringNamesIt.next();
@@ -469,7 +472,8 @@ public class FilterWindow extends JPanel {
 			setPaintLabels(true);
 			final Dictionary<Integer, JComponent> dict = new Hashtable<Integer, JComponent>();
 			for (int i = 0; i < LABEL_COUNT; ++i) {
-				final JLabel label = new JLabel("   " + (float) ((maxLbl - minLbl) * (i) / (LABEL_COUNT - 1) + minLbl));
+				final JLabel label = new JLabel(
+						Float.toString((float) ((maxLbl - minLbl) * (i) / (LABEL_COUNT - 1) + minLbl)));
 				// String.format("%.3f", (maxLbl - minLbl) * i + minLbl));
 				dict.put(i * TICK_COUNT / (LABEL_COUNT - 1), label);
 			}
@@ -749,6 +753,11 @@ public class FilterWindow extends JPanel {
 			ignoreChange = false;
 			applyFilter();
 		}
+
+	}
+
+	public void setHeader(String dataHeader) {
+		headerLabel.setText(dataHeader);
 
 	}
 

@@ -15,12 +15,14 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
+import clusterproject.data.ClusteringResult;
 import clusterproject.program.MetaClustering.ClusteringWithDistance;
 import clusterproject.util.Util;
 
@@ -39,19 +41,40 @@ public class OpticsPlot extends JLayeredPane {
 	private double max = 0;
 	private final ClusteringViewer clusteringViewer;
 	private final int NOISE_TAG = -2;
+	private final JButton setHistogramDataButton;
 
 	public OpticsPlot(ClusteringViewer clusteringViewer, List<ClusteringWithDistance> clusteringList) {
 		this.clusteringViewer = clusteringViewer;
 		this.clusteringList = clusteringList;
+		layout = new SpringLayout();
+		setLayout(layout);
 		bars = new ArrayList<OpticsBar>(clusteringList.size());
 		setOpaque(false);
+		setHistogramDataButton = new JButton("Clusters to Histogram");
+		setHistogramDataButton.addActionListener(e -> {
+			final List<ClusteringResult> newData = new ArrayList<ClusteringResult>();
+			for (final ClusteringWithDistance c : clusteringList)
+				if (c.tag >= 0)
+					newData.add(c.getClustering());
+			// if (newData.size() == clusteringList.size())
+			// clusteringViewer.setHistogramData(newData, "All Clusterings");
+			// else
+			clusteringViewer.setHistogramData(newData, "Colored Clusterings");
+
+		});
+		add(setHistogramDataButton, new Integer(22));
+		layout.putConstraint(SpringLayout.NORTH, setHistogramDataButton, 0, SpringLayout.NORTH, this);
+		layout.putConstraint(SpringLayout.EAST, setHistogramDataButton, 0, SpringLayout.EAST, this);
+		final Color bgColor = setHistogramDataButton.getBackground();
+		setHistogramDataButton.setBackground(new Color(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), 122));
+		setHistogramDataButton.setOpaque(false);
+		setHistogramDataButton.setFocusable(false);
 		opticsBars = new JPanel();
 		opticsBars.setOpaque(false);
 		final GridLayout gridLayout = new GridLayout(0, clusteringList.size());
 		opticsBars.setLayout(gridLayout);
 		opticsBars.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.gray));
-		layout = new SpringLayout();
-		setLayout(layout);
+
 		layout.putConstraint(SpringLayout.NORTH, opticsBars, 0, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.EAST, opticsBars, 0, SpringLayout.EAST, this);
 		layout.putConstraint(SpringLayout.SOUTH, opticsBars, 0, SpringLayout.SOUTH, this);
