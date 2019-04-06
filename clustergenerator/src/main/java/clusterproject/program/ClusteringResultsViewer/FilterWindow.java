@@ -32,16 +32,13 @@ import javax.swing.SwingUtilities;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.AreaRenderer;
-import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleInsets;
-import org.jfree.chart.util.SortOrder;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.general.DatasetUtils;
+import org.jfree.data.xy.CategoryTableXYDataset;
 
 import clusterproject.data.ClusteringResult;
 import clusterproject.program.MainWindow;
@@ -157,7 +154,7 @@ public class FilterWindow extends JPanel {
 					if (value > max)
 						max = value;
 				}
-				int bins = (int) Math.sqrt(allParameters.length);// TODO check if this is good
+				int bins = (int) Math.sqrt(allParameters.length);
 				if (parameters.get(i).get(j).size() <= 1)
 					bins = 1;
 				else if (parameters.get(i).get(j).get(0) instanceof Integer)
@@ -314,7 +311,7 @@ public class FilterWindow extends JPanel {
 
 					final Rectangle sliderRectangle = ((RangeSliderUI) slider.getUI()).getTrackRectangle();
 					final int bins = bucketsMap.get(clusteringName + " " + parameterName);
-					final CategoryDataset dataset = createDataset(allParameters, null, bins, min, max);
+					final CategoryTableXYDataset dataset = createDataset(allParameters, null, bins, min, max);
 					final JFreeChart chart = createChart(dataset);
 					charts.put(clusteringName + " " + parameterName, chart);
 
@@ -322,8 +319,6 @@ public class FilterWindow extends JPanel {
 					final MouseAdapter adapter = new MouseAdapter() {
 						@Override
 						public void mouseMoved(MouseEvent e) {
-
-							// System.err.println(e.getX());
 							super.mouseMoved(e);
 						}
 					};
@@ -357,8 +352,8 @@ public class FilterWindow extends JPanel {
 			}
 	}
 
-	public CategoryDataset createDataset(double[] allParameters, double[] filteredParametersD, int bins, double min,
-			double max) {
+	public CategoryTableXYDataset createDataset(double[] allParameters, double[] filteredParametersD, int bins,
+			double min, double max) {
 		final double[] allParametersBins = new double[bins];
 		for (int i = 0; i < bins; ++i) {
 			allParametersBins[i] = 0;
@@ -383,29 +378,29 @@ public class FilterWindow extends JPanel {
 			}
 		}
 
-		double[][] data = null;
-		if (filteredParametersD == null)
-			data = new double[][] { allParametersBins };
-		else
-			data = new double[][] { filteredParametersBins, allParametersBins };
-		final CategoryDataset dataset = DatasetUtils.createCategoryDataset("Series ", "Type ", data);
+		final CategoryTableXYDataset dataSet = new CategoryTableXYDataset();
+		if (filteredParametersBins != null)
+			for (int i = 0; i < filteredParametersBins.length; ++i) {
+				dataSet.add(i, filteredParametersBins[i], "Filtered");
+			}
+		for (int i = 0; i < allParametersBins.length; ++i) {
+			dataSet.add(i, allParametersBins[i], "All");
+		}
 
-		return dataset;
+		return dataSet;
 	}
 
-	public JFreeChart createChart(CategoryDataset dataset) {
+	public JFreeChart createChart(CategoryTableXYDataset dataset) {
 
-		final JFreeChart chart = ChartFactory.createStackedAreaChart(null, // chart title
-				"Category", // domain axis label
-				"Value", // range axis label
-				dataset, // data
+		final JFreeChart chart = ChartFactory.createXYAreaChart(null, // Alternative: createStackedXYAreaChart
+				"Value X", "Value Y", dataset, // data
 				PlotOrientation.VERTICAL, // orientation
 				false, // include legend
 				false, false);
 
 		chart.setBackgroundPaint(Color.white);
 
-		final CategoryPlot plot = (CategoryPlot) chart.getPlot();
+		final XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setForegroundAlpha(0.5f);
 		plot.setBackgroundPaint(null);
 		plot.setDomainGridlinesVisible(false);
@@ -413,25 +408,18 @@ public class FilterWindow extends JPanel {
 		plot.setRangeMinorGridlinesVisible(false);
 		plot.setRangeMinorGridlinesVisible(false);
 
-		plot.setRenderer(new AreaRenderer());// XXX: remove this if stacked is better
-		plot.setRowRenderingOrder(SortOrder.DESCENDING);
-
-		final CategoryAxis domainAxis = plot.getDomainAxis();
+		final ValueAxis domainAxis = plot.getDomainAxis();
 		domainAxis.setLowerMargin(0.0);
 		domainAxis.setUpperMargin(0.0);
-
-		domainAxis.setCategoryMargin(0);
 		domainAxis.setVisible(false);
 
-		// change the auto tick unit selection to integer units only...
 		final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		// rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 		rangeAxis.setVisible(false);
 		rangeAxis.setLowerMargin(0);
 		rangeAxis.setUpperMargin(0);
 		rangeAxis.setRange(rangeAxis.getLowerBound(), rangeAxis.getUpperBound());
 
-		final CategoryItemRenderer renderer = plot.getRenderer();
+		final XYItemRenderer renderer = plot.getRenderer();
 		renderer.setDefaultItemLabelsVisible(false);
 
 		plot.setInsets(new RectangleInsets(0, 0, 0, 0));
@@ -647,10 +635,10 @@ public class FilterWindow extends JPanel {
 					if (max != -Double.MAX_VALUE) {
 						final int bins = bucketsMap.get(clusteringName + " " + parameterName);
 
-						final CategoryDataset dataset = createDataset(allParameters, filteredParametersD, bins, min,
-								max);
+						final CategoryTableXYDataset dataset = createDataset(allParameters, filteredParametersD, bins,
+								min, max);
 						final JFreeChart chart = charts.get(clusteringName + " " + parameterName);
-						chart.getCategoryPlot().setDataset(dataset);
+						chart.getXYPlot().setDataset(dataset);
 					} else {
 						System.err.println("no values found");
 					}
