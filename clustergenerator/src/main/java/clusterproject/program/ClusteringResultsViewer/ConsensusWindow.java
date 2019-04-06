@@ -1,10 +1,13 @@
 package clusterproject.program.ClusteringResultsViewer;
 
+import java.util.List;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.SpringLayout;
 
+import clusterproject.data.PointContainer;
 import clusterproject.program.MainWindow;
 import clusterproject.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.program.Consensus.CoAssociationMatrixAverageLink;
@@ -28,8 +31,13 @@ public class ConsensusWindow extends JFrame {
 				mainPanel);
 
 		final CoAssociationMatrixAverageLink function = new CoAssociationMatrixAverageLink();
-		final ScatterPlot plot = new ScatterPlot(function.calculateConsensus(clusteringViewer.getRelevantContainers()),
-				true);
+
+		final List<PointContainer> pointContainers = clusteringViewer.getRelevantContainers();
+		final List<Double> weights = null;
+		// weights = clusteringViewer.getRelevantWeightsAcrossMethods();
+		// weights = clusteringViewer.getRelevantWeightsAcrossMetaClusters();
+		// System.err.println(pointContainers.size() + " " + weights.size());
+		final ScatterPlot plot = new ScatterPlot(function.calculateConsensus(pointContainers, weights), true);
 		plot.autoAdjust();
 		mainPanel.add(plot, new Integer(1));
 		mainLayout.putConstraint(SpringLayout.NORTH, plot, 0, SpringLayout.SOUTH, betaLabel);

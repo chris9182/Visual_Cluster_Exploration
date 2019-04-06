@@ -732,15 +732,6 @@ public class ClusteringViewer extends JFrame {
 		return distanceMatrix[i][groundTruth];
 	}
 
-	public List<PointContainer> getRelevantContainers() {// XXX: will be removed later for propper selection
-		final List<PointContainer> containers = new ArrayList<PointContainer>();
-		final List<Integer> tags = mdsPlot.getPointContainer().getClusterIDs();
-		for (int i = 0; i < tags.size(); ++i)
-			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i)))
-				containers.add(viewers[i].getPointContainer());
-		return containers;
-	}
-
 	public void setHistogramData(List<ClusteringResult> newData, HistogramData histogramData) {
 		filterWindow.setHistogramData(newData, histogramData);
 	}
@@ -750,4 +741,54 @@ public class ClusteringViewer extends JFrame {
 			return null;
 		return filterWindow.getHistogramData();
 	}
+
+	public List<PointContainer> getRelevantContainers() {// XXX: will be removed later for propper selection
+		final List<PointContainer> containers = new ArrayList<PointContainer>();
+		final List<Integer> tags = mdsPlot.getPointContainer().getClusterIDs();
+		for (int i = 0; i < tags.size(); ++i)
+			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i)))
+				containers.add(viewers[i].getPointContainer());
+		return containers;
+	}
+
+	public List<Double> getRelevantWeightsAcrossMethods() {// XXX: will be removed later for propper selection
+		final Map<String, Integer> weights = new HashMap<String, Integer>();
+		final List<Integer> tags = mdsPlot.getPointContainer().getClusterIDs();
+		for (int i = 0; i < tags.size(); ++i)
+			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i))) {
+				final String name = clusterings.get(i).getParameter().getName();
+
+				if (weights.containsKey(name)) {
+					weights.put(name, weights.get(name) + 1);
+				} else {
+					weights.put(name, 1);
+				}
+			}
+		final List<Double> weightsList = new ArrayList<Double>();
+		for (int i = 0; i < tags.size(); ++i)
+			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i)))
+				weightsList.add(1 / (double) weights.get(clusterings.get(i).getParameter().getName()));
+		return weightsList;
+	}
+
+	public List<Double> getRelevantWeightsAcrossMetaClusters() {// XXX: will be removed later for propper selection
+		final Map<Integer, Integer> weights = new HashMap<Integer, Integer>();
+		final List<Integer> tags = mdsPlot.getPointContainer().getClusterIDs();
+		for (int i = 0; i < tags.size(); ++i)
+			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i))) {
+				final Integer tag = mdsPlot.getPointContainer().getClusterIDs().get(i);
+
+				if (weights.containsKey(tag)) {
+					weights.put(tag, weights.get(tag) + 1);
+				} else {
+					weights.put(tag, 1);
+				}
+			}
+		final List<Double> weightsList = new ArrayList<Double>();
+		for (int i = 0; i < tags.size(); ++i)
+			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i)))
+				weightsList.add(1 / (double) weights.get(mdsPlot.getPointContainer().getClusterIDs().get(i)));
+		return weightsList;
+	}
+
 }

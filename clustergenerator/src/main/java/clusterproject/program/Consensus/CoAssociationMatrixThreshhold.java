@@ -14,7 +14,8 @@ public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 	private final double threshhold = 0.75;
 
 	@Override
-	public PointContainer calculateConsensus(List<PointContainer> results) {// TODO: allow setting weights
+	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights) {// TODO: allow
+																									// setting weights
 		if (results == null || results.isEmpty())
 			return null;
 		final List<Map<double[], Integer>> assignments = new ArrayList<Map<double[], Integer>>();
@@ -24,6 +25,8 @@ public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 		final int resultCount = results.size();
 		final List<double[]> points = results.get(0).getPoints();
 		final int pointCount = points.size();
+		final double totalWeights = (weights != null) ? weights.stream().mapToDouble(f -> f.doubleValue()).sum()
+				: resultCount;
 
 		final double coAssociationMatrix[][] = new double[pointCount][pointCount];
 
@@ -34,9 +37,13 @@ public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 				coAssociationMatrix[i][j] = 0;
 				for (int t = 0; t < resultCount; ++t) {
 					if (assignments.get(t).get(pointi) == assignments.get(t).get(pointj))
-						++coAssociationMatrix[i][j];
+						if (weights != null)
+							coAssociationMatrix[i][j] += weights.get(t);
+						else
+							++coAssociationMatrix[i][j];
 				}
-				coAssociationMatrix[i][j] /= resultCount;
+
+				coAssociationMatrix[i][j] /= totalWeights;
 			}
 		});
 
