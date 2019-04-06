@@ -43,6 +43,7 @@ import clusterproject.program.ClusterWorkflow;
 import clusterproject.program.MainWindow;
 import clusterproject.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.program.ClusterViewerElement.ScatterPlotMatrix;
+import clusterproject.program.ClusteringResultsViewer.FilterWindow.HistogramData;
 import clusterproject.program.MetaClustering.ClusteringWithDistance;
 import clusterproject.program.MetaClustering.DistanceCalculation;
 import clusterproject.program.MetaClustering.HungarianAlgorithm;
@@ -647,10 +648,10 @@ public class ClusteringViewer extends JFrame {
 		if (highlighted.size() > 1) {
 			final List<ClusteringResult> results = new ArrayList<>();
 			highlighted.forEach(i1 -> results.add(clusterings.get(i1)));
-			setHistogramData(results, "Selected Clusterings");
+			setHistogramData(results, HistogramData.Highlited);
 		} else {
 			if (filterWindow.getClusterings() != clusterings) {
-				setHistogramData(clusterings, "All Clusterings");
+				setHistogramData(clusterings, HistogramData.All);
 			}
 		}
 
@@ -740,10 +741,13 @@ public class ClusteringViewer extends JFrame {
 		return containers;
 	}
 
-	public void setHistogramData(List<ClusteringResult> newData, String dataHeader) {
-		filterWindow.setHeader(dataHeader);
-		filterWindow.rebuild(newData);
-		filterWindow.forceChange();
+	public void setHistogramData(List<ClusteringResult> newData, HistogramData histogramData) {
+		filterWindow.setHistogramData(newData, histogramData);
+	}
 
+	public HistogramData getHistogramData() {
+		if (filterWindow == null)
+			return null;
+		return filterWindow.getHistogramData();
 	}
 }

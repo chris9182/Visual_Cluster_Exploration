@@ -67,7 +67,7 @@ public class FilterWindow extends JPanel {
 	private final Map<String, Double> allParametersMaxMap;
 	private final Map<String, Integer> bucketsMap;
 	private final ClusteringViewer clusteringViewer;
-	private final JLabel headerLabel = new JLabel("All Clusterings");
+	private final JLabel headerLabel = new JLabel(HistogramData.All.toString());
 
 	private final Set<ClusteringResult> filteredSet = new HashSet<ClusteringResult>();
 	private List<List<List<Object>>> filteredParameters;
@@ -77,6 +77,7 @@ public class FilterWindow extends JPanel {
 	private final Map<String, JFreeChart> charts;
 	private final List<ClusteringResult> clusteringBaseResults;
 	private boolean ignoreChange = false;
+	private HistogramData histogramData = HistogramData.All;
 
 	public FilterWindow(List<ClusteringResult> clusteringResults, ClusteringViewer clusteringViewer) {
 		mainLayout = new SpringLayout();
@@ -236,6 +237,7 @@ public class FilterWindow extends JPanel {
 				}
 			}
 		}
+		SwingUtilities.invokeLater(() -> repaint());
 
 	}
 
@@ -756,9 +758,32 @@ public class FilterWindow extends JPanel {
 
 	}
 
-	public void setHeader(String dataHeader) {
-		headerLabel.setText(dataHeader);
+	public void setHistogramData(List<ClusteringResult> newData, HistogramData histogramData) {
+		this.histogramData = histogramData;
 
+		headerLabel.setText(histogramData.toString());
+		rebuild(newData);
+		forceChange();
+
+	}
+
+	public HistogramData getHistogramData() {
+		return histogramData;
+	}
+
+	public enum HistogramData {
+		Colored("Colored Clusterings"), All("All Clusterings"), Highlited("Selected Clusterings");
+
+		private String name;
+
+		HistogramData(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
 	}
 
 }

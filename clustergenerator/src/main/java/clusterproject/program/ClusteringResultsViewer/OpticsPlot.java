@@ -23,6 +23,7 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import clusterproject.data.ClusteringResult;
+import clusterproject.program.ClusteringResultsViewer.FilterWindow.HistogramData;
 import clusterproject.program.MetaClustering.ClusteringWithDistance;
 import clusterproject.util.Util;
 
@@ -52,14 +53,7 @@ public class OpticsPlot extends JLayeredPane {
 		setOpaque(false);
 		setHistogramDataButton = new JButton("Clusters to Histogram");
 		setHistogramDataButton.addActionListener(e -> {
-			final List<ClusteringResult> newData = new ArrayList<ClusteringResult>();
-			for (final ClusteringWithDistance c : clusteringList)
-				if (c.tag >= 0)
-					newData.add(c.getClustering());
-			// if (newData.size() == clusteringList.size())
-			// clusteringViewer.setHistogramData(newData, "All Clusterings");
-			// else
-			clusteringViewer.setHistogramData(newData, "Colored Clusterings");
+			adaptHistogramData();
 
 		});
 		add(setHistogramDataButton, new Integer(22));
@@ -146,6 +140,18 @@ public class OpticsPlot extends JLayeredPane {
 
 	}
 
+	private void adaptHistogramData() {
+		final List<ClusteringResult> newData = new ArrayList<ClusteringResult>();
+		for (final ClusteringWithDistance c : clusteringList)
+			if (c.tag >= 0)
+				newData.add(c.getClustering());
+		// if (newData.size() == clusteringList.size())
+		// clusteringViewer.setHistogramData(newData, "All Clusterings");
+		// else
+		clusteringViewer.setHistogramData(newData, HistogramData.Colored);
+
+	}
+
 	public LinkedHashSet<Integer> getHighlighted() {
 		return clusteringViewer.getHighlighted();
 	}
@@ -165,6 +171,9 @@ public class OpticsPlot extends JLayeredPane {
 		threshhold = newthreshhold;
 		calculateClusters(threshhold);
 		clusteringViewer.updateMDSPlot(clusteringList);
+		if (HistogramData.Colored.equals(clusteringViewer.getHistogramData())) {
+			adaptHistogramData();
+		}
 		SwingUtilities.invokeLater(() -> repaint());
 	}
 
