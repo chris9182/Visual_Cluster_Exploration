@@ -354,9 +354,9 @@ public class FilterWindow extends JPanel {
 
 	public CategoryTableXYDataset createDataset(double[] allParameters, double[] filteredParametersD, int bins,
 			double min, double max) {
-		final double[] allParametersBins = new double[bins];
+		final double[] activeParametersBins = new double[bins];
 		for (int i = 0; i < bins; ++i) {
-			allParametersBins[i] = 0;
+			activeParametersBins[i] = 0;
 		}
 		double[] filteredParametersBins = new double[bins];
 		for (int i = 0; i < bins; ++i) {
@@ -365,7 +365,7 @@ public class FilterWindow extends JPanel {
 		final double start = max - min;
 		final double width = start / (bins - 1);
 		for (int i = 0; i < allParameters.length; ++i) {
-			allParametersBins[(int) ((allParameters[i] - min) / width)] += 1;
+			activeParametersBins[(int) ((allParameters[i] - min) / width)] += 1;
 		}
 		if (filteredParametersD == null)
 			filteredParametersBins = null;
@@ -374,7 +374,7 @@ public class FilterWindow extends JPanel {
 				filteredParametersBins[(int) ((filteredParametersD[i] - min) / width)] += 1;
 			}
 			for (int i = 0; i < filteredParametersBins.length; ++i) {
-				allParametersBins[i] -= filteredParametersBins[i];
+				activeParametersBins[i] -= filteredParametersBins[i];
 			}
 		}
 
@@ -383,8 +383,8 @@ public class FilterWindow extends JPanel {
 			for (int i = 0; i < filteredParametersBins.length; ++i) {
 				dataSet.add(i, filteredParametersBins[i], "Filtered");
 			}
-		for (int i = 0; i < allParametersBins.length; ++i) {
-			dataSet.add(i, allParametersBins[i], "All");
+		for (int i = 0; i < activeParametersBins.length; ++i) {
+			dataSet.add(i, activeParametersBins[i], "Active");
 		}
 
 		return dataSet;
