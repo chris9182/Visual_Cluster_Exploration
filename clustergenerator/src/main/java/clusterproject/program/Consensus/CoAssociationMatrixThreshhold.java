@@ -30,22 +30,34 @@ public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 
 		final double coAssociationMatrix[][] = new double[pointCount][pointCount];
 
-		IntStream.range(0, pointCount).parallel().forEach(i -> {
-			final double[] pointi = points.get(i);
-			for (int j = i + 1; j < pointCount; ++j) {
-				final double[] pointj = points.get(j);
-				coAssociationMatrix[i][j] = 0;
-				for (int t = 0; t < resultCount; ++t) {
-					if (assignments.get(t).get(pointi) == assignments.get(t).get(pointj))
-						if (weights != null)
+		if (weights != null) {
+			IntStream.range(0, pointCount).parallel().forEach(i -> {
+				final double[] pointi = points.get(i);
+				for (int j = i + 1; j < pointCount; ++j) {
+					final double[] pointj = points.get(j);
+					coAssociationMatrix[i][j] = 0;
+					for (int t = 0; t < resultCount; ++t) {
+						if (assignments.get(t).get(pointi) == assignments.get(t).get(pointj))
 							coAssociationMatrix[i][j] += weights.get(t);
-						else
-							++coAssociationMatrix[i][j];
-				}
 
-				coAssociationMatrix[i][j] /= totalWeights;
-			}
-		});
+					}
+					coAssociationMatrix[i][j] /= totalWeights;
+				}
+			});
+		} else {
+			IntStream.range(0, pointCount).parallel().forEach(i -> {
+				final double[] pointi = points.get(i);
+				for (int j = i + 1; j < pointCount; ++j) {
+					final double[] pointj = points.get(j);
+					coAssociationMatrix[i][j] = 0;
+					for (int t = 0; t < resultCount; ++t) {
+						if (assignments.get(t).get(pointi) == assignments.get(t).get(pointj))
+							++coAssociationMatrix[i][j];
+					}
+					coAssociationMatrix[i][j] /= totalWeights;
+				}
+			});
+		}
 
 		final List<Set<double[]>> consensus = new ArrayList<Set<double[]>>();
 
