@@ -17,7 +17,11 @@ import de.lmu.ifi.dbs.elki.data.model.KMeansModel;
 import de.lmu.ifi.dbs.elki.data.type.TypeUtil;
 import de.lmu.ifi.dbs.elki.database.Database;
 import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
+import de.lmu.ifi.dbs.elki.database.ids.DBIDUtil;
+import de.lmu.ifi.dbs.elki.database.ids.DBIDs;
+import de.lmu.ifi.dbs.elki.database.relation.ProxyView;
 import de.lmu.ifi.dbs.elki.database.relation.Relation;
+import de.lmu.ifi.dbs.elki.math.random.RandomFactory;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
@@ -41,7 +45,7 @@ public class MacQueenKMeans implements IClusterer {
 	@Override
 	public List<NumberVectorClusteringResult> cluster(Database db, JProgressBar progress) {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
-		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
+		final Relation<DoubleVector> rel = db.getRelation(TypeUtil.DOUBLE_VECTOR_FIELD);
 
 		if (optionsPanel != null) {
 			minK = optionsPanel.getLBK();
@@ -55,13 +59,22 @@ public class MacQueenKMeans implements IClusterer {
 			params.addParameter(KMeansMacQueen.K_ID, calcK);
 			final KMeansMacQueen<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(KMeansMacQueen.class,
 					params);
-			final Clustering<KMeansModel> result = dbscan.run(db);
+
+			final DBIDs ids = DBIDUtil.randomSample(rel.getDBIDs(), (double) 1, new RandomFactory(System.nanoTime()));
+			// example for subsample need to update distance measures (meta)
+			final Relation<DoubleVector> rel2 = new ProxyView<DoubleVector>(ids, rel);
+			final Clustering<KMeansModel> result = dbscan.run(db, rel2);// , rel2
+			// int size = 0;
+			// for (final Cluster<KMeansModel> cluster : result.getAllClusters()) {
+			// size += cluster.size();
+			// }
+			// System.err.println(size);
 			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
 			result.getAllClusters().forEach(cluster -> {
 				final List<NumberVector> pointList = new ArrayList<NumberVector>();
 
 				for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
-					pointList.add(rel.get(it));
+					pointList.add(rel2.get(it));
 					// ArrayLikeUtil.toPrimitiveDoubleArray(v)
 				}
 				NumberVector[] clusterArr = new NumberVector[pointList.size()];
@@ -78,6 +91,7 @@ public class MacQueenKMeans implements IClusterer {
 				progress.setValue(progress.getValue() + 1);
 			}
 		}
+
 		return clusterings;
 	}
 

@@ -136,6 +136,11 @@ public class Util {
 				int j = 0;
 				for (final NumberVector vec : vecArr) {
 					cluster[j] = pointMap.get(vec);
+					if (cluster[j] == null) {
+						cluster[j] = ArrayLikeUtil.toPrimitiveDoubleArray(vec);
+						pointMap.put(vec, cluster[j]);
+					}
+
 					j++;
 				}
 
