@@ -162,4 +162,48 @@ public class Util {
 		return sorted;
 	}
 
+	public static Object[] intersection(ClusteringResult clustering, ClusteringResult clustering2) {
+		final List<double[]> c1Points = new ArrayList<double[]>();
+		for (final double[][] cluster : clustering.getData())
+			for (final double[] point : cluster)
+				c1Points.add(point);
+
+		double[][] array1 = new double[c1Points.size()][];
+		array1 = c1Points.toArray(array1);
+
+		final List<double[]> c2Points = new ArrayList<double[]>();
+		for (final double[][] cluster : clustering2.getData())
+			for (final double[] point : cluster)
+				c2Points.add(point);
+
+		double[][] array2 = new double[c2Points.size()][];
+		array2 = c2Points.toArray(array2);
+		return intersection(array1, array2);
+	}
+
+	public static int countContained(Object[] pointArr, ClusteringResult clustering) {
+		int contained = 0;
+		final Set<Object[]> objects = new HashSet<Object[]>((List) Arrays.asList(pointArr));
+		for (final double[][] cluster : clustering.getData())
+			for (final double[] point : cluster)
+				if (objects.contains(point))
+					contained++;
+		return contained;
+	}
+
+	public static double[][][] getReduceTo(Object[] pointArr, double[][][] data) {
+		final Set<Object[]> objects = new HashSet<Object[]>((List) Arrays.asList(pointArr));
+		final double[][][] newData = new double[data.length][][];
+		for (int i = 0; i < data.length; ++i) {
+			final List<double[]> pointsToKeep = new ArrayList<double[]>();
+			for (final double[] point : data[i])
+				if (objects.contains(point))
+					pointsToKeep.add(point);
+			double[][] cluster = new double[pointsToKeep.size()][];
+			cluster = pointsToKeep.toArray(cluster);
+			newData[i] = cluster;
+		}
+		return newData;
+	}
+
 }

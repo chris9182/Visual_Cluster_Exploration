@@ -33,11 +33,14 @@ public class ConsensusWindow extends JFrame {
 		final CoAssociationMatrixAverageLink function = new CoAssociationMatrixAverageLink();
 
 		final List<PointContainer> pointContainers = clusteringViewer.getRelevantContainers();
+//		System.err.println(pointContainers.size());
 		final List<Double> weights = null;
 		// weights = clusteringViewer.getRelevantWeightsAcrossMethods();
 		// weights = clusteringViewer.getRelevantWeightsAcrossMetaClusters();
 		// System.err.println(pointContainers.size() + " " + weights.size());
 		final ScatterPlot plot = new ScatterPlot(function.calculateConsensus(pointContainers, weights), true);
+		plot.setSelectedDimX(clusteringViewer.getVisibleViewer().getSelectedDimX());
+		plot.setSelectedDimY(clusteringViewer.getVisibleViewer().getSelectedDimY());
 		plot.autoAdjust();
 		mainPanel.add(plot, new Integer(1));
 		mainLayout.putConstraint(SpringLayout.NORTH, plot, 0, SpringLayout.SOUTH, betaLabel);

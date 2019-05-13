@@ -7,13 +7,15 @@ public class ClusteringError implements IDistanceMeasure {
 
 	@Override
 	public double distanceBetween(ClusteringResult clustering, ClusteringResult clustering2) {
-		final int matrixSize = clustering.getData().length > clustering2.getData().length ? clustering.getData().length
-				: clustering2.getData().length;
+		final double[][][] data1 = clustering.getData();
+		final double[][][] data2 = clustering2.getData();
+
+		final int matrixSize = data1.length > data2.length ? data1.length : data2.length;
 		final int[][] confusion = new int[matrixSize][matrixSize];
-		for (int i = 0; i < clustering.getData().length; ++i)
-			for (int j = 0; j < clustering2.getData().length; ++j) {
+		for (int i = 0; i < data1.length; ++i)
+			for (int j = 0; j < data2.length; ++j) {
 				try {
-					confusion[i][j] = -Util.intersection(clustering.getData()[i], clustering2.getData()[j]).length;
+					confusion[i][j] = -Util.intersection(data1[i], data2[j]).length;
 					// System.err.println(confusion[i][j]);
 				} catch (final ArrayIndexOutOfBoundsException e) {
 					confusion[i][j] = 0;
@@ -25,19 +27,18 @@ public class ClusteringError implements IDistanceMeasure {
 		int dMaxSum = 0;
 		for (int i = 0; i < assignment.length; ++i) {
 			try {
-				dMaxSum += Util.intersection(clustering.getData()[assignment[i][1]],
-						clustering2.getData()[assignment[i][0]]).length;// XXX indexes?
+				dMaxSum += Util.intersection(data1[assignment[i][1]], data2[assignment[i][0]]).length;// XXX indexes?
 			} catch (final ArrayIndexOutOfBoundsException e) {
 
 			}
 		}
-		final int pointCount = clustering.getPointCount();// TODO this should be the union
+
+		final int pointCount = Util.intersection(clustering, clustering2).length;
 		return ((double) pointCount - dMaxSum) / pointCount;
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return "Clustering Error";
 	}
 

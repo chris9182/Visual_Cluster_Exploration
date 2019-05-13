@@ -26,7 +26,10 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 			assignments.add(result.getLabelMap());
 
 		final int resultCount = results.size();
-		final List<double[]> points = results.get(0).getPoints();
+		final Set<double[]> allpoints = new HashSet<double[]>();
+		for (final PointContainer container : results)
+			allpoints.addAll(container.getPoints());
+		final List<double[]> points = new ArrayList<double[]>(allpoints);
 		final int pointCount = points.size();
 		final double totalWeights = (weights != null) ? weights.stream().mapToDouble(f -> f.doubleValue()).sum()
 				: resultCount;
@@ -39,12 +42,18 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 				for (int j = i + 1; j < pointCount; ++j) {
 					final double[] pointj = points.get(j);
 					coAssociationMatrix[i][j] = 0;
+					double currentWeight = totalWeights;
 					for (int t = 0; t < resultCount; ++t) {
-						if (assignments.get(t).get(pointi) == assignments.get(t).get(pointj))
+						if (assignments.get(t).get(pointi) == null || assignments.get(t).get(pointj) == null)
+							currentWeight -= weights.get(t);
+						else if (assignments.get(t).get(pointi) == assignments.get(t).get(pointj))
 							coAssociationMatrix[i][j] += weights.get(t);
 
 					}
-					coAssociationMatrix[i][j] /= totalWeights;
+					if (currentWeight <= 0)
+						coAssociationMatrix[i][j] = 0;
+					else
+						coAssociationMatrix[i][j] /= currentWeight;
 				}
 			});
 		} else {
@@ -53,11 +62,17 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 				for (int j = i + 1; j < pointCount; ++j) {
 					final double[] pointj = points.get(j);
 					coAssociationMatrix[i][j] = 0;
+					double currentWeight = totalWeights;
 					for (int t = 0; t < resultCount; ++t) {
-						if (assignments.get(t).get(pointi) == assignments.get(t).get(pointj))
+						if (assignments.get(t).get(pointi) == null || assignments.get(t).get(pointj) == null)
+							currentWeight--;
+						else if (assignments.get(t).get(pointi) == assignments.get(t).get(pointj))
 							++coAssociationMatrix[i][j];
 					}
-					coAssociationMatrix[i][j] /= totalWeights;
+					if (currentWeight <= 0)
+						coAssociationMatrix[i][j] = 0;
+					else
+						coAssociationMatrix[i][j] /= currentWeight;
 				}
 			});
 		}

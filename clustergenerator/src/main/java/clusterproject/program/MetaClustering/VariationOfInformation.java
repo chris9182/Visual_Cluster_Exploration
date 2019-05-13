@@ -8,15 +8,22 @@ public class VariationOfInformation implements IDistanceMeasure {
 
 	@Override
 	public double distanceBetween(ClusteringResult clustering, ClusteringResult clustering2) {
+		final double[][][] data1orig = clustering.getData();
+		final double[][][] data2orig = clustering2.getData();
+
+		final Object[] intersection = Util.intersection(clustering, clustering2);
+
+		final double[][][] data1 = Util.getReduceTo(intersection, data1orig);
+		final double[][][] data2 = Util.getReduceTo(intersection, data2orig);
+
 		final int n = clustering.getPointCount();
 		double sum = 0;
-		for (int i = 0; i < clustering.getData().length; ++i) {
-			final double pi = (clustering.getData()[i].length / (double) n);
-			for (int j = 0; j < clustering2.getData().length; ++j) {
-				final double rij = Util.intersection(clustering.getData()[i], clustering2.getData()[j]).length
-						/ (double) n;
+		for (int i = 0; i < data1.length; ++i) {
+			final double pi = (data1[i].length / (double) n);
+			for (int j = 0; j < data2.length; ++j) {
+				final double rij = Util.intersection(data1[i], data2[j]).length / (double) n;
 
-				final double qj = (clustering2.getData()[j].length / (double) n);
+				final double qj = (data2[j].length / (double) n);
 				if (rij > 0)
 					sum += rij * (Math.log(rij / pi) + Math.log(rij / qj));
 			}
@@ -27,7 +34,6 @@ public class VariationOfInformation implements IDistanceMeasure {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return "Variation of Information";
 	}
 }

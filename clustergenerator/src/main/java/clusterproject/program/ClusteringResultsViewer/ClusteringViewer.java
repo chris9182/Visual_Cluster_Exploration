@@ -746,7 +746,7 @@ public class ClusteringViewer extends JFrame {
 		final List<PointContainer> containers = new ArrayList<PointContainer>();
 		final List<Integer> tags = mdsPlot.getPointContainer().getClusterIDs();
 		for (int i = 0; i < tags.size(); ++i)
-			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i)))
+			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i)) && i != groundTruth)
 				containers.add(viewers[i].getPointContainer());
 		return containers;
 	}
@@ -789,6 +789,10 @@ public class ClusteringViewer extends JFrame {
 			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i)))
 				weightsList.add(1 / (double) weights.get(mdsPlot.getPointContainer().getClusterIDs().get(i)));
 		return weightsList;
+	}
+
+	public ScatterPlot getVisibleViewer() {
+		return visibleViewer;
 	}
 
 }
