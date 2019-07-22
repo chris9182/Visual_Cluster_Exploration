@@ -55,7 +55,7 @@ public class Normalize implements INormalizer {
 
 		final PointContainer newContainer = new PointContainer(container.getDim());
 		newContainer.addPoints(newdata);
-		newContainer.copyClusterInfo(container);
+		newContainer.copyInfo(container);
 		newContainer.setHeaders(container.getHeaders());
 
 		final MainWindow newWindow = new MainWindow(newContainer);

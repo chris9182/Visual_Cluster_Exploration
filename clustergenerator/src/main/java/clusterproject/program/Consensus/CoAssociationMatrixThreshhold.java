@@ -108,7 +108,7 @@ public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 		for (final double[] point : points) {
 			for (int i = 0; i < consensus.size(); ++i)
 				if (consensus.get(i).contains(point))
-					newContainer.addClusterID(i);
+					newContainer.getClusterInformation().addClusterID(i);
 		}
 		newContainer.setHeaders(results.get(0).getHeaders());
 		return newContainer;

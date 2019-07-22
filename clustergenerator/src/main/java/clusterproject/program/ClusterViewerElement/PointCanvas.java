@@ -80,12 +80,12 @@ public class PointCanvas extends JPanel {
 
 			}
 		} else {
-			final List<Integer> clusterIDs = drawingContainer.getClusterIDs();
+			final List<Integer> clusterIDs = drawingContainer.getClusterInformation().getClusterIDs();
 			final Stream<Integer> stream = clusterIDs.stream().distinct();
 			final Map<Integer, Color> colorMap = new HashMap<Integer, Color>();
-			final Set<Integer> filtered = drawingContainer.getFilteredIndexes();
-			final LinkedHashSet<Integer> highlighted = drawingContainer.getHighlighted();
-			final int truth = drawingContainer.getGroundTruth();
+			final Set<Integer> filtered = drawingContainer.getMetaInformation().getFilteredIndexes();
+			final LinkedHashSet<Integer> highlighted = drawingContainer.getMetaInformation().getHighlighted();
+			final int truth = drawingContainer.getMetaInformation().getGroundTruth();
 			final Iterator<Integer> iter = stream.iterator();
 			while (iter.hasNext()) {
 				final int i = iter.next();

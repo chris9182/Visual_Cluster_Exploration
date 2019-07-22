@@ -10,7 +10,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 
 //based on: http://www.java2s.com/Code/Java/Swing-Components/BlockComboBoxExample.htm
-public class ComboBoxRenderer extends JLabel implements ListCellRenderer {
+public class ComboBoxRenderer extends JLabel implements ListCellRenderer<Object> {
 
 	private static final long serialVersionUID = 1L;
 	public static final String SEPARATOR = "SEPARATOR";
@@ -40,7 +40,7 @@ public class ComboBoxRenderer extends JLabel implements ListCellRenderer {
 	}
 
 	@Override
-	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 			boolean cellHasFocus) {
 		final String str = (value == null) ? "" : value.toString();
 		if (SEPARATOR.equals(str)) {

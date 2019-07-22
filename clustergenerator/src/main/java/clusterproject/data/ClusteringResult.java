@@ -28,7 +28,7 @@ public class ClusteringResult implements Serializable {
 		for (int i = 0; i < clusterPoints.length; ++i)
 			for (int j = 0; j < clusterPoints[i].length; ++j) {
 				container.addPoint(clusterPoints[i][j]);
-				container.addClusterID(i);
+				container.getClusterInformation().addClusterID(i);
 			}
 
 		container.rebuild();

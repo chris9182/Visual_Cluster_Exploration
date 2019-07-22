@@ -40,23 +40,23 @@ public class DifferenceWindow extends JFrame {
 		intersection.addPoints(container1.getPoints());
 		intersection.setUpClusters();
 		final List<double[]> c1Points = container1.getPoints();
-		final List<Integer> c1IDs = container1.getClusterIDs();
+		final List<Integer> c1IDs = container1.getClusterInformation().getClusterIDs();
 
-		final int size = container1.getClusterIDs().size();
+		final int size = container1.getClusterInformation().getClusterIDs().size();
 		final Map<double[], Integer> idMapc2 = container2.getLabelMap();
 
 		final Set<Integer> filtered = new HashSet<Integer>();
 		for (int i = 0; i < size; ++i) {
 			final double[] point = c1Points.get(i);
 			if (c1IDs.get(i) != idMapc2.get(point)) {
-				intersection.addClusterID(-1);
+				intersection.getClusterInformation().addClusterID(-1);
 				filtered.add(i);
 			} else
-				intersection.addClusterID(-2);
+				intersection.getClusterInformation().addClusterID(-2);
 		}
 		final int differentCount = filtered.size();
 		setTitle(((float) ((double) differentCount / size) * 100) + "% Different");
-		intersection.setFilteredResults(filtered);
+		intersection.getMetaInformation().setFilteredResults(filtered);
 
 		intersectionScatterPlot = new ScatterPlot(intersection, true);
 		intersectionScatterPlot.addAutoAdjust();

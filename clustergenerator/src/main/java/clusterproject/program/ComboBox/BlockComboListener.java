@@ -6,11 +6,11 @@ import java.awt.event.ActionListener;
 import javax.swing.JComboBox;
 
 public class BlockComboListener implements ActionListener {
-	JComboBox combo;
+	JComboBox<?> combo;
 
 	Object currentItem;
 
-	public BlockComboListener(JComboBox combo) {
+	public BlockComboListener(JComboBox<?> combo) {
 		this.combo = combo;
 		combo.setSelectedIndex(0);
 		currentItem = combo.getSelectedItem();

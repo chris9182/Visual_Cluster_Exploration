@@ -416,7 +416,7 @@ public class ClusterWorkflow extends JFrame {
 				final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
 				final List<List<NumberVector>> pointList = new ArrayList<List<NumberVector>>();
-				final Set<Integer> clusterIDs = new HashSet<Integer>(pointContainer.getClusterIDs());
+				final Set<Integer> clusterIDs = new HashSet<Integer>(pointContainer.getClusterInformation().getClusterIDs());
 				final int minID = Collections.min(clusterIDs);
 				final int size = Collections.max(clusterIDs) + 1 - minID;
 
@@ -425,7 +425,7 @@ public class ClusterWorkflow extends JFrame {
 				}
 				int i = 0;
 				for (final DBIDIter it = rel.iterDBIDs(); it.valid(); it.advance()) {
-					pointList.get(pointContainer.getClusterIDs().get(i) - minID).add(rel.get(it));
+					pointList.get(pointContainer.getClusterInformation().getClusterIDs().get(i) - minID).add(rel.get(it));
 					i++;
 				}
 				final List<List<NumberVector>> betterPointList = new ArrayList<List<NumberVector>>();

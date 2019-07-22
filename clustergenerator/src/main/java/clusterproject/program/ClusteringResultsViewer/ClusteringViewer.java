@@ -299,7 +299,7 @@ public class ClusteringViewer extends JFrame {
 		if (mdsPlot != null) {
 			mdsPlot.getCanvas().addMouseMotionListener(mouseAdapter);
 			mdsPlot.getCanvas().addMouseListener(mouseAdapter);
-			mdsPlot.getPointContainer().setGroundTruth(groundTruth);
+			mdsPlot.getPointContainer().getMetaInformation().setGroundTruth(groundTruth);
 		}
 
 		if (clusterings.size() <= MAX_HEATMAP_SIZE) {
@@ -342,7 +342,7 @@ public class ClusteringViewer extends JFrame {
 			final PointContainer c1 = viewers[id1].getPointContainer();
 			final int id2 = hIter.next();
 			final PointContainer c2 = viewers[id2].getPointContainer();
-			c2.setClusterIDs(getNewColors(id1, id2));
+			c2.getClusterInformation().setClusterIDs(getNewColors(id1, id2));
 			final DifferenceWindow newWindow = new DifferenceWindow(viewers[id1], viewers[id2]);
 			newWindow.setSize(new Dimension(1000, 800));
 			newWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -468,7 +468,8 @@ public class ClusteringViewer extends JFrame {
 		final Integer[] clusterIDs = new Integer[list.size()];
 		for (final ClusteringWithDistance clustering : list)
 			clusterIDs[clustering.inIndex] = clustering.tag;
-		mdsPlot.getPointContainer().setAllClusterIDs(new ArrayList<Integer>(Arrays.asList(clusterIDs)));
+		mdsPlot.getPointContainer().setUpClusters();
+		mdsPlot.getPointContainer().getClusterInformation().setAllClusterIDs(new ArrayList<Integer>(Arrays.asList(clusterIDs)));
 		SwingUtilities.invokeLater(() -> mdsPlot.repaint());
 	}
 
@@ -481,7 +482,7 @@ public class ClusteringViewer extends JFrame {
 		final ScatterPlot newViewer = viewers[i];
 		if (visibleViewer != null) {
 			final List<Integer> newClusterIDs = getNewColors(selectedViewer, i);
-			newViewer.getPointContainer().setClusterIDs(newClusterIDs);
+			newViewer.getPointContainer().getClusterInformation().setClusterIDs(newClusterIDs);
 			newViewer.setSelectedDimX(visibleViewer.getSelectedDimX());
 			newViewer.setSelectedDimY(visibleViewer.getSelectedDimY());
 			newViewer.setIntervalX(visibleViewer.getIntervalX());
@@ -514,8 +515,8 @@ public class ClusteringViewer extends JFrame {
 																	// selection?
 		final ClusteringResult oldClustering = clusterings.get(previous);
 		final ClusteringResult newClustering = clusterings.get(other);
-		final Map<Integer, Integer> oldIDMap = visibleViewer.getPointContainer().getIDMap();
-		final List<Integer> currentIDs = viewers[other].getPointContainer().getOriginalClusterIDs();
+		final Map<Integer, Integer> oldIDMap = visibleViewer.getPointContainer().getClusterInformation().getIDMap();
+		final List<Integer> currentIDs = viewers[other].getPointContainer().getClusterInformation().getOriginalClusterIDs();
 		final int matrixSize = oldClustering.getData().length > newClustering.getData().length
 				? oldClustering.getData().length
 				: newClustering.getData().length;
@@ -546,7 +547,7 @@ public class ClusteringViewer extends JFrame {
 			} else
 				idMap.put(assignment[idx][0], assignment[idx][1]);
 		}
-		viewers[other].getPointContainer().setIDMap(idMap);
+		viewers[other].getPointContainer().getClusterInformation().setIDMap(idMap);
 		for (int idx = 0; idx < currentIDs.size(); ++idx) {
 			newIDs.add(idMap.get(currentIDs.get(idx)));
 		}
@@ -657,7 +658,7 @@ public class ClusteringViewer extends JFrame {
 
 		diffButton.setVisible(highlighted.size() == 2);
 		if (mdsPlot != null)
-			mdsPlot.getPointContainer().setHighlighted(highlighted);
+			mdsPlot.getPointContainer().getMetaInformation().setHighlighted(highlighted);
 		if (highlighted.size() > 1 || highlighted.iterator().next() == -1)
 			if (highlighted.contains(selectedViewer) || highlighted.size() < 1) {
 				callRepaint();
@@ -699,12 +700,12 @@ public class ClusteringViewer extends JFrame {
 	public void setFilteredData(Set<ClusteringResult> filteredResults) {
 		this.filteredIndexes = null;// TODO display not contained ClusteringResults differently
 		if (filteredResults == null)
-			mdsPlot.getPointContainer().setFilteredResults(null);
+			mdsPlot.getPointContainer().getMetaInformation().setFilteredResults(null);
 		else {
 			final Set<Integer> filteredIndexes = new HashSet<>();
 			for (final ClusteringResult result : filteredResults)
 				filteredIndexes.add(clusterings.indexOf(result));
-			mdsPlot.getPointContainer().setFilteredResults(filteredIndexes);
+			mdsPlot.getPointContainer().getMetaInformation().setFilteredResults(filteredIndexes);
 			this.filteredIndexes = filteredIndexes;
 		}
 
@@ -744,7 +745,7 @@ public class ClusteringViewer extends JFrame {
 
 	public List<PointContainer> getRelevantContainers() {// XXX: will be removed later for propper selection
 		final List<PointContainer> containers = new ArrayList<PointContainer>();
-		final List<Integer> tags = mdsPlot.getPointContainer().getClusterIDs();
+		final List<Integer> tags = mdsPlot.getPointContainer().getClusterInformation().getClusterIDs();
 		for (int i = 0; i < tags.size(); ++i)
 			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i)) && i != groundTruth)
 				containers.add(viewers[i].getPointContainer());
@@ -753,7 +754,7 @@ public class ClusteringViewer extends JFrame {
 
 	public List<Double> getRelevantWeightsAcrossMethods() {// XXX: will be removed later for propper selection
 		final Map<String, Integer> weights = new HashMap<String, Integer>();
-		final List<Integer> tags = mdsPlot.getPointContainer().getClusterIDs();
+		final List<Integer> tags = mdsPlot.getPointContainer().getClusterInformation().getClusterIDs();
 		for (int i = 0; i < tags.size(); ++i)
 			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i))) {
 				final String name = clusterings.get(i).getParameter().getName();
@@ -773,10 +774,10 @@ public class ClusteringViewer extends JFrame {
 
 	public List<Double> getRelevantWeightsAcrossMetaClusters() {// XXX: will be removed later for propper selection
 		final Map<Integer, Integer> weights = new HashMap<Integer, Integer>();
-		final List<Integer> tags = mdsPlot.getPointContainer().getClusterIDs();
+		final List<Integer> tags = mdsPlot.getPointContainer().getClusterInformation().getClusterIDs();
 		for (int i = 0; i < tags.size(); ++i)
 			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i))) {
-				final Integer tag = mdsPlot.getPointContainer().getClusterIDs().get(i);
+				final Integer tag = mdsPlot.getPointContainer().getClusterInformation().getClusterIDs().get(i);
 
 				if (weights.containsKey(tag)) {
 					weights.put(tag, weights.get(tag) + 1);
@@ -787,7 +788,7 @@ public class ClusteringViewer extends JFrame {
 		final List<Double> weightsList = new ArrayList<Double>();
 		for (int i = 0; i < tags.size(); ++i)
 			if (tags.get(i) >= 0 && (filteredIndexes == null || filteredIndexes.contains(i)))
-				weightsList.add(1 / (double) weights.get(mdsPlot.getPointContainer().getClusterIDs().get(i)));
+				weightsList.add(1 / (double) weights.get(mdsPlot.getPointContainer().getClusterInformation().getClusterIDs().get(i)));
 		return weightsList;
 	}
 

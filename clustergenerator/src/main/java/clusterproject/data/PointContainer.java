@@ -3,22 +3,17 @@ package clusterproject.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class PointContainer {
+	private int dim;
 	private List<double[]> points = new ArrayList<double[]>();
 	private List<String> headers;
-	private Double[] center = null;
-	private List<Integer> originalClusterIDs;
-	private List<Integer> clusterIDs;
-	Map<Integer, Integer> idMap = null;
-	private int dim;
-	private LinkedHashSet<Integer> highlighted = new LinkedHashSet<Integer>();
-	private Set<Integer> filteredResults;
-	private int groundTruth = -1;
+	private ClusterInformation clusterInformation;
+
+	private MetaInformation metaInformation=new MetaInformation();
+
 
 	public PointContainer(int dim) {
 		this.dim = dim;
@@ -27,6 +22,20 @@ public class PointContainer {
 			headers.add(Integer.toString(i));
 	}
 
+	public MetaInformation getMetaInformation() {
+		return metaInformation;
+	}
+	
+	public void setMetaInformation(MetaInformation metaInformation) {
+		this.metaInformation = metaInformation;
+	}
+	public ClusterInformation getClusterInformation() {
+		return clusterInformation;
+	}
+	
+	public void setClusterInformation(ClusterInformation clusterInformation) {
+		this.clusterInformation = clusterInformation;
+	}
 	public List<double[]> getPoints() {
 		return points;
 	}
@@ -39,10 +48,10 @@ public class PointContainer {
 		points.add(point);
 	}
 
-	public Double[] getCalculatedCenter() {
+	public double[] getCalculatedCenter() {
 		if (points == null || points.isEmpty())
 			return null;
-		center = new Double[dim];
+		double[] center = new double[dim];
 		for (int i = 0; i < dim; ++i)
 			center[i] = (double) 0;
 		for (final double[] point : points) {
@@ -116,9 +125,8 @@ public class PointContainer {
 	public void empty() {
 		points.clear();
 		headers.clear();
-		clusterIDs = null;
-		originalClusterIDs = null;
 		dim = -1;
+		clusterInformation=null;
 	}
 
 	public void rebuild() {
@@ -131,102 +139,19 @@ public class PointContainer {
 				headers.add(Integer.toString(i));
 	}
 
-	public void setUpClusters() {
-		clusterIDs = new ArrayList<Integer>();
-		originalClusterIDs = new ArrayList<Integer>();
-	}
-
-	public void addClusterID(Integer id) {
-		clusterIDs.add(id);
-		originalClusterIDs.add(id);
-	}
-
-	public boolean hasClusters() {
-		return clusterIDs != null && clusterIDs.size() == points.size() && originalClusterIDs != null
-				&& originalClusterIDs.size() == points.size();
-	}
-
-	public List<Integer> getClusterIDs() {
-		return clusterIDs;
-	}
-
-	public void setClusterIDs(List<Integer> clusterIDs) {
-		this.clusterIDs = clusterIDs;
-
-	}
-
-	public void setAllClusterIDs(ArrayList<Integer> clusterIDs) {
-		this.clusterIDs = clusterIDs;
-		this.originalClusterIDs = clusterIDs;
-
-	}
-
-	public List<Integer> getOriginalClusterIDs() {
-		return originalClusterIDs;
-	}
-
-	public void setOriginalClusterID(List<Integer> originalClusterIDs) {
-		this.originalClusterIDs = originalClusterIDs;
-
-	}
-
-	public void setIDMap(Map<Integer, Integer> idMap) {
-		this.idMap = idMap;
-
-	}
-
-	public Map<Integer, Integer> getIDMap() {
-		return idMap;
-	}
-
-	public LinkedHashSet<Integer> getHighlighted() {
-		return highlighted;
-	}
-
-	public void setHighlighted(LinkedHashSet<Integer> highlighted2) {
-		this.highlighted = highlighted2;
-	}
-
-	public void copyClusterInfo(PointContainer container) {
-		setOriginalClusterID(container.getOriginalClusterIDs());
-		setClusterIDs(container.getClusterIDs());
-		setIDMap(container.getIDMap());
-		setHighlighted(getHighlighted());
-	}
-
 	public void removeClusterInfo() {
-		setOriginalClusterID(null);
-		setClusterIDs(null);
-		setIDMap(null);
-		highlighted.clear();
-		highlighted.add(-1);
+clusterInformation=null;
+		metaInformation.getHighlighted().clear();
+		metaInformation.getHighlighted().add(-1);
 
-	}
-
-	public void setFilteredResults(Set<Integer> filteredResults) {
-		this.filteredResults = filteredResults;
-
-	}
-
-	public Set<Integer> getFilteredIndexes() {
-		return filteredResults;
-	}
-
-	public void setGroundTruth(int groundTruth) {
-		this.groundTruth = groundTruth;
-
-	}
-
-	public int getGroundTruth() {
-		return groundTruth;
 	}
 
 	public Map<double[], Integer> getLabelMap() {
-		if (!hasClusters())
+		if (!clusterInformation.hasClusters())
 			return null;
 		final Map<double[], Integer> assignments = new HashMap<double[], Integer>();
 		for (int i = 0; i < points.size(); ++i)
-			assignments.put(points.get(i), clusterIDs.get(i));
+			assignments.put(points.get(i), clusterInformation.getClusterIDs().get(i));
 		return assignments;
 	}
 
@@ -237,31 +162,51 @@ public class PointContainer {
 		for (int i = 0; i < maxPoints; ++i) {
 			sampleContainer.addPoint(points.get(i * stride));
 		}
-		if (hasClusters()) {
-			sampleContainer.setUpClusters();
+		if (clusterInformation.hasClusters()) {
+			sampleContainer.clusterInformation.setUpClusters();
 			for (int i = 0; i < maxPoints; ++i) {
-				sampleContainer.originalClusterIDs.add(originalClusterIDs.get(i * stride));
+				sampleContainer.clusterInformation.getOriginalClusterIDs().add(clusterInformation.getOriginalClusterIDs().get(i * stride));
 			}
-			if (clusterIDs != null && !clusterIDs.isEmpty())
+			if (clusterInformation.getClusterIDs() != null && !clusterInformation.getClusterIDs().isEmpty())
 				for (int i = 0; i < maxPoints; ++i) {
-					sampleContainer.clusterIDs.add(clusterIDs.get(i * stride));
+					sampleContainer.clusterInformation.getClusterIDs().add(clusterInformation.getClusterIDs().get(i * stride));
 				}
 		}
-		if (highlighted != null && !highlighted.isEmpty()) {
-			for (final Integer h : highlighted) {
+		if (metaInformation.getHighlighted() != null && !metaInformation.getHighlighted().isEmpty()) {
+			for (final Integer h : metaInformation.getHighlighted()) {
 				if (h % stride == 0 && h / stride < maxPoints)
-					sampleContainer.highlighted.add(h / stride);
+					sampleContainer.metaInformation.getHighlighted().add(h / stride);
 			}
 		}
-		if (filteredResults != null && !filteredResults.isEmpty()) {
-			for (final Integer h : filteredResults) {
+		if (metaInformation.getFilteredIndexes() != null && !metaInformation.getFilteredIndexes().isEmpty()) {
+			for (final Integer h : metaInformation.getFilteredIndexes()) {
 				if (h % stride == 0 && h / stride < maxPoints)
-					sampleContainer.filteredResults.add(h / stride);
+					sampleContainer.metaInformation.getFilteredIndexes().add(h / stride);
 			}
 		}
-		if (groundTruth % stride == 0 && groundTruth / stride < maxPoints)
-			sampleContainer.groundTruth = groundTruth / stride;
+		if (metaInformation.getGroundTruth() % stride == 0 && metaInformation.getGroundTruth() / stride < maxPoints)
+			sampleContainer.metaInformation.setGroundTruth(metaInformation.getGroundTruth() / stride);
 		return sampleContainer;
+	}
+
+	public int getPointCount() {
+		return points.size();
+	}
+
+	public boolean hasClusters() {
+		if(clusterInformation==null)return false;
+		return clusterInformation.hasClusters();
+	}
+
+	public void setUpClusters() {
+		clusterInformation=new ClusterInformation(this);
+		clusterInformation.setUpClusters();
+	}
+
+	public void copyInfo(PointContainer container) {
+		this.clusterInformation=container.clusterInformation;
+		this.metaInformation=container.metaInformation;
+		
 	}
 
 }

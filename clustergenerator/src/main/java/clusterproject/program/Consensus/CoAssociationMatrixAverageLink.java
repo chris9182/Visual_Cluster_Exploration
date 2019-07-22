@@ -130,7 +130,7 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 		for (int i = 0; i < pointCount; ++i) {
 			for (int j = 0; j < consensus.size(); ++j)
 				if (consensus.get(j).contains(i))
-					newContainer.addClusterID(j);
+					newContainer.getClusterInformation().addClusterID(j);
 
 		}
 		newContainer.setHeaders(results.get(0).getHeaders());

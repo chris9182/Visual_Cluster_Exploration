@@ -108,7 +108,7 @@ public class ViewerAxis extends JPanel {
 		final JFrame editFrame = new JFrame();
 		editFrame.setUndecorated(true);
 		final List<String> names = scatterPlot.getPointContainer().getHeaders();
-		final JComboBox selector = new JComboBox<String>(names.toArray(new String[names.size()]));
+		final JComboBox<String> selector = new JComboBox<String>(names.toArray(new String[names.size()]));
 		selector.setSelectedItem(
 				names.get(isHorizontal ? scatterPlot.getSelectedDimX() : scatterPlot.getSelectedDimY()));
 		editFrame.addWindowFocusListener(new WindowAdapter() {
