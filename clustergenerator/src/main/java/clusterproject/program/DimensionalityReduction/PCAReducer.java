@@ -37,9 +37,8 @@ public class PCAReducer implements IDimensionalityReduction {
 
 		PCA pca = new PCA(data);
 		pca.setProjection(pCAOptions.getDim());
-		double[][] result= pca.project(data);
-		
-		
+		double[][] result = pca.project(data);
+
 		final PointContainer newContainer = new PointContainer(pCAOptions.getDim());
 		newContainer.addPoints(result);
 		newContainer.copyInfo(container);

@@ -239,7 +239,8 @@ public class ImporterWindow extends JFrame {
 					for (final String string : parser.getHeaderMap().keySet()) {
 						if (i == labelIndex)
 							try {
-								pointContainer.getClusterInformation().addClusterID((int) format.parse(string).doubleValue());
+								pointContainer.getClusterInformation()
+										.addClusterID((int) format.parse(string).doubleValue());
 							} catch (final Exception e) {
 								pointContainer.getClusterInformation().addClusterID(-1);
 							}
@@ -248,7 +249,8 @@ public class ImporterWindow extends JFrame {
 				}
 				for (final CSVRecord record : records) {
 					try {
-						pointContainer.getClusterInformation().addClusterID((int) format.parse(record.get(labelIndex)).doubleValue());
+						pointContainer.getClusterInformation()
+								.addClusterID((int) format.parse(record.get(labelIndex)).doubleValue());
 					} catch (final Exception e) {
 						pointContainer.getClusterInformation().addClusterID(-1);
 					}

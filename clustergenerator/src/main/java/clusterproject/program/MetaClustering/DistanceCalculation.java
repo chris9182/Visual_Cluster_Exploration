@@ -7,8 +7,7 @@ import clusterproject.data.ClusteringResult;
 
 public class DistanceCalculation {
 
-	public static double[][] calculateDistanceMatrix(List<ClusteringResult> sClusterings,
-			IDistanceMeasure measure) {
+	public static double[][] calculateDistanceMatrix(List<ClusteringResult> sClusterings, IDistanceMeasure measure) {
 		final int size = sClusterings.size();
 		final double[][] distances = new double[size][size];
 		IntStream.range(0, size * size).parallel().forEach(i -> {

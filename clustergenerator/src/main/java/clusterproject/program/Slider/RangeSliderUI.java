@@ -40,8 +40,7 @@ public class RangeSliderUI extends BasicSliderUI {
 	/**
 	 * Constructs a RangeSliderUI for the specified slider component.
 	 *
-	 * @param b
-	 *            RangeSlider
+	 * @param b RangeSlider
 	 */
 	public RangeSliderUI(RangeSlider b) {
 		super(b);

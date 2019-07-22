@@ -93,7 +93,7 @@ public class OpticsMetaClustering {
 	}
 
 	private double coredist(List<Double> distances, int minPTS) {
-		//TODO: check if this is right now
+		// TODO: check if this is right now
 		final List<Double> distCopy = new ArrayList<Double>(distances);
 		Collections.sort(distCopy, Comparator.comparingDouble(e -> e));
 		return distCopy.get(minPTS - 2);

@@ -7,7 +7,7 @@ public class MetaInformation {
 	private LinkedHashSet<Integer> highlighted = new LinkedHashSet<Integer>();
 	private Set<Integer> filteredResults;
 	private int groundTruth = -1;
-	
+
 	public LinkedHashSet<Integer> getHighlighted() {
 		return highlighted;
 	}
@@ -15,7 +15,7 @@ public class MetaInformation {
 	public void setHighlighted(LinkedHashSet<Integer> highlighted2) {
 		this.highlighted = highlighted2;
 	}
-	
+
 	public void setFilteredResults(Set<Integer> filteredResults) {
 		this.filteredResults = filteredResults;
 

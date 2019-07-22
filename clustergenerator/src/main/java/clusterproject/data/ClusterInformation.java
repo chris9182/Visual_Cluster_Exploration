@@ -9,11 +9,11 @@ public class ClusterInformation {
 	private List<Integer> clusterIDs;
 	Map<Integer, Integer> idMap = null;
 	private PointContainer pointContainer;
-	
+
 	public ClusterInformation(PointContainer pointContainer) {
-		this.pointContainer=pointContainer;
+		this.pointContainer = pointContainer;
 	}
-	
+
 	public void setUpClusters() {
 		clusterIDs = new ArrayList<Integer>();
 		originalClusterIDs = new ArrayList<Integer>();

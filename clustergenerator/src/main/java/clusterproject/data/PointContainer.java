@@ -11,9 +11,7 @@ public class PointContainer {
 	private List<double[]> points = new ArrayList<double[]>();
 	private List<String> headers;
 	private ClusterInformation clusterInformation;
-
-	private MetaInformation metaInformation=new MetaInformation();
-
+	private MetaInformation metaInformation = new MetaInformation();
 
 	public PointContainer(int dim) {
 		this.dim = dim;
@@ -25,17 +23,19 @@ public class PointContainer {
 	public MetaInformation getMetaInformation() {
 		return metaInformation;
 	}
-	
+
 	public void setMetaInformation(MetaInformation metaInformation) {
 		this.metaInformation = metaInformation;
 	}
+
 	public ClusterInformation getClusterInformation() {
 		return clusterInformation;
 	}
-	
+
 	public void setClusterInformation(ClusterInformation clusterInformation) {
 		this.clusterInformation = clusterInformation;
 	}
+
 	public List<double[]> getPoints() {
 		return points;
 	}
@@ -126,7 +126,7 @@ public class PointContainer {
 		points.clear();
 		headers.clear();
 		dim = -1;
-		clusterInformation=null;
+		clusterInformation = null;
 	}
 
 	public void rebuild() {
@@ -140,7 +140,7 @@ public class PointContainer {
 	}
 
 	public void removeClusterInfo() {
-clusterInformation=null;
+		clusterInformation = null;
 		metaInformation.getHighlighted().clear();
 		metaInformation.getHighlighted().add(-1);
 
@@ -165,11 +165,13 @@ clusterInformation=null;
 		if (clusterInformation.hasClusters()) {
 			sampleContainer.clusterInformation.setUpClusters();
 			for (int i = 0; i < maxPoints; ++i) {
-				sampleContainer.clusterInformation.getOriginalClusterIDs().add(clusterInformation.getOriginalClusterIDs().get(i * stride));
+				sampleContainer.clusterInformation.getOriginalClusterIDs()
+						.add(clusterInformation.getOriginalClusterIDs().get(i * stride));
 			}
 			if (clusterInformation.getClusterIDs() != null && !clusterInformation.getClusterIDs().isEmpty())
 				for (int i = 0; i < maxPoints; ++i) {
-					sampleContainer.clusterInformation.getClusterIDs().add(clusterInformation.getClusterIDs().get(i * stride));
+					sampleContainer.clusterInformation.getClusterIDs()
+							.add(clusterInformation.getClusterIDs().get(i * stride));
 				}
 		}
 		if (metaInformation.getHighlighted() != null && !metaInformation.getHighlighted().isEmpty()) {
@@ -194,19 +196,20 @@ clusterInformation=null;
 	}
 
 	public boolean hasClusters() {
-		if(clusterInformation==null)return false;
+		if (clusterInformation == null)
+			return false;
 		return clusterInformation.hasClusters();
 	}
 
 	public void setUpClusters() {
-		clusterInformation=new ClusterInformation(this);
+		clusterInformation = new ClusterInformation(this);
 		clusterInformation.setUpClusters();
 	}
 
 	public void copyInfo(PointContainer container) {
-		this.clusterInformation=container.clusterInformation;
-		this.metaInformation=container.metaInformation;
-		
+		this.clusterInformation = container.clusterInformation;
+		this.metaInformation = container.metaInformation;
+
 	}
 
 }

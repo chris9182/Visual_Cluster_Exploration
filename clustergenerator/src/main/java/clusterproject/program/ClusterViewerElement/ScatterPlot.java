@@ -111,7 +111,8 @@ public class ScatterPlot extends JLayeredPane {
 		// MainWindow.ADJUST_BUTTON_DIM));
 		autoColor.addActionListener(e -> {
 			if (pointContainer.hasClusters()) {
-				pointContainer.getClusterInformation().setClusterIDs(pointContainer.getClusterInformation().getOriginalClusterIDs());
+				pointContainer.getClusterInformation()
+						.setClusterIDs(pointContainer.getClusterInformation().getOriginalClusterIDs());
 				pointContainer.getClusterInformation().setIDMap(null);
 				// TODO: maybe something with cluster size for color selection?
 			}
