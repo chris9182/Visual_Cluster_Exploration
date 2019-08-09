@@ -459,6 +459,7 @@ public class ClusterWorkflow extends JFrame {
 			double[][] customData = data;
 			if (sClusterings.size() > 0) {
 				customData = new double[pointContainer.getPoints().size()][];
+				// this is (currently) only safe with no bootstaping
 				customData = sClusterings.get(0).toPointContainer().getPoints().toArray(customData);
 			}
 			// customData can now be used as a reference to the points for non elki

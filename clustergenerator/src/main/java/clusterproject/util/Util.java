@@ -25,8 +25,8 @@ public class Util {
 	public static final float FILTER_ALPHA = 0.3f;
 	private static final int COLOR_CACHE_SIZE = 1000;
 
-	public static Set<String> META_PARAMS = new HashSet<String>();
 	public static Map<Integer, Color> colorCache = new HashMap<Integer, Color>();
+	public static Set<String> META_PARAMS = new HashSet<String>();
 	static {
 		META_PARAMS.add(GROUND_TRUTH);
 		META_PARAMS.add(CLUSTER_COUNT);
