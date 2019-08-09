@@ -175,11 +175,11 @@ public class ViewerAxis extends JPanel {
 			g2.drawString(header, getWidth() / 2 - headerWidth, getHeight() - LABLE_OFFSET);
 		} else {
 			g.drawLine(getWidth() - 1, 0, getWidth() - 1, getHeight());
-			Util.drawRotate(g2, LABLE_OFFSET, LABLE_OFFSET, 90, df.format(interval[1]));
+			Util.drawRotatedString(g2, LABLE_OFFSET, LABLE_OFFSET, 90, df.format(interval[1]));
 			final int endTickWidth = g.getFontMetrics().stringWidth(df.format(interval[0]));
-			Util.drawRotate(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90, df.format(interval[0]));
+			Util.drawRotatedString(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90, df.format(interval[0]));
 			final int headerWidth = g.getFontMetrics().stringWidth(header);
-			Util.drawRotate(g2, LABLE_OFFSET, getHeight() / 2 - headerWidth, 90, header);
+			Util.drawRotatedString(g2, LABLE_OFFSET, getHeight() / 2 - headerWidth, 90, header);
 		}
 	}
 

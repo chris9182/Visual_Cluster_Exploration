@@ -163,10 +163,10 @@ public class HeatMap extends JLayeredPane {
 			final DecimalFormat df = new DecimalFormat("#.##");
 			g.drawLine(getWidth() - 1, 0, getWidth() - 1, getHeight());
 			g2.setColor(MAX_COLOR);
-			Util.drawRotate(g2, LABLE_OFFSET, LABLE_OFFSET, 90, df.format(maxValue));
+			Util.drawRotatedString(g2, LABLE_OFFSET, LABLE_OFFSET, 90, df.format(maxValue));
 			final int endTickWidth = g.getFontMetrics().stringWidth(df.format(0));
 			g2.setColor(MIN_COLOR);
-			Util.drawRotate(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90, df.format(0));
+			Util.drawRotatedString(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90, df.format(0));
 
 		}
 	}

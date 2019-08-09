@@ -111,9 +111,9 @@ public class OpticsPlot extends JLayeredPane {
 				g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 				final DecimalFormat df = new DecimalFormat("#.##");
 				g.drawLine(getWidth() - 1, 0, getWidth() - 1, getHeight());
-				Util.drawRotate(g2, LABLE_OFFSET, LABLE_OFFSET, 90, df.format(max));
+				Util.drawRotatedString(g2, LABLE_OFFSET, LABLE_OFFSET, 90, df.format(max));
 				final int endTickWidth = g.getFontMetrics().stringWidth(df.format(0));
-				Util.drawRotate(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90, df.format(0));
+				Util.drawRotatedString(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90, df.format(0));
 			}
 		};
 		threshholdClicker.setBackground(Color.LIGHT_GRAY);
