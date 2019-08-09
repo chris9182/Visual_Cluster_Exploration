@@ -96,7 +96,8 @@ public class ClusterWorkflow extends JFrame {
 	private JScrollPane wfScrollPane;
 	private final JButton saveButton;
 	private JButton loadClusterButton;
-	private JProgressBar progressBar;
+	private final JProgressBar progressBar = new JProgressBar(0, 100);
+	private final Random seededRandom = new Random();
 	private Thread worker;
 
 	public ClusterWorkflow(PointContainer container) {
@@ -111,7 +112,6 @@ public class ClusterWorkflow extends JFrame {
 		epsField.setValue(new Double(-1.0));
 		epsField.setColumns(5);
 		epsField.setHorizontalAlignment(SwingConstants.RIGHT);
-		progressBar = new JProgressBar(0, 100);
 		progressBar.addChangeListener(e -> progressBar.repaint());
 		progressBar.setStringPainted(true);
 		progressBar.setString("Waiting");
@@ -395,7 +395,7 @@ public class ClusterWorkflow extends JFrame {
 			return;
 		}
 		progressBar.setValue(0);
-		progressBar.setMaximum(workflow.size());
+		progressBar.setMaximum(1);
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 
 		final double[][] data = pointContainer.getPoints().toArray(new double[pointContainer.getPoints().size()][]);
@@ -404,16 +404,18 @@ public class ClusterWorkflow extends JFrame {
 		db.initialize();
 		int maximum = 0;
 		for (final IClusterer clusterer : workflow) {
+			clusterer.setJProgressBar(progressBar);
+			clusterer.setRandom(seededRandom);
 			maximum += clusterer.getCount();
 		}
 		progressBar.setMaximum(maximum);
 		// TODO: enable setting seed from outside
-		final Random fixedRandom = new Random(System.currentTimeMillis());
+//		seededRandom.setSeed(0);
+		seededRandom.setSeed(System.currentTimeMillis());
 		worker = new Thread(() -> {
 			progressBar.setString("Calculating Clusterings");
 			for (final IClusterer clusterer : workflow) {
-				clusterer.setRandom(fixedRandom);
-				final List<NumberVectorClusteringResult> results = clusterer.cluster(db, progressBar);
+				final List<NumberVectorClusteringResult> results = clusterer.cluster(db);
 				clusterings.addAll(results);
 			}
 			progressBar.setString("Converting Results");
@@ -609,7 +611,6 @@ public class ClusterWorkflow extends JFrame {
 		clusterers.add(new LloydKMeans());
 		clusterers.add(new MacQueenKMeans());
 		clusterers.add(new LloydKMeadians());
-
 	}
 
 }

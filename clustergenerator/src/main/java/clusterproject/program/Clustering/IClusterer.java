@@ -17,11 +17,13 @@ public interface IClusterer extends Serializable {
 
 	String getSettingsString();
 
-	List<NumberVectorClusteringResult> cluster(Database db, JProgressBar progressBar);
+	List<NumberVectorClusteringResult> cluster(Database db);
 
 	IClusterer duplicate();
 
 	int getCount();
 
 	void setRandom(Random random);
+
+	void setJProgressBar(JProgressBar progressBar);
 }

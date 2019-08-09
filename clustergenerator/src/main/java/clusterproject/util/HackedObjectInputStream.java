@@ -13,6 +13,9 @@ public class HackedObjectInputStream extends ObjectInputStream {
 
 	@Override
 	protected ObjectStreamClass readClassDescriptor() throws IOException, ClassNotFoundException {
+		// XXX currently disabled may be used in the future for compability
+		if (true)
+			return super.readClassDescriptor();
 		ObjectStreamClass resultClassDescriptor = super.readClassDescriptor();
 
 		if (resultClassDescriptor.getName().contains("clusterproject.clustergenerator"))

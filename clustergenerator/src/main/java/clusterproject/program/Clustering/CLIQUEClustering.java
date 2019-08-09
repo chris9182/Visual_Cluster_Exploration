@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 
 import clusterproject.data.NumberVectorClusteringResult;
 import clusterproject.program.Clustering.Panel.CLIQUEOptions;
@@ -21,7 +20,7 @@ import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
-public class CLIQUEClustering implements IClusterer {
+public class CLIQUEClustering extends AbstractClustering {
 
 	private static final long serialVersionUID = -724435821167392129L;
 
@@ -31,8 +30,6 @@ public class CLIQUEClustering implements IClusterer {
 	private int xsi;
 	private int xsiBound;
 	private int samples;
-
-	private Random random;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -45,18 +42,11 @@ public class CLIQUEClustering implements IClusterer {
 	}
 
 	@Override
-	public List<NumberVectorClusteringResult> cluster(Database db, JProgressBar progress) {
+	public List<NumberVectorClusteringResult> cluster(Database db) {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
-		if (optionsPanel != null) {
-			tau = optionsPanel.getLBtau();
-			tauBound = optionsPanel.getUBtau();
-			xsi = optionsPanel.getLBxsi();
-			xsiBound = optionsPanel.getUBxsi();
-			samples = optionsPanel.getNSamples();
-		}
-
+		prepareSettings();
 		if (random == null)
 			random = new Random();
 		for (int i = 0; i < samples; ++i) {
@@ -90,9 +80,7 @@ public class CLIQUEClustering implements IClusterer {
 			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));// TODO:
 			// show
 			// pruning
-			synchronized (progress) {
-				progress.setValue(progress.getValue() + 1);
-			}
+			addProgress(1);
 		}
 		return clusterings;
 	}
@@ -104,13 +92,7 @@ public class CLIQUEClustering implements IClusterer {
 
 	@Override
 	public String getSettingsString() {
-		if (optionsPanel != null) {
-			tau = optionsPanel.getLBtau();
-			tauBound = optionsPanel.getUBtau();
-			xsi = optionsPanel.getLBxsi();
-			xsiBound = optionsPanel.getUBxsi();
-			samples = optionsPanel.getNSamples();
-		}
+		prepareSettings();
 		return "xsi{LB:" + xsi + " UB:" + xsiBound + "} " + "tau{LB:" + tau + " UB:" + tauBound + " Samples{" + samples
 				+ "}";// TODO: show
 		// pruning
@@ -118,18 +100,18 @@ public class CLIQUEClustering implements IClusterer {
 
 	@Override
 	public int getCount() {
-		if (optionsPanel != null) {
-			tau = optionsPanel.getLBtau();
-			tauBound = optionsPanel.getUBtau();
-			xsi = optionsPanel.getLBxsi();
-			xsiBound = optionsPanel.getUBxsi();
-			samples = optionsPanel.getNSamples();
-		}
+		prepareSettings();
 		return samples;
 	}
 
-	@Override
-	public void setRandom(Random random) {
-		this.random = random;
+	private void prepareSettings() {
+		if (optionsPanel == null)
+			return;
+
+		tau = optionsPanel.getLBtau();
+		tauBound = optionsPanel.getUBtau();
+		xsi = optionsPanel.getLBxsi();
+		xsiBound = optionsPanel.getUBxsi();
+		samples = optionsPanel.getNSamples();
 	}
 }

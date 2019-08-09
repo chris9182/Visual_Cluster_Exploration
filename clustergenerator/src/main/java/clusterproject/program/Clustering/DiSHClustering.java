@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 
 import clusterproject.data.NumberVectorClusteringResult;
 import clusterproject.program.Clustering.Panel.DiSHOptions;
@@ -23,7 +22,7 @@ import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 //import scala.collection.mutable.BitSet;
 
-public class DiSHClustering implements IClusterer {
+public class DiSHClustering extends AbstractClustering {
 	private static final long serialVersionUID = -7172931268458883217L;
 
 	private transient DiSHOptions optionsPanel = new DiSHOptions();
@@ -32,8 +31,6 @@ public class DiSHClustering implements IClusterer {
 	private int Mu;
 	private int MuBound;
 	private int samples;
-
-	private Random random;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -46,17 +43,10 @@ public class DiSHClustering implements IClusterer {
 	}
 
 	@Override
-	public List<NumberVectorClusteringResult> cluster(Database db, JProgressBar progress) {
+	public List<NumberVectorClusteringResult> cluster(Database db) {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
-		if (optionsPanel != null) {
-			eps = optionsPanel.getLBEps();
-			epsBound = optionsPanel.getUBEps();
-			Mu = optionsPanel.getLBMu();
-			MuBound = optionsPanel.getUBMu();
-			samples = optionsPanel.getNSamples();
-		}
-
+		prepareSettings();
 		if (random == null)
 			random = new Random();
 		for (int i = 0; i < samples; ++i) {
@@ -92,9 +82,7 @@ public class DiSHClustering implements IClusterer {
 			param.addParameter("Epsilon", calcEps);
 			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
 
-			synchronized (progress) {
-				progress.setValue(progress.getValue() + 1);
-			}
+			addProgress(1);
 		}
 		return clusterings;
 	}
@@ -106,32 +94,25 @@ public class DiSHClustering implements IClusterer {
 
 	@Override
 	public String getSettingsString() {
-		if (optionsPanel != null) {
-			eps = optionsPanel.getLBEps();
-			epsBound = optionsPanel.getUBEps();
-			Mu = optionsPanel.getLBMu();
-			MuBound = optionsPanel.getUBMu();
-			samples = optionsPanel.getNSamples();
-		}
+		prepareSettings();
 		return "Mu{LB:" + Mu + " UB:" + MuBound + "} " + "Epsilon{LB:" + eps + " UB:" + epsBound + " Samples{" + samples
 				+ "}";
 	}
 
 	@Override
 	public int getCount() {
-		if (optionsPanel != null) {
-			eps = optionsPanel.getLBEps();
-			epsBound = optionsPanel.getUBEps();
-			Mu = optionsPanel.getLBMu();
-			MuBound = optionsPanel.getUBMu();
-			samples = optionsPanel.getNSamples();
-		}
+		prepareSettings();
 		return samples;
 	}
 
-	@Override
-	public void setRandom(Random random) {
-		this.random = random;
-	}
+	private void prepareSettings() {
+		if (optionsPanel == null)
+			return;
 
+		eps = optionsPanel.getLBEps();
+		epsBound = optionsPanel.getUBEps();
+		Mu = optionsPanel.getLBMu();
+		MuBound = optionsPanel.getUBMu();
+		samples = optionsPanel.getNSamples();
+	}
 }

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 
 import clusterproject.data.NumberVectorClusteringResult;
 import clusterproject.program.Clustering.Panel.DBScanOptions;
@@ -22,7 +21,7 @@ import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
-public class DBScan implements IClusterer {
+public class DBScan extends AbstractClustering {
 	private static final long serialVersionUID = -5466140815704959353L;
 
 	private transient DBScanOptions optionsPanel = new DBScanOptions();
@@ -31,8 +30,6 @@ public class DBScan implements IClusterer {
 	private int minPTS;
 	private int minPTSBound;
 	private int samples;
-
-	private Random random;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -45,17 +42,11 @@ public class DBScan implements IClusterer {
 	}
 
 	@Override
-	public List<NumberVectorClusteringResult> cluster(Database db, JProgressBar progress) {
+	public List<NumberVectorClusteringResult> cluster(Database db) {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
-		if (optionsPanel != null) {
-			eps = optionsPanel.getLBEps();
-			epsBound = optionsPanel.getUBEps();
-			minPTS = optionsPanel.getLBMinPTS();
-			minPTSBound = optionsPanel.getUBMinPTS();
-			samples = optionsPanel.getNSamples();
-		}
+		prepareSettings();
 		if (random == null)
 			random = new Random();
 		for (int i = 0; i < samples; ++i) {
@@ -87,9 +78,8 @@ public class DBScan implements IClusterer {
 			param.addParameter("Epsilon", calcEps);
 			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
 
-			synchronized (progress) {
-				progress.setValue(progress.getValue() + 1);
-			}
+			addProgress(1);
+
 		}
 		return clusterings;
 	}
@@ -101,31 +91,25 @@ public class DBScan implements IClusterer {
 
 	@Override
 	public String getSettingsString() {
-		if (optionsPanel != null) {
-			eps = optionsPanel.getLBEps();
-			epsBound = optionsPanel.getUBEps();
-			minPTS = optionsPanel.getLBMinPTS();
-			minPTSBound = optionsPanel.getUBMinPTS();
-			samples = optionsPanel.getNSamples();
-		}
+		prepareSettings();
 		return "minPTS{LB:" + minPTS + " UB:" + minPTSBound + "} " + "Epsilon{LB:" + eps + " UB:" + epsBound
 				+ " Samples{" + samples + "}";
 	}
 
 	@Override
 	public int getCount() {
-		if (optionsPanel != null) {
-			eps = optionsPanel.getLBEps();
-			epsBound = optionsPanel.getUBEps();
-			minPTS = optionsPanel.getLBMinPTS();
-			minPTSBound = optionsPanel.getUBMinPTS();
-			samples = optionsPanel.getNSamples();
-		}
+		prepareSettings();
 		return samples;
 	}
 
-	@Override
-	public void setRandom(Random random) {
-		this.random = random;
+	private void prepareSettings() {
+		if (optionsPanel == null)
+			return;
+
+		eps = optionsPanel.getLBEps();
+		epsBound = optionsPanel.getUBEps();
+		minPTS = optionsPanel.getLBMinPTS();
+		minPTSBound = optionsPanel.getUBMinPTS();
+		samples = optionsPanel.getNSamples();
 	}
 }

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 
 import clusterproject.data.NumberVectorClusteringResult;
 import clusterproject.program.Clustering.Panel.SNNOptions;
@@ -23,7 +22,7 @@ import de.lmu.ifi.dbs.elki.index.preprocessed.snn.SharedNearestNeighborPreproces
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
-public class SNN implements IClusterer {
+public class SNN extends AbstractClustering {
 	private static final long serialVersionUID = -5466140815704959353L;
 
 	private transient SNNOptions optionsPanel = new SNNOptions();
@@ -34,8 +33,6 @@ public class SNN implements IClusterer {
 	private int snn;
 	private int snnBound;
 	private int samples;
-
-	private Random random;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -48,20 +45,11 @@ public class SNN implements IClusterer {
 	}
 
 	@Override
-	public List<NumberVectorClusteringResult> cluster(Database db, JProgressBar progress) {
+	public List<NumberVectorClusteringResult> cluster(Database db) {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
-		if (optionsPanel != null) {
-			eps = optionsPanel.getLBEps();
-			epsBound = optionsPanel.getUBEps();
-			minPTS = optionsPanel.getLBMinPTS();
-			minPTSBound = optionsPanel.getUBMinPTS();
-			snn = optionsPanel.getLBsnn();
-			snnBound = optionsPanel.getUBsnn();
-			samples = optionsPanel.getNSamples();
-		}
-
+		prepareSettings();
 		if (random == null)
 			random = new Random();
 		for (int i = 0; i < samples; ++i) {
@@ -96,9 +84,7 @@ public class SNN implements IClusterer {
 			param.addParameter("Num. Neighbors", calcSNN);
 			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
 
-			synchronized (progress) {
-				progress.setValue(progress.getValue() + 1);
-			}
+			addProgress(1);
 		}
 		return clusterings;
 	}
@@ -110,35 +96,27 @@ public class SNN implements IClusterer {
 
 	@Override
 	public String getSettingsString() {
-		if (optionsPanel != null) {
-			eps = optionsPanel.getLBEps();
-			epsBound = optionsPanel.getUBEps();
-			minPTS = optionsPanel.getLBMinPTS();
-			minPTSBound = optionsPanel.getUBMinPTS();
-			snn = optionsPanel.getLBsnn();
-			snnBound = optionsPanel.getUBsnn();
-			samples = optionsPanel.getNSamples();
-		}
+		prepareSettings();
 		return "minPTS{LB:" + minPTS + " UB:" + minPTSBound + "} " + "Epsilon{LB:" + eps + " UB:" + epsBound
 				+ "Num. Neighbors{LB:" + snn + " UB:" + snnBound + "} " + " Samples{" + samples + "}";
 	}
 
 	@Override
 	public int getCount() {
-		if (optionsPanel != null) {
-			eps = optionsPanel.getLBEps();
-			epsBound = optionsPanel.getUBEps();
-			minPTS = optionsPanel.getLBMinPTS();
-			minPTSBound = optionsPanel.getUBMinPTS();
-			snn = optionsPanel.getLBsnn();
-			snnBound = optionsPanel.getUBsnn();
-			samples = optionsPanel.getNSamples();
-		}
+		prepareSettings();
 		return samples;
 	}
 
-	@Override
-	public void setRandom(Random random) {
-		this.random = random;
+	private void prepareSettings() {
+		if (optionsPanel == null)
+			return;
+
+		eps = optionsPanel.getLBEps();
+		epsBound = optionsPanel.getUBEps();
+		minPTS = optionsPanel.getLBMinPTS();
+		minPTSBound = optionsPanel.getUBMinPTS();
+		snn = optionsPanel.getLBsnn();
+		snnBound = optionsPanel.getUBsnn();
+		samples = optionsPanel.getNSamples();
 	}
 }

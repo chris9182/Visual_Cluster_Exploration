@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 
 import clusterproject.data.NumberVectorClusteringResult;
 import clusterproject.program.Clustering.Panel.KMeansOptions;
@@ -27,14 +26,12 @@ import de.lmu.ifi.dbs.elki.math.random.RandomFactory;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
-public class MacQueenKMeans implements IClusterer {
+public class MacQueenKMeans extends AbstractClustering {
 	private static final long serialVersionUID = -5466140815704959353L;
 
 	private transient KMeansOptions optionsPanel = new KMeansOptions();
 	private int minK;
 	private int maxK;
-
-	private Random random;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -47,15 +44,11 @@ public class MacQueenKMeans implements IClusterer {
 	}
 
 	@Override
-	public List<NumberVectorClusteringResult> cluster(Database db, JProgressBar progress) {
+	public List<NumberVectorClusteringResult> cluster(Database db) {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<DoubleVector> rel = db.getRelation(TypeUtil.DOUBLE_VECTOR_FIELD);
 
-		if (optionsPanel != null) {
-			minK = optionsPanel.getLBK();
-			maxK = optionsPanel.getUBK();
-		}
-
+		prepareSettings();
 		if (random == null)
 			random = new Random();
 		for (int i = minK; i <= maxK; ++i) {
@@ -94,9 +87,7 @@ public class MacQueenKMeans implements IClusterer {
 			param.addParameter("k", calcK);
 			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
 
-			synchronized (progress) {
-				progress.setValue(progress.getValue() + 1);
-			}
+			addProgress(1);
 		}
 
 		return clusterings;
@@ -109,24 +100,21 @@ public class MacQueenKMeans implements IClusterer {
 
 	@Override
 	public String getSettingsString() {
-		if (optionsPanel != null) {
-			minK = optionsPanel.getLBK();
-			maxK = optionsPanel.getUBK();
-		}
+		prepareSettings();
 		return "k:{LB:" + minK + " UB:" + maxK + "} ";
 	}
 
 	@Override
 	public int getCount() {
-		if (optionsPanel != null) {
-			minK = optionsPanel.getLBK();
-			maxK = optionsPanel.getUBK();
-		}
+		prepareSettings();
 		return maxK - minK;
 	}
 
-	@Override
-	public void setRandom(Random random) {
-		this.random = random;
+	private void prepareSettings() {
+		if (optionsPanel == null)
+			return;
+
+		minK = optionsPanel.getLBK();
+		maxK = optionsPanel.getUBK();
 	}
 }
