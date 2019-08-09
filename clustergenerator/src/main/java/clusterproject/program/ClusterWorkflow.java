@@ -2,6 +2,7 @@ package clusterproject.program;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import javax.swing.Box;
@@ -28,8 +30,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -103,12 +105,12 @@ public class ClusterWorkflow extends JFrame {
 		minPTSField = new JFormattedTextField(integerFieldFormatter);
 		minPTSField.setValue(2);
 		minPTSField.setColumns(5);
-		minPTSField.setHorizontalAlignment(JTextField.RIGHT);
+		minPTSField.setHorizontalAlignment(SwingConstants.RIGHT);
 		final NumberFormat doubleFieldFormatter = NumberFormat.getNumberInstance();
 		epsField = new JFormattedTextField(doubleFieldFormatter);
 		epsField.setValue(new Double(-1.0));
 		epsField.setColumns(5);
-		epsField.setHorizontalAlignment(JTextField.RIGHT);
+		epsField.setHorizontalAlignment(SwingConstants.RIGHT);
 		progressBar = new JProgressBar(0, 100);
 		progressBar.addChangeListener(e -> progressBar.repaint());
 		progressBar.setStringPainted(true);
@@ -385,7 +387,7 @@ public class ClusterWorkflow extends JFrame {
 
 	}
 
-	private void executeWorkflow() {
+	private synchronized void executeWorkflow() {
 		if (worker != null && worker.isAlive())
 			return;
 		if (pointContainer.getPoints().size() < 2) {
@@ -405,9 +407,12 @@ public class ClusterWorkflow extends JFrame {
 			maximum += clusterer.getCount();
 		}
 		progressBar.setMaximum(maximum);
+		// TODO: enable setting seed from outside
+		final Random fixedRandom = new Random(System.currentTimeMillis());
 		worker = new Thread(() -> {
 			progressBar.setString("Calculating Clusterings");
 			for (final IClusterer clusterer : workflow) {
+				clusterer.setRandom(fixedRandom);
 				final List<NumberVectorClusteringResult> results = clusterer.cluster(db, progressBar);
 				clusterings.addAll(results);
 			}
@@ -474,7 +479,6 @@ public class ClusterWorkflow extends JFrame {
 			number = format.parse(epsField.getText());
 		} catch (final ParseException e1) {
 			e1.printStackTrace();
-
 		}
 		double eps = Double.MAX_VALUE;
 		int minPTS = Integer.parseInt(minPTSField.getText());
@@ -484,7 +488,7 @@ public class ClusterWorkflow extends JFrame {
 			eps = number.doubleValue() < 0 ? Double.MAX_VALUE : number.doubleValue();
 		final ClusteringViewer cv = new ClusteringViewer(clusterings, getDistanceMeasure(), minPTS, eps);
 		cv.setMinimumSize(new Dimension(800, 600));
-		cv.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		cv.setExtendedState(Frame.MAXIMIZED_BOTH);
 		cv.setLocationRelativeTo(null);
 		cv.pack();
 		cv.setVisible(true);
@@ -498,7 +502,6 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private void openClustererSettings(String name) {
-		// confirmClustererButton.setVisible(false);
 		if (selectedClusterer != null) {
 			mainPanel.remove(selectedClusterer.getOptionsPanel());
 			selectedClusterer.getOptionsPanel().setVisible(false);

@@ -33,6 +33,8 @@ public class DiSHClustering implements IClusterer {
 	private int MuBound;
 	private int samples;
 
+	private Random random;
+
 	@Override
 	public JPanel getOptionsPanel() {
 		return optionsPanel;
@@ -55,10 +57,11 @@ public class DiSHClustering implements IClusterer {
 			samples = optionsPanel.getNSamples();
 		}
 
+		if (random == null)
+			random = new Random();
 		for (int i = 0; i < samples; ++i) {
-			final Random r = new Random();
-			final double calcEps = eps + (epsBound - eps) * r.nextDouble();
-			final int calcMu = r.nextInt((MuBound - Mu) + 1) + Mu;
+			final double calcEps = eps + (epsBound - eps) * random.nextDouble();
+			final int calcMu = random.nextInt((MuBound - Mu) + 1) + Mu;
 			final ListParameterization params = new ListParameterization();
 			params.addParameter(DiSH.Parameterizer.EPSILON_ID, calcEps);
 			params.addParameter(DiSH.Parameterizer.MU_ID, calcMu);
@@ -124,6 +127,11 @@ public class DiSHClustering implements IClusterer {
 			samples = optionsPanel.getNSamples();
 		}
 		return samples;
+	}
+
+	@Override
+	public void setRandom(Random random) {
+		this.random = random;
 	}
 
 }

@@ -2,6 +2,7 @@ package clusterproject.program.Clustering;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -9,6 +10,7 @@ import javax.swing.JProgressBar;
 import clusterproject.data.NumberVectorClusteringResult;
 import clusterproject.program.Clustering.Panel.KMeansOptions;
 import clusterproject.program.Clustering.Parameters.Parameter;
+import de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeans;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.parallel.ParallelLloydKMeans;
 import de.lmu.ifi.dbs.elki.data.Clustering;
 import de.lmu.ifi.dbs.elki.data.DoubleVector;
@@ -27,6 +29,8 @@ public class LloydKMeans implements IClusterer {
 	private transient KMeansOptions optionsPanel = new KMeansOptions();
 	private int minK;
 	private int maxK;
+
+	private Random random;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -48,11 +52,14 @@ public class LloydKMeans implements IClusterer {
 			maxK = optionsPanel.getUBK();
 		}
 
+		if (random == null)
+			random = new Random();
 		for (int i = minK; i <= maxK; ++i) {
 			final int calcK = i;
 
 			final ListParameterization params = new ListParameterization();
-			params.addParameter(ParallelLloydKMeans.K_ID, calcK);
+			params.addParameter(KMeans.K_ID, calcK);
+			params.addParameter(KMeans.SEED_ID, random.nextInt());
 			final ParallelLloydKMeans<DoubleVector> dbscan = ClassGenericsUtil
 					.parameterizeOrAbort(ParallelLloydKMeans.class, params);
 			final Clustering<KMeansModel> result = dbscan.run(db);
@@ -102,5 +109,10 @@ public class LloydKMeans implements IClusterer {
 			maxK = optionsPanel.getUBK();
 		}
 		return maxK - minK;
+	}
+
+	@Override
+	public void setRandom(Random random) {
+		this.random = random;
 	}
 }

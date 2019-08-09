@@ -32,6 +32,8 @@ public class DBScan implements IClusterer {
 	private int minPTSBound;
 	private int samples;
 
+	private Random random;
+
 	@Override
 	public JPanel getOptionsPanel() {
 		return optionsPanel;
@@ -54,11 +56,11 @@ public class DBScan implements IClusterer {
 			minPTSBound = optionsPanel.getUBMinPTS();
 			samples = optionsPanel.getNSamples();
 		}
-
+		if (random == null)
+			random = new Random();
 		for (int i = 0; i < samples; ++i) {
-			final Random r = new Random();
-			final double calcEps = eps + (epsBound - eps) * r.nextDouble();
-			final int calcMinPTS = r.nextInt((minPTSBound - minPTS) + 1) + minPTS;
+			final double calcEps = eps + (epsBound - eps) * random.nextDouble();
+			final int calcMinPTS = random.nextInt((minPTSBound - minPTS) + 1) + minPTS;
 
 			final ListParameterization params = new ListParameterization();
 			params.addParameter(DBSCAN.Parameterizer.EPSILON_ID, calcEps);
@@ -67,9 +69,6 @@ public class DBScan implements IClusterer {
 			final Clustering<Model> result = dbscan.run(db);
 			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
 
-			// System.err.println(calcEps + " " + calcMinPTS);
-			// System.err.println(result.getAllClusters().get(0).size());
-			// System.err.println(result.getAllClusters().get(1).size());
 			result.getAllClusters().forEach(cluster -> {
 				final List<NumberVector> pointList = new ArrayList<NumberVector>();
 
@@ -123,5 +122,10 @@ public class DBScan implements IClusterer {
 			samples = optionsPanel.getNSamples();
 		}
 		return samples;
+	}
+
+	@Override
+	public void setRandom(Random random) {
+		this.random = random;
 	}
 }

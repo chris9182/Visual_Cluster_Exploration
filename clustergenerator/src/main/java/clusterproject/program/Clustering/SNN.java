@@ -35,6 +35,8 @@ public class SNN implements IClusterer {
 	private int snnBound;
 	private int samples;
 
+	private Random random;
+
 	@Override
 	public JPanel getOptionsPanel() {
 		return optionsPanel;
@@ -60,11 +62,12 @@ public class SNN implements IClusterer {
 			samples = optionsPanel.getNSamples();
 		}
 
+		if (random == null)
+			random = new Random();
 		for (int i = 0; i < samples; ++i) {
-			final Random r = new Random();
-			final int calcEps = r.nextInt((epsBound - eps) + 1) + eps;
-			final int calcMinPTS = r.nextInt((minPTSBound - minPTS) + 1) + minPTS;
-			final int calcSNN = r.nextInt((snnBound - snn) + 1) + snn;
+			final int calcEps = random.nextInt((epsBound - eps) + 1) + eps;
+			final int calcMinPTS = random.nextInt((minPTSBound - minPTS) + 1) + minPTS;
+			final int calcSNN = random.nextInt((snnBound - snn) + 1) + snn;
 
 			final ListParameterization params = new ListParameterization();
 			params.addParameter(SNNClustering.Parameterizer.EPSILON_ID, calcEps);
@@ -132,5 +135,10 @@ public class SNN implements IClusterer {
 			samples = optionsPanel.getNSamples();
 		}
 		return samples;
+	}
+
+	@Override
+	public void setRandom(Random random) {
+		this.random = random;
 	}
 }

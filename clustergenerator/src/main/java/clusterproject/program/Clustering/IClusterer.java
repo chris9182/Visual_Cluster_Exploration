@@ -2,6 +2,7 @@ package clusterproject.program.Clustering;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -21,4 +22,6 @@ public interface IClusterer extends Serializable {
 	IClusterer duplicate();
 
 	int getCount();
+
+	void setRandom(Random random);
 }

@@ -32,6 +32,8 @@ public class CLIQUEClustering implements IClusterer {
 	private int xsiBound;
 	private int samples;
 
+	private Random random;
+
 	@Override
 	public JPanel getOptionsPanel() {
 		return optionsPanel;
@@ -55,11 +57,12 @@ public class CLIQUEClustering implements IClusterer {
 			samples = optionsPanel.getNSamples();
 		}
 
+		if (random == null)
+			random = new Random();
 		for (int i = 0; i < samples; ++i) {
-			final Random r = new Random();
-			final double calcTau = tau + (tauBound - tau) * r.nextDouble();
-			final int calcXsi = r.nextInt((xsiBound - xsi) + 1) + xsi;
-			final boolean calcPrune = r.nextInt(2) == 1;
+			final double calcTau = tau + (tauBound - tau) * random.nextDouble();
+			final int calcXsi = random.nextInt((xsiBound - xsi) + 1) + xsi;
+			final boolean calcPrune = random.nextInt(2) == 1;
 			final ListParameterization params = new ListParameterization();
 			params.addParameter(CLIQUE.TAU_ID, calcTau);
 			params.addParameter(CLIQUE.XSI_ID, calcXsi);
@@ -123,5 +126,10 @@ public class CLIQUEClustering implements IClusterer {
 			samples = optionsPanel.getNSamples();
 		}
 		return samples;
+	}
+
+	@Override
+	public void setRandom(Random random) {
+		this.random = random;
 	}
 }
