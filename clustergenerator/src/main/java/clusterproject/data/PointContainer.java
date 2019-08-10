@@ -206,7 +206,7 @@ public class PointContainer {
 		clusterInformation.setUpClusters();
 	}
 
-	public void copyInfo(PointContainer container) {
+	public void copyInfoFrom(PointContainer container) {
 		this.clusterInformation = container.clusterInformation;
 		this.metaInformation = container.metaInformation;
 

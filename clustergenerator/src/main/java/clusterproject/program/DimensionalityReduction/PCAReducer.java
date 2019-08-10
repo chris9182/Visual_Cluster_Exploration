@@ -41,7 +41,7 @@ public class PCAReducer implements IDimensionalityReduction {
 
 		final PointContainer newContainer = new PointContainer(pCAOptions.getDim());
 		newContainer.addPoints(result);
-		newContainer.copyInfo(container);
+		newContainer.copyInfoFrom(container);
 
 		final MainWindow newWindow = new MainWindow(newContainer);
 		newWindow.setSize(new Dimension(1000, 800));
