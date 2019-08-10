@@ -10,6 +10,7 @@ import javax.swing.SwingUtilities;
 
 import clusterproject.data.PointContainer;
 import clusterproject.program.MainWindow;
+import clusterproject.util.MinMax;
 
 public class ScatterPlot extends JLayeredPane {
 
@@ -41,12 +42,8 @@ public class ScatterPlot extends JLayeredPane {
 		layout = new SpringLayout();
 		setLayout(layout);
 
-		final double[] xInterval = new double[2];
-		final double[] yInterval = new double[2];
-		xInterval[0] = 0;
-		xInterval[1] = 100;
-		yInterval[0] = 0;
-		yInterval[1] = 100;
+		final MinMax xInterval = new MinMax(0, 100);
+		final MinMax yInterval = new MinMax(0, 100);
 		xAxis = new ViewerAxis(true, xInterval, this);
 		yAxis = new ViewerAxis(false, yInterval, this);
 		layout.putConstraint(SpringLayout.NORTH, yAxis, axisPadding, SpringLayout.NORTH, this);
@@ -144,12 +141,8 @@ public class ScatterPlot extends JLayeredPane {
 
 	public void autoAdjust() {
 		if (pointContainer.getPoints().size() < 2) {
-			final double[] xInterval = new double[2];
-			final double[] yInterval = new double[2];
-			xInterval[0] = 0;
-			xInterval[1] = 100;
-			yInterval[0] = 0;
-			yInterval[1] = 100;
+			final MinMax xInterval = new MinMax(0, 100);
+			final MinMax yInterval = new MinMax(0, 100);
 			xAxis.setInterval(xInterval);
 			yAxis.setInterval(yInterval);
 			return;
@@ -160,19 +153,19 @@ public class ScatterPlot extends JLayeredPane {
 		yAxis.setInterval(pointContainer.getMinMaxFrom(selectedDimY));
 	}
 
-	public void setIntervalX(double[] interval) {
+	public void setIntervalX(MinMax interval) {
 		xAxis.setInterval(interval);
 	}
 
-	public void setIntervalY(double[] interval) {
+	public void setIntervalY(MinMax interval) {
 		yAxis.setInterval(interval);
 	}
 
-	public double[] getIntervalX() {
+	public MinMax getIntervalX() {
 		return xAxis.getInterval();
 	}
 
-	public double[] getIntervalY() {
+	public MinMax getIntervalY() {
 		return yAxis.getInterval();
 	}
 

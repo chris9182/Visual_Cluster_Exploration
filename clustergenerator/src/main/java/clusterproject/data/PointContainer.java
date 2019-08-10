@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import clusterproject.util.MinMax;
+
 public class PointContainer {
 	private int dim;
 	private List<double[]> points = new ArrayList<double[]>();
@@ -51,9 +53,9 @@ public class PointContainer {
 	public double[] getCalculatedCenter() {
 		if (points == null || points.isEmpty())
 			return null;
-		double[] center = new double[dim];
+		final double[] center = new double[dim];
 		for (int i = 0; i < dim; ++i)
-			center[i] = (double) 0;
+			center[i] = 0;
 		for (final double[] point : points) {
 			for (int i = 0; i < dim; ++i)
 				center[i] += point[i];
@@ -81,17 +83,12 @@ public class PointContainer {
 		return max;
 	}
 
-	public double[] getMinMaxFrom(int dimension) {
-		final double[] minMax = new double[2];
-		minMax[0] = Double.MAX_VALUE;
-		minMax[1] = -Double.MAX_VALUE;
+	public MinMax getMinMaxFrom(int dimension) {
+		final MinMax minMax = new MinMax();
 		for (final double[] point : points) {
 			if (point[dimension] == Double.NaN)
 				continue;
-			if (minMax[0] > point[dimension])
-				minMax[0] = point[dimension];
-			if (minMax[1] < point[dimension])
-				minMax[1] = point[dimension];
+			minMax.add(point[dimension]);
 		}
 		return minMax;
 	}

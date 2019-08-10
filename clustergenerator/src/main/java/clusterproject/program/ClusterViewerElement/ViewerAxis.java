@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import clusterproject.data.PointContainer;
+import clusterproject.util.MinMax;
 import clusterproject.util.Util;
 
 public class ViewerAxis extends JPanel {
@@ -30,13 +31,13 @@ public class ViewerAxis extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final int LABLE_OFFSET = 5;
 	private final boolean isHorizontal;
-	private final double[] interval;
+	private MinMax interval;
 
 	private final ScatterPlot scatterPlot;
 
-	public ViewerAxis(boolean horizontal, final double[] defaultInterval, ScatterPlot scatterPlot) {
+	public ViewerAxis(boolean horizontal, final MinMax interval, ScatterPlot scatterPlot) {
 		this.isHorizontal = horizontal;
-		this.interval = defaultInterval;
+		this.interval = interval;
 		this.scatterPlot = scatterPlot;
 		setOpaque(false);
 		addMouseListener(new MouseAdapter() {
@@ -45,26 +46,26 @@ public class ViewerAxis extends JPanel {
 				final Point point = e.getLocationOnScreen();
 				if (isHorizontal) {
 					if (e.getPoint().getX() < getWidth() / 4) {
-						editBound(point, 0);
+						editBound(point, false);
 					} else if (e.getPoint().getX() < getWidth() / 4 * 3) {
 						changeDimension(point);
 					} else {
-						editBound(point, 1);
+						editBound(point, true);
 					}
 				} else {
 					if (e.getPoint().getY() < getHeight() / 4) {
-						editBound(point, 1);
+						editBound(point, true);
 					} else if (e.getPoint().getY() < getHeight() / 4 * 3) {
 						changeDimension(point);
 					} else {
-						editBound(point, 0);
+						editBound(point, false);
 					}
 				}
 			}
 		});
 	}
 
-	private void editBound(Point point, final int boundary) {
+	private void editBound(Point point, final boolean isMin) {
 		final JFrame editFrame = new JFrame();
 		editFrame.setUndecorated(true);
 		final DecimalFormat df = new DecimalFormat("#.##########");
@@ -77,7 +78,7 @@ public class ViewerAxis extends JPanel {
 				try {
 					number = format.parse(amountField.getText());
 					final double d = number.doubleValue();
-					editAxis(boundary, d);
+					editAxis(isMin, d);
 				} catch (final ParseException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -85,7 +86,7 @@ public class ViewerAxis extends JPanel {
 				editFrame.setVisible(false);
 			}
 		});
-		amountField.setValue(new Double(interval[boundary]));
+		amountField.setValue(new Double(interval.getByBoolean(isMin)));
 		amountField.setColumns(10);
 		amountField.addPropertyChangeListener("value", evt -> editFrame.setVisible(false));
 		editFrame.add(amountField);
@@ -95,11 +96,11 @@ public class ViewerAxis extends JPanel {
 		editFrame.transferFocus();
 	}
 
-	private void editAxis(int boundary, double value) {
+	private void editAxis(boolean isMin, double value) {
 		final double newVal = value;
-		if (newVal == interval[boundary])
+		if (newVal == interval.getByBoolean(isMin))
 			return;
-		interval[boundary] = newVal;
+		interval.setByBoolean(isMin, newVal);
 		SwingUtilities.invokeLater(() -> scatterPlot.repaint());
 
 	}
@@ -137,7 +138,6 @@ public class ViewerAxis extends JPanel {
 				return;
 			scatterPlot.setSelectedDimY(scatterPlot.getPointContainer().getHeaders().indexOf(string));
 		}
-		// TODO: maybe auto change interval?
 		SwingUtilities.invokeLater(() -> {
 			scatterPlot.autoAdjust();
 			scatterPlot.update();
@@ -145,13 +145,12 @@ public class ViewerAxis extends JPanel {
 		});
 	}
 
-	public double[] getInterval() {
+	public MinMax getInterval() {
 		return interval;
 	}
 
-	public void setInterval(double[] interval) {
-		this.interval[0] = interval[0];
-		this.interval[1] = interval[1];
+	public void setInterval(MinMax minMax) {
+		this.interval = minMax;
 	}
 
 	@Override
@@ -168,16 +167,18 @@ public class ViewerAxis extends JPanel {
 		if (isHorizontal) {
 			g2.drawLine(0, 0, getWidth(), 0);
 
-			g2.drawString(df.format(interval[0]), LABLE_OFFSET, getHeight() - LABLE_OFFSET);
-			final int endTickWidth = g.getFontMetrics().stringWidth(df.format(interval[1]));
-			g2.drawString(df.format(interval[1]), getWidth() - LABLE_OFFSET - endTickWidth, getHeight() - LABLE_OFFSET);
+			g2.drawString(df.format(interval.min), LABLE_OFFSET, getHeight() - LABLE_OFFSET);
+			final int endTickWidth = g.getFontMetrics().stringWidth(df.format(interval.max));
+			g2.drawString(df.format(interval.max), getWidth() - LABLE_OFFSET - endTickWidth,
+					getHeight() - LABLE_OFFSET);
 			final int headerWidth = g.getFontMetrics().stringWidth(header);
 			g2.drawString(header, getWidth() / 2 - headerWidth, getHeight() - LABLE_OFFSET);
 		} else {
 			g.drawLine(getWidth() - 1, 0, getWidth() - 1, getHeight());
-			Util.drawRotatedString(g2, LABLE_OFFSET, LABLE_OFFSET, 90, df.format(interval[1]));
-			final int endTickWidth = g.getFontMetrics().stringWidth(df.format(interval[0]));
-			Util.drawRotatedString(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90, df.format(interval[0]));
+			Util.drawRotatedString(g2, LABLE_OFFSET, LABLE_OFFSET, 90, df.format(interval.max));
+			final int endTickWidth = g.getFontMetrics().stringWidth(df.format(interval.min));
+			Util.drawRotatedString(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90,
+					df.format(interval.min));
 			final int headerWidth = g.getFontMetrics().stringWidth(header);
 			Util.drawRotatedString(g2, LABLE_OFFSET, getHeight() / 2 - headerWidth, 90, header);
 		}
@@ -185,17 +186,17 @@ public class ViewerAxis extends JPanel {
 
 	public double getCoordinate(double pixel) {
 		if (isHorizontal)
-			return (pixel) / getWidth() * (interval[1] - interval[0]) + interval[0];
+			return (pixel) / getWidth() * (interval.getRange()) + interval.min;
 		else {
-			return (1 - (pixel) / getHeight()) * (interval[1] - interval[0]) + interval[0];
+			return (1 - (pixel) / getHeight()) * (interval.getRange()) + interval.min;
 		}
 	}
 
 	public double getPixel(double coordinate) {
 		if (isHorizontal)
-			return (coordinate - interval[0]) / (interval[1] - interval[0]) * getWidth();
+			return (coordinate - interval.min) / (interval.getRange()) * getWidth();
 		else {
-			return (-(coordinate - interval[0]) / (interval[1] - interval[0]) + 1) * getHeight();
+			return (-(coordinate - interval.min) / (interval.getRange()) + 1) * getHeight();
 		}
 	}
 

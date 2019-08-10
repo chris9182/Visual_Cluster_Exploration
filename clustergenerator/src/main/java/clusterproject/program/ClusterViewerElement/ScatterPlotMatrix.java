@@ -16,6 +16,7 @@ import javax.swing.SwingConstants;
 
 import clusterproject.data.PointContainer;
 import clusterproject.program.MainWindow;
+import clusterproject.util.MinMax;
 
 public class ScatterPlotMatrix extends JFrame {
 	/**
@@ -93,7 +94,7 @@ public class ScatterPlotMatrix extends JFrame {
 			yTextPane.add(lbl2);
 		}
 
-		final double[][] intervals = new double[dim][];
+		final MinMax[] intervals = new MinMax[dim];
 		for (int i = 0; i < dim; i++)
 			intervals[i] = pointContainer.getMinMaxFrom(i);
 
