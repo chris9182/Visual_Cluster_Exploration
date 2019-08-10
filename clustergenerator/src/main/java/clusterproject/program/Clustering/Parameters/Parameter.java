@@ -60,4 +60,15 @@ public class Parameter implements Serializable {
 		return allParameters;
 	}
 
+	// TODO: what to do with enum/string
+	public static Double getParameterValue(Object parameter) {
+		if (parameter instanceof Double)
+			return (Double) parameter;
+		if (parameter instanceof Integer)
+			return (double) (((Integer) parameter));
+		if (parameter instanceof Boolean)
+			return (double) (((Boolean) parameter) ? 1 : 0);
+		return Double.NaN;
+	}
+
 }

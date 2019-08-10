@@ -42,8 +42,10 @@ import org.jfree.data.xy.CategoryTableXYDataset;
 
 import clusterproject.data.ClusteringResult;
 import clusterproject.program.MainWindow;
+import clusterproject.program.Clustering.Parameters.Parameter;
 import clusterproject.program.Slider.RangeSlider;
 import clusterproject.program.Slider.RangeSliderUI;
+import clusterproject.util.MinMax;
 import clusterproject.util.Util;
 import smile.math.Math;
 
@@ -60,8 +62,8 @@ public class FilterWindow extends JPanel {
 	private List<ClusteringResult> clusteringResults;
 	private final Map<String, Object> selectors;
 	private final Map<String, double[]> allParametersMap;
-	private final Map<String, Double> allParametersMinMap;
-	private final Map<String, Double> allParametersMaxMap;
+	private final Map<String, MinMax> allParametersRangeMap;
+
 	private final Map<String, Integer> bucketsMap;
 	private final ClusteringViewer clusteringViewer;
 	private final JLabel headerLabel = new JLabel(HistogramData.All.toString());
@@ -81,8 +83,7 @@ public class FilterWindow extends JPanel {
 		charts = new HashMap<String, JFreeChart>();
 		this.clusteringViewer = clusteringViewer;
 		allParametersMap = new HashMap<String, double[]>();
-		allParametersMaxMap = new HashMap<String, Double>();
-		allParametersMinMap = new HashMap<String, Double>();
+		allParametersRangeMap = new HashMap<String, MinMax>();
 
 		bucketsMap = new HashMap<String, Integer>();
 		selectors = new HashMap<String, Object>();
@@ -127,38 +128,22 @@ public class FilterWindow extends JPanel {
 			final Iterator<String> parameterNamesIt = parameterNames.get(i).iterator();
 			for (int j = 0; j < parameterNames.get(i).size(); ++j) {
 				final String parameterName = parameterNamesIt.next();
-				double max = -Double.MAX_VALUE;
-				double min = Double.MAX_VALUE;
+				final MinMax minMax = new MinMax();
 				final double[] allParameters = new double[parameters.get(i).get(j).size()];
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
-					final Object parameter = parameters.get(i).get(j).get(k);
-					if (!(parameter instanceof Double) && !(parameter instanceof Integer)
-							&& !(parameter instanceof Boolean)) {// TODO: handle other types
-						System.err.println("unexpected value type");
-						continue;
-					}
-					Double value = Double.NaN;
-					if (parameter instanceof Double)
-						value = (Double) parameter;
-					if (parameter instanceof Integer)
-						value = (double) (((Integer) parameter));
-					if (parameter instanceof Boolean)
-						value = (double) (((Boolean) parameter) ? 1 : 0);
+					final Double value = Parameter.getParameterValue(parameters.get(i).get(j).get(k));
 					if (value == Double.NaN) {
 						System.err.println("unexpected value type");
 						continue;
 					}
 					allParameters[k] = value;
-					if (value < min)
-						min = value;
-					if (value > max)
-						max = value;
+					minMax.add(value);
 				}
 				int bins = (int) Math.sqrt(allParameters.length);
 				if (parameters.get(i).get(j).size() <= 1)
 					bins = 1;
 				else if (parameters.get(i).get(j).get(0) instanceof Integer)
-					bins = (int) (max - min + 1);// TODO check if this is good
+					bins = (int) (minMax.getRange() + 1);// TODO check if this is good
 				else if (parameters.get(i).get(j).get(0) instanceof Boolean)
 					bins = 2;
 				if (bins < 1)
@@ -166,8 +151,7 @@ public class FilterWindow extends JPanel {
 				if (bins > MAX_BINS)
 					bins = MAX_BINS;
 				bucketsMap.put(clusteringName + " " + parameterName, bins);
-				allParametersMaxMap.put(clusteringName + " " + parameterName, max);
-				allParametersMinMap.put(clusteringName + " " + parameterName, min);
+				allParametersRangeMap.put(clusteringName + " " + parameterName, minMax);
 			}
 		}
 		adjust();
@@ -213,19 +197,7 @@ public class FilterWindow extends JPanel {
 				final double[] allParameters = new double[parameters.get(i).get(j).size()];
 				allParametersMap.put(clusteringName + " " + parameterName, allParameters);
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
-					final Object parameter = parameters.get(i).get(j).get(k);
-					if (!(parameter instanceof Double) && !(parameter instanceof Integer)
-							&& !(parameter instanceof Boolean)) {// TODO: handle other types
-						System.err.println("unexpected value type");
-						continue;
-					}
-					Double value = Double.NaN;
-					if (parameter instanceof Double)
-						value = (Double) parameter;
-					if (parameter instanceof Integer)
-						value = (double) (((Integer) parameter));
-					if (parameter instanceof Boolean)
-						value = (double) (((Boolean) parameter) ? 1 : 0);
+					final Double value = Parameter.getParameterValue(parameters.get(i).get(j).get(k));
 					if (value == Double.NaN) {
 						System.err.println("unexpected value type");
 						continue;
@@ -270,31 +242,17 @@ public class FilterWindow extends JPanel {
 				lastComponent = parameterNameLabel;
 				this.add(parameterNameLabel, new Integer(2));
 				// System.err.println(" " + parameterName);
-				final double max = allParametersMaxMap.get(clusteringName + " " + parameterName);
-				final double min = allParametersMinMap.get(clusteringName + " " + parameterName);
+				final MinMax minMax = allParametersRangeMap.get(clusteringName + " " + parameterName);
 				final double[] allParameters = allParametersMap.get(clusteringName + " " + parameterName);
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
-					final Object parameter = parameters.get(i).get(j).get(k);
-					if (!(parameter instanceof Double) && !(parameter instanceof Integer)
-							&& !(parameter instanceof Boolean)) {// TODO: handle other types
-						selectors.put(clusteringName + " " + parameterName, null);
-						System.err.println("unexpected value type");
-						continue;
-					}
-					Double value = Double.NaN;
-					if (parameter instanceof Double)
-						value = (Double) parameter;
-					if (parameter instanceof Integer)
-						value = (double) (((Integer) parameter));
-					if (parameter instanceof Boolean)
-						value = (double) (((Boolean) parameter) ? 1 : 0);
+					final Double value = Parameter.getParameterValue(parameters.get(i).get(j).get(k));
 					if (value == Double.NaN) {
 						System.err.println("unexpected value type");
 						continue;
 					}
 				}
-				if (max != -Double.MAX_VALUE) {
-					final RangeSlider slider = new MyRangeSlider(min, max, this);
+				if (minMax.max != -Double.MAX_VALUE) {
+					final RangeSlider slider = new MyRangeSlider(minMax, this);
 					// slider.setSize(new Dimension(getWidth(), SLIDERHEIGHT));
 					// if (min == max)
 					// slider.setEnabled(false);
@@ -311,7 +269,7 @@ public class FilterWindow extends JPanel {
 
 					final Rectangle sliderRectangle = ((RangeSliderUI) slider.getUI()).getTrackRectangle();
 					final int bins = bucketsMap.get(clusteringName + " " + parameterName);
-					final CategoryTableXYDataset dataset = createDataset(allParameters, null, bins, min, max);
+					final CategoryTableXYDataset dataset = createDataset(allParameters, null, bins, minMax);
 					final JFreeChart chart = createChart(dataset);
 					charts.put(clusteringName + " " + parameterName, chart);
 
@@ -353,7 +311,7 @@ public class FilterWindow extends JPanel {
 	}
 
 	public CategoryTableXYDataset createDataset(double[] allParameters, double[] filteredParametersD, int bins,
-			double min, double max) {
+			MinMax minMax) {
 		final double[] activeParametersBins = new double[bins];
 		for (int i = 0; i < bins; ++i) {
 			activeParametersBins[i] = 0;
@@ -362,16 +320,16 @@ public class FilterWindow extends JPanel {
 		for (int i = 0; i < bins; ++i) {
 			filteredParametersBins[i] = 0;
 		}
-		final double start = max - min;
+		final double start = minMax.getRange();
 		final double width = start / (bins - 1);
 		for (int i = 0; i < allParameters.length; ++i) {
-			activeParametersBins[(int) ((allParameters[i] - min) / width)] += 1;
+			activeParametersBins[(int) ((allParameters[i] - minMax.min) / width)] += 1;
 		}
 		if (filteredParametersD == null)
 			filteredParametersBins = null;
 		else {
 			for (int i = 0; i < filteredParametersD.length; ++i) {
-				filteredParametersBins[(int) ((filteredParametersD[i] - min) / width)] += 1;
+				filteredParametersBins[(int) ((filteredParametersD[i] - minMax.min) / width)] += 1;
 			}
 			for (int i = 0; i < filteredParametersBins.length; ++i) {
 				activeParametersBins[i] -= filteredParametersBins[i];
@@ -435,23 +393,21 @@ public class FilterWindow extends JPanel {
 		else
 			clusteringViewer.setFilteredData(filteredSet);
 
-	};
+	}
 
 	private class MyRangeSlider extends RangeSlider {
 		private static final long serialVersionUID = -1145841853132161271L;
 		private static final int LABEL_COUNT = 3;
 		private static final int TICK_COUNT = 500;
-		private final double minLbl;
-		private final double maxLbl;
+		private final MinMax minMax;
 		private final JLabel tooltip = new JLabel();
 		private final FilterWindow filterWindow;
 		private int oldMin = 0;
 		private int oldMax = TICK_COUNT;
 		private final JFrame tooltipFrame;
 
-		public MyRangeSlider(double minLbl, double maxLbl, FilterWindow mainPanel) {
-			this.minLbl = minLbl;
-			this.maxLbl = maxLbl;
+		public MyRangeSlider(MinMax minMax, FilterWindow mainPanel) {
+			this.minMax = minMax;
 			this.filterWindow = mainPanel;
 			setOpaque(false);
 			setMinimum(0);
@@ -463,7 +419,7 @@ public class FilterWindow extends JPanel {
 			final Dictionary<Integer, JComponent> dict = new Hashtable<Integer, JComponent>();
 			for (int i = 0; i < LABEL_COUNT; ++i) {
 				final JLabel label = new JLabel(
-						Float.toString((float) ((maxLbl - minLbl) * (i) / (LABEL_COUNT - 1) + minLbl)));
+						Float.toString((float) ((minMax.getRange()) * (i) / (LABEL_COUNT - 1) + minMax.min)));
 				// String.format("%.3f", (maxLbl - minLbl) * i + minLbl));
 				dict.put(i * TICK_COUNT / (LABEL_COUNT - 1), label);
 			}
@@ -474,7 +430,7 @@ public class FilterWindow extends JPanel {
 			tooltipFrame.getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 			tooltip.setOpaque(false);
 			tooltipFrame.add(tooltip);
-			tooltip.setText((String.valueOf(((float) getLowerValue()) + " <-> " + (float) getUpperValueD())));
+			tooltip.setText(getTooltipText());
 			addMouseMotionListener(new MouseMotionAdapter() {
 			});
 
@@ -484,7 +440,7 @@ public class FilterWindow extends JPanel {
 					if (e.isConsumed())
 						return;
 					e.consume();
-					tooltip.setText((String.valueOf(((float) getLowerValue()) + " <-> " + (float) getUpperValueD())));
+					tooltip.setText(getTooltipText());
 					final Point p = MouseInfo.getPointerInfo().getLocation();
 					tooltipFrame.pack();
 					tooltipFrame.setLocation((int) p.getX() - tooltipFrame.getWidth() / 2,
@@ -516,6 +472,16 @@ public class FilterWindow extends JPanel {
 			addChangeListener(e -> {
 				handleChange();
 			});
+		}
+
+		private String getTooltipText() {
+			if (getLowerValueD() == -Double.MAX_VALUE && getUpperValueD() == Double.MAX_VALUE)
+				return "All";
+			if (getLowerValueD() == -Double.MAX_VALUE)
+				return " < " + (float) getUpperValueD();
+			if (getUpperValueD() == Double.MAX_VALUE)
+				return ((float) getLowerValueD() + " < ");
+			return (String.valueOf(((float) getLowerValueD()) + " <-> " + (float) getUpperValueD()));
 		}
 
 		public void handleChange() {
@@ -553,20 +519,13 @@ public class FilterWindow extends JPanel {
 							add = false;
 							continue;
 						}
-						final Object paramVal = params.get(param);
-						Double value = Double.NaN;
-						if (paramVal instanceof Double)
-							value = (Double) paramVal;
-						if (paramVal instanceof Integer)
-							value = (double) (((Integer) paramVal));
-						if (paramVal instanceof Boolean)
-							value = (double) (((Boolean) paramVal) ? 1 : 0);
+						final Double value = Parameter.getParameterValue(params.get(param));
 						if (value == Double.NaN) {
 							System.err.println("unexpected value type");
 							continue;
 						}
 						if (value * 0.99999 >= ((MyRangeSlider) selector).getUpperValueD()
-								|| value * 1.00001 <= ((MyRangeSlider) selector).getLowerValue()) {
+								|| value * 1.00001 <= ((MyRangeSlider) selector).getLowerValueD()) {
 							add = false;
 						}
 					} else {
@@ -604,27 +563,13 @@ public class FilterWindow extends JPanel {
 					final String parameterName = parameterNamesIt.next();
 
 					final double[] allParameters = allParametersMap.get(clusteringName + " " + parameterName);
-					final double max = allParametersMaxMap.get(clusteringName + " " + parameterName);
-					final double min = allParametersMinMap.get(clusteringName + " " + parameterName);
+					final MinMax minMax = allParametersRangeMap.get(clusteringName + " " + parameterName);
 
 					double[] filteredParametersD = null;
 					if (parameters.get(i).get(j).size() != filteredParameters.get(i).get(j).size()) {
 						filteredParametersD = new double[filteredParameters.get(i).get(j).size()];
 						for (int k = 0; k < filteredParameters.get(i).get(j).size(); ++k) {
-							final Object parameter = filteredParameters.get(i).get(j).get(k);
-							if (!(parameter instanceof Double) && !(parameter instanceof Integer)
-									&& !(parameter instanceof Boolean)) {// TODO: handle
-								// other types
-								System.err.println("unexpected value type");
-								continue;
-							}
-							Double value = Double.NaN;
-							if (parameter instanceof Double)
-								value = (Double) parameter;
-							if (parameter instanceof Integer)
-								value = (double) (((Integer) parameter));
-							if (parameter instanceof Boolean)
-								value = (double) (((Boolean) parameter) ? 1 : 0);
+							final Double value = Parameter.getParameterValue(filteredParameters.get(i).get(j).get(k));
 							if (value == Double.NaN) {
 								System.err.println("unexpected value type");
 								continue;
@@ -632,11 +577,11 @@ public class FilterWindow extends JPanel {
 							filteredParametersD[k] = value;
 						}
 					}
-					if (max != -Double.MAX_VALUE) {
+					if (minMax.max != -Double.MAX_VALUE) {
 						final int bins = bucketsMap.get(clusteringName + " " + parameterName);
 
 						final CategoryTableXYDataset dataset = createDataset(allParameters, filteredParametersD, bins,
-								min, max);
+								minMax);
 						final JFreeChart chart = charts.get(clusteringName + " " + parameterName);
 						chart.getXYPlot().setDataset(dataset);
 					} else {
@@ -646,7 +591,7 @@ public class FilterWindow extends JPanel {
 			}
 
 			if (!forceUpdate) {
-				tooltip.setText((String.valueOf(((float) getLowerValue()) + " <-> " + (float) getUpperValueD())));
+				tooltip.setText(getTooltipText());
 				final Point p = MouseInfo.getPointerInfo().getLocation();
 				tooltipFrame.pack();
 				tooltipFrame.setLocation((int) p.getX() - tooltipFrame.getWidth() / 2,
@@ -671,13 +616,13 @@ public class FilterWindow extends JPanel {
 		public double getUpperValueD() {
 			if (getUpperValue() == TICK_COUNT)
 				return Double.MAX_VALUE;
-			return (maxLbl - minLbl) * ((double) getUpperValue() / TICK_COUNT) + minLbl;
+			return (minMax.getRange()) * ((double) getUpperValue() / TICK_COUNT) + minMax.min;
 		}
 
-		public double getLowerValue() {
+		public double getLowerValueD() {
 			if (getValue() == 0)
 				return -Double.MAX_VALUE;
-			return (maxLbl - minLbl) * ((double) getValue() / TICK_COUNT) + minLbl;
+			return (minMax.getRange()) * ((double) getValue() / TICK_COUNT) + minMax.min;
 		}
 
 	}
@@ -707,20 +652,13 @@ public class FilterWindow extends JPanel {
 						add = false;
 						continue;
 					}
-					final Object paramVal = params.get(param);
-					Double value = Double.NaN;
-					if (paramVal instanceof Double)
-						value = (Double) paramVal;
-					if (paramVal instanceof Integer)
-						value = (double) (((Integer) paramVal));
-					if (paramVal instanceof Boolean)
-						value = (double) (((Boolean) paramVal) ? 1 : 0);
+					final Double value = Parameter.getParameterValue(params.get(param));
 					if (value == Double.NaN) {
 						System.err.println("unexpected value type");
 						continue;
 					}
 					if (value * 0.99999 >= ((MyRangeSlider) selector).getUpperValueD()
-							|| value * 1.00001 <= ((MyRangeSlider) selector).getLowerValue()) {
+							|| value * 1.00001 <= ((MyRangeSlider) selector).getLowerValueD()) {
 						add = false;
 					}
 				} else {
