@@ -2,6 +2,9 @@ package clusterproject.program;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +31,7 @@ import clusterproject.program.Normalizers.INormalizer;
 import clusterproject.program.Normalizers.Normalize;
 import clusterproject.program.Normalizers.Standardize;
 
-public class MainWindow extends JFrame implements IClickHandler {
+public class MainWindow extends JFrame {
 
 	/**
 	 *
@@ -65,14 +68,22 @@ public class MainWindow extends JFrame implements IClickHandler {
 	public MainWindow(PointContainer container) {
 		pointContainer = container;
 		clusterViewer = new ScatterPlot(pointContainer, true);
-		clusterViewer.setClickHandler(this);
 		clusterViewer.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.gray));
+		clusterViewer.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				final double[] translation = clusterViewer.getCoordinates(e.getPoint());
+				handleClick(translation);
+			}
+
+		});
 
 		clusterButton = new JButton("Clustering");
 		clusterButton.addActionListener(e -> {
 			final ClusterWorkflow cw = new ClusterWorkflow(pointContainer);
 			cw.setSize(new Dimension(800, 600));
-			cw.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			cw.setExtendedState(Frame.MAXIMIZED_BOTH);
 			cw.setLocationRelativeTo(null);
 			cw.setVisible(true);
 		});
@@ -81,7 +92,7 @@ public class MainWindow extends JFrame implements IClickHandler {
 		scatterMatrixButton.addActionListener(e -> {
 			final ScatterPlotMatrix ms = new ScatterPlotMatrix(pointContainer);
 			ms.setSize(new Dimension(800, 600));
-			ms.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			ms.setExtendedState(Frame.MAXIMIZED_BOTH);
 			ms.setLocationRelativeTo(null);
 			ms.setVisible(true);
 		});
@@ -324,7 +335,6 @@ public class MainWindow extends JFrame implements IClickHandler {
 
 	}
 
-	@Override
 	public void handleClick(double[] point) {
 		if (activeGenerator != null && activeGenerator.canClickGenerate()) {
 			final boolean done = activeGenerator.generate(point, pointContainer);

@@ -598,6 +598,8 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private void initDistances() {
+		// TODO make distances and similar into maps
+//		final List<IDistanceMeasure> distancesList = new ArrayList<IDistanceMeasure>();
 		distances.add(new VariationOfInformation());
 		distances.add(new ClusteringError());
 	}

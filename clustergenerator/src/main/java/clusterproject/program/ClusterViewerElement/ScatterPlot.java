@@ -2,8 +2,6 @@ package clusterproject.program.ClusterViewerElement;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
 import javax.swing.JLayeredPane;
@@ -11,7 +9,6 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import clusterproject.data.PointContainer;
-import clusterproject.program.IClickHandler;
 import clusterproject.program.MainWindow;
 
 public class ScatterPlot extends JLayeredPane {
@@ -26,7 +23,6 @@ public class ScatterPlot extends JLayeredPane {
 	private static final int AXIS_PADDING_NONE = 5;
 	private PointContainer pointContainer;
 	private final SpringLayout layout;
-	private IClickHandler clickHandler;
 	final ViewerAxis xAxis;
 	final ViewerAxis yAxis;
 	final PointCanvas canvas;
@@ -45,15 +41,6 @@ public class ScatterPlot extends JLayeredPane {
 		layout = new SpringLayout();
 		setLayout(layout);
 
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (clickHandler != null) {
-					final double[] translation = getCoordinates(e.getPoint());
-					clickHandler.handleClick(translation);
-				}
-			}
-		});
 		final double[] xInterval = new double[2];
 		final double[] yInterval = new double[2];
 		xInterval[0] = 0;
@@ -175,19 +162,19 @@ public class ScatterPlot extends JLayeredPane {
 
 	public void setIntervalX(double[] interval) {
 		xAxis.setInterval(interval);
-	};
+	}
 
 	public void setIntervalY(double[] interval) {
 		yAxis.setInterval(interval);
-	};
+	}
 
 	public double[] getIntervalX() {
 		return xAxis.getInterval();
-	};
+	}
 
 	public double[] getIntervalY() {
 		return yAxis.getInterval();
-	};
+	}
 
 	public void update() {
 		update(true);
@@ -243,10 +230,6 @@ public class ScatterPlot extends JLayeredPane {
 		this.pointDiameter = pointDiameter;
 	}
 
-	public void setClickHandler(IClickHandler clickHandler) {
-		this.clickHandler = clickHandler;
-	}
-
 	public void setSelection(Point down, Point current) {
 		canvas.setSelection(down, current);
 
@@ -254,7 +237,5 @@ public class ScatterPlot extends JLayeredPane {
 
 	public PointCanvas getCanvas() {
 		return canvas;
-
 	}
-
 }

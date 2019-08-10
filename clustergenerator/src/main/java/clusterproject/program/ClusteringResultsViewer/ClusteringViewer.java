@@ -2,6 +2,7 @@ package clusterproject.program.ClusteringResultsViewer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -32,6 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
@@ -158,7 +160,7 @@ public class ClusteringViewer extends JFrame {
 		scatterMatrixButton.addActionListener(e -> {
 			final ScatterPlotMatrix ms = new ScatterPlotMatrix(visibleViewer.getPointContainer());
 			ms.setSize(new Dimension(800, 600));
-			ms.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			ms.setExtendedState(Frame.MAXIMIZED_BOTH);
 			ms.setLocationRelativeTo(null);
 			ms.setVisible(true);
 		});
@@ -297,8 +299,8 @@ public class ClusteringViewer extends JFrame {
 		};
 
 		if (mdsPlot != null) {
-			mdsPlot.getCanvas().addMouseMotionListener(mouseAdapter);
-			mdsPlot.getCanvas().addMouseListener(mouseAdapter);
+			mdsPlot.addMouseMotionListener(mouseAdapter);
+			mdsPlot.addMouseListener(mouseAdapter);
 			mdsPlot.getPointContainer().getMetaInformation().setGroundTruth(groundTruth);
 		}
 
@@ -323,7 +325,7 @@ public class ClusteringViewer extends JFrame {
 
 		filterWindow = new FilterWindow(clusterings, this);
 		final JScrollPane scrollPaneFilter = new JScrollPane(filterWindow);
-		scrollPaneFilter.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPaneFilter.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPaneFilter.setBorder(null);
 		scrollPaneFilter.setOpaque(false);
 		layout.putConstraint(SpringLayout.NORTH, scrollPaneFilter, VIEWER_SPACE, SpringLayout.SOUTH,
@@ -345,7 +347,7 @@ public class ClusteringViewer extends JFrame {
 			c2.getClusterInformation().setClusterIDs(getNewColors(id1, id2));
 			final DifferenceWindow newWindow = new DifferenceWindow(viewers[id1], viewers[id2]);
 			newWindow.setSize(new Dimension(1000, 800));
-			newWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			newWindow.setExtendedState(Frame.MAXIMIZED_BOTH);
 			newWindow.setLocationRelativeTo(null);
 			newWindow.setVisible(true);
 			// newWindow.update();
