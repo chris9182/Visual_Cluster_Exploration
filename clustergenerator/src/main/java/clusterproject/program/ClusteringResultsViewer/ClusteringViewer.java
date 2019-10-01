@@ -37,6 +37,9 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
+import org.jzy3d.colors.Color;
+import org.jzy3d.plot3d.primitives.Scatter;
+
 import com.google.common.util.concurrent.AtomicDouble;
 
 import clusterproject.data.ClusteringResult;
@@ -66,6 +69,8 @@ public class ClusteringViewer extends JFrame {
 	public static final int RIGHT_PANEL_WIDTH = 300;
 	private static final int MAX_HEATMAP_SIZE = 130;
 
+	private static final int MDS_MAX_DIM = 10;
+
 	private final List<ClusteringResult> clusterings;
 	private final List<ClusteringWithDistance> clusteredList;
 	private final ScatterPlot[] viewers;
@@ -80,6 +85,7 @@ public class ClusteringViewer extends JFrame {
 	private final OpticsPlot oPlot;
 	private HeatMap heatMap;
 	private ScatterPlot mdsPlot;
+	private Scatter scatter;
 	private final LinkedHashSet<Integer> highlighted = new LinkedHashSet<>();
 	private final AtomicBoolean dohighlight = new AtomicBoolean(true);
 
@@ -233,10 +239,48 @@ public class ClusteringViewer extends JFrame {
 
 		MDS mds = null;
 		try {
-			mds = new MDS(distanceMatrix, 2);
+			mds = new MDS(distanceMatrix,
+					distanceMatrix.length - 1 < MDS_MAX_DIM ? distanceMatrix.length - 1 : MDS_MAX_DIM);
+//			System.err.println(mds.getProportion()[0] + " " + mds.getProportion()[1]);
 			final double[][] coords = mds.getCoordinates();
 			final PointContainer mdsContainer = new PointContainer(coords[0].length);
 			mdsContainer.addPoints(coords);
+//XXX remove this
+//			if (coords[0].length > 2) {
+//				final JFrame test = new JFrame();
+//				final int size = coords.length;
+//				final float x;
+//				final float y;
+//				final float z;
+//				float a;
+//
+//				final Coord3d[] points = new Coord3d[size];
+//				final Color[] colors = new Color[size];
+//				a = 0.5f;
+//				for (int i = 0; i < size; i++) {
+//					points[i] = new Coord3d(coords[i][0], coords[i][1], coords[i][2]);
+//					colors[i] = new Color(.5f, .5f, .5f, a);
+//				}
+//
+//				scatter = new Scatter(points, colors);
+//				test.setSize(800, 800);
+//				final Chart chart = AWTChartComponentFactory.chart(Quality.Advanced, "awt");
+//				scatter.setWidth(5);
+//
+//				final AWTCameraMouseController mouseController = new AWTCameraMouseController() {
+//				};
+//				final AWTCameraKeyController keyController = new AWTCameraKeyController();
+//				test.addMouseListener(mouseController);
+//				test.addKeyListener(keyController);
+//				chart.addController(mouseController);
+//				chart.addController(keyController);
+//
+//				chart.getScene().add(scatter);
+//
+//				test.add((Component) chart.getCanvas());
+//				test.setVisible(true);
+//			}
+
 			mdsPlot = new ScatterPlot(mdsContainer, true);
 			mdsPlot.addAutoAdjust();
 			mdsPlot.autoAdjust();
@@ -465,6 +509,17 @@ public class ClusteringViewer extends JFrame {
 	}
 
 	public void updateMDSPlot(List<ClusteringWithDistance> list) {
+		if (scatter != null) {
+			final Color[] colors = new Color[list.size()];
+			// XXX cleanup
+			for (int i = 0; i < list.size(); ++i) {
+				final java.awt.Color color = Util.getColor(list.get(i).tag + 2);
+				final Color drawColor = list.get(i).tag == -2 ? Color.GRAY
+						: new Color(color.getRed(), color.getGreen(), color.getBlue(), .5f);
+				colors[list.get(i).inIndex] = list.get(i).inIndex == groundTruth ? Color.BLACK : drawColor;
+			}
+			scatter.setColors(colors);
+		}
 		if (mdsPlot == null)
 			return;
 		final Integer[] clusterIDs = new Integer[list.size()];

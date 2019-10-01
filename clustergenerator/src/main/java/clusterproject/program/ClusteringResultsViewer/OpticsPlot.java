@@ -160,10 +160,10 @@ public class OpticsPlot extends JLayeredPane {
 		return clusteringViewer.getFilteredIndexes();
 	}
 
-	void adaptThreshhold(double newthreshhold) {
+	private void adaptThreshhold(double newthreshhold) {
 
 		if (newthreshhold < 0)
-			newthreshhold = -0.0000000001;// TODO: nicer way for "epsilon"
+			newthreshhold = -Double.MIN_VALUE;
 		if (newthreshhold > max)
 			newthreshhold = max;
 		if (newthreshhold == threshhold)

@@ -36,6 +36,7 @@ public class DifferenceWindow extends JFrame {
 		scatterPlot2.setSelectedDimY(viewer1.getSelectedDimY());
 		scatterPlot2.autoAdjust();
 
+		// TODO: do intersection properly and adjust loop Util.inte... ?
 		intersection = new PointContainer(container1.getDim());
 		intersection.addPoints(container1.getPoints());
 		intersection.setUpClusters();
