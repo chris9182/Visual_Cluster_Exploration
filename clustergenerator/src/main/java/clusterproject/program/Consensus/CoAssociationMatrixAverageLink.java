@@ -131,6 +131,7 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 			for (int j = 0; j < consensus.size(); ++j)
 				if (consensus.get(j).contains(i))
 					newContainer.getClusterInformation().addClusterID(j);
+			// TODO: use hashtable? break here?
 
 		}
 		newContainer.setHeaders(results.get(0).getHeaders());

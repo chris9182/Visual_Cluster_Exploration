@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -48,7 +49,9 @@ import clusterproject.program.ClusterWorkflow;
 import clusterproject.program.MainWindow;
 import clusterproject.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.program.ClusterViewerElement.ScatterPlotMatrix;
+import clusterproject.program.Clustering.Parameters.Parameter;
 import clusterproject.program.ClusteringResultsViewer.FilterWindow.HistogramData;
+import clusterproject.program.Consensus.CoAssociationMatrixAverageLink;
 import clusterproject.program.MetaClustering.ClusteringWithDistance;
 import clusterproject.program.MetaClustering.DistanceCalculation;
 import clusterproject.program.MetaClustering.HungarianAlgorithm;
@@ -218,7 +221,20 @@ public class ClusteringViewer extends JFrame {
 
 		consensusButton = new JButton("Consensus - BETA");
 		consensusButton.addActionListener(e -> {
-			final ConsensusWindow newWindow = new ConsensusWindow(ClusteringViewer.this);
+			final CoAssociationMatrixAverageLink function = new CoAssociationMatrixAverageLink();
+			final List<List<PointContainer>> pointContainers = getContainersByTag();
+			final ClusteringResult[] resultArray = new ClusteringResult[pointContainers.size()];
+			pointContainers.parallelStream().forEach(t -> {
+				final int index = pointContainers.indexOf(t);
+				final List<Double> weights = null;
+				final PointContainer consesnsus = function.calculateConsensus(t, weights);
+				final double[][][] data = consesnsus.toData();
+				final Parameter param = new Parameter("Consensus");
+				param.addParameter("Result ID", index);
+				resultArray[index] = (new ClusteringResult(data, param, this.clusterings.get(0).getHeaders()));
+			});
+			final List<ClusteringResult> results = Arrays.asList(resultArray);
+			final ClusteringViewer newWindow = new ClusteringViewer(results, metaDistance, minPTS, eps);
 			newWindow.setSize(new Dimension(1000, 800));
 			newWindow.setLocationRelativeTo(null);
 			newWindow.setVisible(true);
@@ -850,6 +866,22 @@ public class ClusteringViewer extends JFrame {
 				weightsList.add(1 / (double) weights
 						.get(mdsPlot.getPointContainer().getClusterInformation().getClusterIDs().get(i)));
 		return weightsList;
+	}
+
+	public List<List<PointContainer>> getContainersByTag() {
+		final Map<Integer, List<PointContainer>> containerLists = new TreeMap<Integer, List<PointContainer>>();
+		final List<Integer> tags = mdsPlot.getPointContainer().getClusterInformation().getClusterIDs();
+		for (int i = 0; i < tags.size(); ++i) {
+			final int tag = tags.get(i);
+			if (tag >= 0 && (filteredIndexes == null || filteredIndexes.contains(i)) && i != groundTruth) {
+				List<PointContainer> containerList = containerLists.get(tag);
+				if (containerList == null)
+					containerList = new ArrayList<PointContainer>();
+				containerList.add(viewers[i].getPointContainer());
+				containerLists.put(tag, containerList);
+			}
+		}
+		return new ArrayList<List<PointContainer>>(containerLists.values());
 	}
 
 	public ScatterPlot getVisibleViewer() {

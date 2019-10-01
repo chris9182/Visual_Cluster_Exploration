@@ -209,4 +209,23 @@ public class PointContainer {
 
 	}
 
+	public double[][][] toData() {
+		final Map<Integer, List<double[]>> buckets = new HashMap<Integer, List<double[]>>();
+		for (int i = 0; i < points.size(); ++i) {
+			List<double[]> newPoints = buckets.get(clusterInformation.getOriginalClusterIDs().get(i));
+			if (newPoints == null)
+				newPoints = new ArrayList<double[]>();
+			newPoints.add(points.get(i));
+			buckets.put(clusterInformation.getOriginalClusterIDs().get(i), newPoints);
+		}
+		final List<double[][]> clusters = new ArrayList<double[][]>();
+		for (final List<double[]> cluster : buckets.values()) {
+			double[][] pointCluster = new double[cluster.size()][];
+			pointCluster = cluster.toArray(pointCluster);
+			clusters.add(pointCluster);
+		}
+		final double[][][] data = new double[clusters.size()][][];
+		return clusters.toArray(data);
+	}
+
 }

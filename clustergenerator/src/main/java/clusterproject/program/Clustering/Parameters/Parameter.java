@@ -38,7 +38,7 @@ public class Parameter implements Serializable {
 	}
 
 	public String getInfoString() {
-		String returnval = getName() + ": ";
+		String returnval = getName() + (parameters.size() > 0 ? ": " : "");
 		for (final String param : parameters.keySet()) {
 			if (Util.META_PARAMS.contains(param))
 				continue;
