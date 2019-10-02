@@ -233,7 +233,9 @@ public class ClusteringViewer extends JFrame {
 				param.addParameter("Result ID", index);
 				resultArray[index] = (new ClusteringResult(data, param, this.clusterings.get(0).getHeaders()));
 			});
-			final List<ClusteringResult> results = Arrays.asList(resultArray);
+			final List<ClusteringResult> results = new ArrayList<ClusteringResult>(Arrays.asList(resultArray));
+			if (groundTruth >= 0)
+				results.add(0, clusterings.get(groundTruth));
 			final ClusteringViewer newWindow = new ClusteringViewer(results, metaDistance, minPTS, eps);
 			newWindow.setSize(new Dimension(1000, 800));
 			newWindow.setLocationRelativeTo(null);
