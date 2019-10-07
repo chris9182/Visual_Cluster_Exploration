@@ -93,7 +93,7 @@ public class CLIQUEClustering extends AbstractClustering {
 	@Override
 	public String getSettingsString() {
 		prepareSettings();
-		return "xsi{LB:" + xsi + " UB:" + xsiBound + "} " + "tau{LB:" + tau + " UB:" + tauBound + " Samples{" + samples
+		return "xsi{LB:" + xsi + " UB:" + xsiBound + "} tau{LB:" + tau + " UB:" + tauBound + " Samples{" + samples
 				+ "}";// TODO: show
 		// pruning
 	}

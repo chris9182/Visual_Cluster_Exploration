@@ -99,6 +99,7 @@ public class ClusterWorkflow extends JFrame {
 	private final JProgressBar progressBar = new JProgressBar(0, 100);
 	private final Random seededRandom = new Random();
 	private Thread worker;
+	private final boolean addGroundTruth = true;
 
 	public ClusterWorkflow(PointContainer container) {
 		final NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
@@ -410,8 +411,8 @@ public class ClusterWorkflow extends JFrame {
 		}
 		progressBar.setMaximum(maximum);
 		// TODO: enable setting seed from outside
-//		seededRandom.setSeed(0);
 		seededRandom.setSeed(System.currentTimeMillis());
+//		seededRandom.setSeed(0);
 		worker = new Thread(() -> {
 			progressBar.setString("Calculating Clusterings");
 			for (final IClusterer clusterer : workflow) {
@@ -443,16 +444,18 @@ public class ClusterWorkflow extends JFrame {
 						continue;
 					betterPointList.add(lNV1);
 				}
-				final NumberVector[][] clustersArr = new NumberVector[betterPointList.size()][];
-				i = 0;
-				for (final List<NumberVector> lNV2 : betterPointList) {
-					NumberVector[] clusterArr = new NumberVector[lNV2.size()];
-					clusterArr = lNV2.toArray(clusterArr);
-					clustersArr[i] = clusterArr;
-					++i;
+				if (addGroundTruth) {
+					final NumberVector[][] clustersArr = new NumberVector[betterPointList.size()][];
+					i = 0;
+					for (final List<NumberVector> lNV2 : betterPointList) {
+						NumberVector[] clusterArr = new NumberVector[lNV2.size()];
+						clusterArr = lNV2.toArray(clusterArr);
+						clustersArr[i] = clusterArr;
+						++i;
+					}
+					final Parameter param = new Parameter(Util.GROUND_TRUTH);
+					clusterings.add(0, new NumberVectorClusteringResult(clustersArr, param));
 				}
-				final Parameter param = new Parameter(Util.GROUND_TRUTH);
-				clusterings.add(0, new NumberVectorClusteringResult(clustersArr, param));
 			}
 
 			final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings,

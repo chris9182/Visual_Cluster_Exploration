@@ -251,8 +251,12 @@ public class OpticsPlot extends JLayeredPane {
 			this.heightPercent = heightPercent;
 			this.myid = myid;
 			final Double dist = plot.getDistanceToTruth(myid);
-			if (!dist.equals(Double.NaN))
-				setToolTipText("Distance to Ground Truth: " + Float.toString((float) ((double) dist)));
+			if (!dist.equals(Double.NaN)) {
+				if (Math.abs(dist) < Double.MIN_NORMAL)
+					setToolTipText("Equal to Ground Truth");
+				else
+					setToolTipText("Distance to Ground Truth: " + Float.toString((float) ((double) dist)));
+			}
 		}
 
 		@Override
@@ -279,11 +283,11 @@ public class OpticsPlot extends JLayeredPane {
 					g2.setColor(Color.lightGray);
 					g2.fillRect(0, 0, getWidth(), getHeight());
 					g2.setColor(Util.HIGHLIGHT_COLOR);
-					g2.fillRect(0, (int) (getHeight() * (1 - heightPercent)), getWidth(),
+					g2.fillRect(0, (int) (getHeight() * (1 - heightPercent) - 1), getWidth(),
 							(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
 				} else {
 					g2.setColor(color);
-					g2.fillRect(0, (int) (getHeight() * (1 - heightPercent)), getWidth(),
+					g2.fillRect(0, (int) (getHeight() * (1 - heightPercent) - 1), getWidth(),
 							(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
 				}
 			}

@@ -11,7 +11,7 @@ import clusterproject.data.PointContainer;
 
 public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 
-	private final double threshhold = 0.75;
+	private final double threshhold = 0.5;
 
 	@Override
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights) {

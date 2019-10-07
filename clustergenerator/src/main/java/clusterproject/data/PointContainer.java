@@ -22,6 +22,12 @@ public class PointContainer {
 			headers.add(Integer.toString(i));
 	}
 
+	public void generateHeaders() {
+		headers = new ArrayList<String>(dim);
+		for (int i = 0; i < dim; i++)
+			headers.add(Integer.toString(i));
+	}
+
 	public MetaInformation getMetaInformation() {
 		return metaInformation;
 	}

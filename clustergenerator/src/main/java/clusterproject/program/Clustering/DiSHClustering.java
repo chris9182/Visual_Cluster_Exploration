@@ -95,7 +95,7 @@ public class DiSHClustering extends AbstractClustering {
 	@Override
 	public String getSettingsString() {
 		prepareSettings();
-		return "Mu{LB:" + Mu + " UB:" + MuBound + "} " + "Epsilon{LB:" + eps + " UB:" + epsBound + " Samples{" + samples
+		return "Mu{LB:" + Mu + " UB:" + MuBound + "} Epsilon{LB:" + eps + " UB:" + epsBound + " Samples{" + samples
 				+ "}";
 	}
 

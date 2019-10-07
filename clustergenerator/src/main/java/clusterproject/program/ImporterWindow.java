@@ -16,7 +16,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -76,7 +76,7 @@ public class ImporterWindow extends JFrame {
 		final NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
 		labelIndexField = new JFormattedTextField(integerFieldFormatter);
 		labelIndexField.setValue(-1);
-		labelIndexField.setHorizontalAlignment(JTextField.RIGHT);
+		labelIndexField.setHorizontalAlignment(SwingConstants.RIGHT);
 		final JLabel indexLabel = new JLabel("Index of Cluster Labels");
 		indexPanel.add(indexLabel);
 		indexPanel.add(labelIndexField);
@@ -174,44 +174,34 @@ public class ImporterWindow extends JFrame {
 		Reader in = null;
 		try {
 			in = new FileReader(selectedFile);
-			final CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-			final int size = parser.getHeaderMap().size();
-			final List<String> headers = new ArrayList<String>();
+			final CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT.withAllowMissingColumnNames());
+			pointContainer.empty();
+			final List<CSVRecord> records = parser.getRecords();
+			final int size = records.get(0).size();
+			final boolean hasLabels = labelIndex > -1;
+			pointContainer.setDim(hasLabels ? size - 1 : size);
+			final CSVRecord firstRecord = records.get(0);
 			boolean hasHeaders = false;
-			for (final String string : parser.getHeaderMap().keySet())
+			for (int i = 0; i < size; ++i) {
+				final String entry = firstRecord.get(i);
 				try {
-					format.parse(string).doubleValue();
+					format.parse(entry).doubleValue();
 				} catch (final Exception e) {
 					hasHeaders = true;
 				}
-			if (hasHeaders)
-				parser.getHeaderMap().keySet().forEach(t -> headers.add(t));
-
-			pointContainer.empty();
-
-			pointContainer.setHeaders(headers);
-			final List<CSVRecord> records = parser.getRecords();
-			if (!hasHeaders) {
-				double[] point = null;
-				if (labelIndex > -1)
-					point = new double[size - 1];
-				else
-					point = new double[size];
-				int i = 0;
-				for (final String string : parser.getHeaderMap().keySet()) {
-					if (i == labelIndex) {
-						i++;
-						continue;
-					}
-					final int index = i > labelIndex && labelIndex > -1 ? i - 1 : i;
-					try {
-						point[index] = format.parse(string).doubleValue();
-					} catch (final Exception e) {
-					}
-					++i;
-				}
-				pointContainer.addPoint(point);
 			}
+			if (hasHeaders) {
+				final List<String> headers = new ArrayList<String>();
+				for (int i = 0; i < size; ++i) {
+					if (i == labelIndex)
+						continue;
+					headers.add(firstRecord.get(i));
+				}
+				pointContainer.setHeaders(headers);
+				records.remove(0);
+			} else
+				pointContainer.generateHeaders();
+
 			for (final CSVRecord record : records) {
 				double[] point = null;
 				if (labelIndex > -1)
@@ -223,7 +213,7 @@ public class ImporterWindow extends JFrame {
 					if (i == labelIndex) {
 						continue;
 					}
-					final int index = i > labelIndex && labelIndex > -1 ? i - 1 : i;
+					final int index = i > labelIndex && hasLabels ? i - 1 : i;
 					try {
 						point[index] = format.parse(record.get(i)).doubleValue();
 					} catch (final Exception e) {
@@ -232,21 +222,8 @@ public class ImporterWindow extends JFrame {
 				}
 				pointContainer.addPoint(point);
 			}
-			if (labelIndex > -1) {
+			if (hasLabels) {
 				pointContainer.setUpClusters();
-				if (!hasHeaders) {
-					int i = 0;
-					for (final String string : parser.getHeaderMap().keySet()) {
-						if (i == labelIndex)
-							try {
-								pointContainer.getClusterInformation()
-										.addClusterID((int) format.parse(string).doubleValue());
-							} catch (final Exception e) {
-								pointContainer.getClusterInformation().addClusterID(-1);
-							}
-						++i;
-					}
-				}
 				for (final CSVRecord record : records) {
 					try {
 						pointContainer.getClusterInformation()
@@ -257,7 +234,9 @@ public class ImporterWindow extends JFrame {
 				}
 			}
 			parser.close();
-		} catch (final FileNotFoundException e) {
+		} catch (
+
+		final FileNotFoundException e) {
 			e.printStackTrace();
 			return false;
 		} catch (final IOException e) {
@@ -274,6 +253,7 @@ public class ImporterWindow extends JFrame {
 		pointContainer.rebuild();
 		update.update();
 		SwingUtilities.invokeLater(() -> update.repaint());
+
 		setVisible(false);
 		dispose();
 		return true;

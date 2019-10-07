@@ -28,6 +28,7 @@ public class LloydKMeans extends AbstractClustering {
 	private transient KMeansOptions optionsPanel = new KMeansOptions();
 	private int minK;
 	private int maxK;
+	private int samplesEach;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -47,35 +48,37 @@ public class LloydKMeans extends AbstractClustering {
 		prepareSettings();
 		if (random == null)
 			random = new Random();
-		for (int i = minK; i <= maxK; ++i) {
-			final int calcK = i;
 
-			final ListParameterization params = new ListParameterization();
-			params.addParameter(KMeans.K_ID, calcK);
-			params.addParameter(KMeans.SEED_ID, random.nextInt());
-			final ParallelLloydKMeans<DoubleVector> dbscan = ClassGenericsUtil
-					.parameterizeOrAbort(ParallelLloydKMeans.class, params);
-			final Clustering<KMeansModel> result = dbscan.run(db);
-			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
-			result.getAllClusters().forEach(cluster -> {
-				final List<NumberVector> pointList = new ArrayList<NumberVector>();
+		for (int s = 0; s < samplesEach; ++s)
+			for (int i = minK; i <= maxK; ++i) {
+				final int calcK = i;
 
-				for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
-					pointList.add(rel.get(it));
-					// ArrayLikeUtil.toPrimitiveDoubleArray(v)
-				}
-				NumberVector[] clusterArr = new NumberVector[pointList.size()];
-				clusterArr = pointList.toArray(clusterArr);
-				clusterList.add(clusterArr);
-			});
-			NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
-			clustersArr = clusterList.toArray(clustersArr);
-			final Parameter param = new Parameter(getName());
-			param.addParameter("k", calcK);
-			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
+				final ListParameterization params = new ListParameterization();
+				params.addParameter(KMeans.K_ID, calcK);
+				params.addParameter(KMeans.SEED_ID, random.nextInt());
+				final ParallelLloydKMeans<DoubleVector> dbscan = ClassGenericsUtil
+						.parameterizeOrAbort(ParallelLloydKMeans.class, params);
+				final Clustering<KMeansModel> result = dbscan.run(db);
+				final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
+				result.getAllClusters().forEach(cluster -> {
+					final List<NumberVector> pointList = new ArrayList<NumberVector>();
 
-			addProgress(1);
-		}
+					for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
+						pointList.add(rel.get(it));
+						// ArrayLikeUtil.toPrimitiveDoubleArray(v)
+					}
+					NumberVector[] clusterArr = new NumberVector[pointList.size()];
+					clusterArr = pointList.toArray(clusterArr);
+					clusterList.add(clusterArr);
+				});
+				NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
+				clustersArr = clusterList.toArray(clustersArr);
+				final Parameter param = new Parameter(getName());
+				param.addParameter("k", calcK);
+				clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
+
+				addProgress(1);
+			}
 		return clusterings;
 	}
 
@@ -87,7 +90,7 @@ public class LloydKMeans extends AbstractClustering {
 	@Override
 	public String getSettingsString() {
 		prepareSettings();
-		return "k:{LB:" + minK + " UB:" + maxK + "} ";
+		return "k:{LB:" + minK + " UB:" + maxK + "} Samples each:{" + samplesEach + "}";
 	}
 
 	@Override
@@ -102,5 +105,6 @@ public class LloydKMeans extends AbstractClustering {
 
 		minK = optionsPanel.getLBK();
 		maxK = optionsPanel.getUBK();
+		samplesEach = optionsPanel.getSamplesEach();
 	}
 }

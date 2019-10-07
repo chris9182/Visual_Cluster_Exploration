@@ -12,6 +12,7 @@ public class KMeansOptions extends JPanel {
 
 	private final JFormattedTextField lowerKField;
 	private final JFormattedTextField upperKField;
+	private final JFormattedTextField samplesEachField;
 
 	private static final int INNER_PAD = 2;
 
@@ -52,6 +53,19 @@ public class KMeansOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, uklbl, 0, SpringLayout.WEST, this);
 		add(uklbl);
 
+		// upperBound
+		samplesEachField = new JFormattedTextField(integerFieldFormatter);
+		samplesEachField.setValue(1);
+		samplesEachField.setColumns(5);
+		layout.putConstraint(SpringLayout.NORTH, samplesEachField, INNER_PAD, SpringLayout.SOUTH, upperKField);
+		layout.putConstraint(SpringLayout.EAST, samplesEachField, 0, SpringLayout.EAST, this);
+		add(samplesEachField);
+		final JLabel samplesEachlbl = new JLabel("Samples Each");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, samplesEachlbl, 0, SpringLayout.VERTICAL_CENTER,
+				samplesEachField);
+		layout.putConstraint(SpringLayout.WEST, samplesEachlbl, 0, SpringLayout.WEST, this);
+		add(samplesEachlbl);
+
 	}
 
 	public int getLBK() {
@@ -60,6 +74,10 @@ public class KMeansOptions extends JPanel {
 
 	public int getUBK() {
 		return Integer.parseInt(upperKField.getText());
+	}
+
+	public int getSamplesEach() {
+		return Integer.parseInt(samplesEachField.getText());
 	}
 
 }

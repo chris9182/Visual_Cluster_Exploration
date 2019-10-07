@@ -92,8 +92,8 @@ public class DBScan extends AbstractClustering {
 	@Override
 	public String getSettingsString() {
 		prepareSettings();
-		return "minPTS{LB:" + minPTS + " UB:" + minPTSBound + "} " + "Epsilon{LB:" + eps + " UB:" + epsBound
-				+ " Samples{" + samples + "}";
+		return "minPTS{LB:" + minPTS + " UB:" + minPTSBound + "} Epsilon{LB:" + eps + " UB:" + epsBound + " Samples{"
+				+ samples + "}";
 	}
 
 	@Override

@@ -52,6 +52,7 @@ import clusterproject.program.ClusterViewerElement.ScatterPlotMatrix;
 import clusterproject.program.Clustering.Parameters.Parameter;
 import clusterproject.program.ClusteringResultsViewer.FilterWindow.HistogramData;
 import clusterproject.program.Consensus.CoAssociationMatrixAverageLink;
+import clusterproject.program.Consensus.ConsensusFunction;
 import clusterproject.program.MetaClustering.ClusteringWithDistance;
 import clusterproject.program.MetaClustering.DistanceCalculation;
 import clusterproject.program.MetaClustering.HungarianAlgorithm;
@@ -221,7 +222,7 @@ public class ClusteringViewer extends JFrame {
 
 		consensusButton = new JButton("Consensus - BETA");
 		consensusButton.addActionListener(e -> {
-			final CoAssociationMatrixAverageLink function = new CoAssociationMatrixAverageLink();
+			final ConsensusFunction function = new CoAssociationMatrixAverageLink();
 			final List<List<PointContainer>> pointContainers = getContainersByTag();
 			final ClusteringResult[] resultArray = new ClusteringResult[pointContainers.size()];
 			pointContainers.parallelStream().forEach(t -> {

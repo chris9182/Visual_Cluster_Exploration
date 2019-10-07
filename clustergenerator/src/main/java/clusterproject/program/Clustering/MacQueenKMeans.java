@@ -32,6 +32,7 @@ public class MacQueenKMeans extends AbstractClustering {
 	private transient KMeansOptions optionsPanel = new KMeansOptions();
 	private int minK;
 	private int maxK;
+	private int samplesEach;
 
 	@Override
 	public JPanel getOptionsPanel() {
@@ -51,44 +52,47 @@ public class MacQueenKMeans extends AbstractClustering {
 		prepareSettings();
 		if (random == null)
 			random = new Random();
-		for (int i = minK; i <= maxK; ++i) {
-			final int calcK = i;
 
-			final ListParameterization params = new ListParameterization();
-			params.addParameter(KMeans.K_ID, calcK);
-			params.addParameter(KMeans.SEED_ID, random.nextInt());
-			final KMeansMacQueen<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(KMeansMacQueen.class,
-					params);
+		for (int s = 0; s < samplesEach; ++s)
+			for (int i = minK; i <= maxK; ++i) {
+				final int calcK = i;
 
-			final DBIDs ids = DBIDUtil.randomSample(rel.getDBIDs(), (double) 1, new RandomFactory(random.nextLong()));
-			// example for subsample need to update distance measures (meta)
-			final Relation<DoubleVector> rel2 = new ProxyView<DoubleVector>(ids, rel);
-			final Clustering<KMeansModel> result = dbscan.run(db, rel2);// , rel2
-			// int size = 0;
-			// for (final Cluster<KMeansModel> cluster : result.getAllClusters()) {
-			// size += cluster.size();
-			// }
-			// System.err.println(size);
-			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
-			result.getAllClusters().forEach(cluster -> {
-				final List<NumberVector> pointList = new ArrayList<NumberVector>();
+				final ListParameterization params = new ListParameterization();
+				params.addParameter(KMeans.K_ID, calcK);
+				params.addParameter(KMeans.SEED_ID, random.nextInt());
+				final KMeansMacQueen<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(KMeansMacQueen.class,
+						params);
 
-				for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
-					pointList.add(rel2.get(it));
-					// ArrayLikeUtil.toPrimitiveDoubleArray(v)
-				}
-				NumberVector[] clusterArr = new NumberVector[pointList.size()];
-				clusterArr = pointList.toArray(clusterArr);
-				clusterList.add(clusterArr);
-			});
-			NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
-			clustersArr = clusterList.toArray(clustersArr);
-			final Parameter param = new Parameter(getName());
-			param.addParameter("k", calcK);
-			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
+				final DBIDs ids = DBIDUtil.randomSample(rel.getDBIDs(), (double) 1,
+						new RandomFactory(random.nextLong()));
+				// example for subsample need to update distance measures (meta)
+				final Relation<DoubleVector> rel2 = new ProxyView<DoubleVector>(ids, rel);
+				final Clustering<KMeansModel> result = dbscan.run(db, rel2);// , rel2
+				// int size = 0;
+				// for (final Cluster<KMeansModel> cluster : result.getAllClusters()) {
+				// size += cluster.size();
+				// }
+				// System.err.println(size);
+				final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
+				result.getAllClusters().forEach(cluster -> {
+					final List<NumberVector> pointList = new ArrayList<NumberVector>();
 
-			addProgress(1);
-		}
+					for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
+						pointList.add(rel2.get(it));
+						// ArrayLikeUtil.toPrimitiveDoubleArray(v)
+					}
+					NumberVector[] clusterArr = new NumberVector[pointList.size()];
+					clusterArr = pointList.toArray(clusterArr);
+					clusterList.add(clusterArr);
+				});
+				NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
+				clustersArr = clusterList.toArray(clustersArr);
+				final Parameter param = new Parameter(getName());
+				param.addParameter("k", calcK);
+				clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
+
+				addProgress(1);
+			}
 
 		return clusterings;
 	}
@@ -101,7 +105,7 @@ public class MacQueenKMeans extends AbstractClustering {
 	@Override
 	public String getSettingsString() {
 		prepareSettings();
-		return "k:{LB:" + minK + " UB:" + maxK + "} ";
+		return "k:{LB:" + minK + " UB:" + maxK + "} Samples each:{" + samplesEach + "}";
 	}
 
 	@Override
@@ -116,5 +120,6 @@ public class MacQueenKMeans extends AbstractClustering {
 
 		minK = optionsPanel.getLBK();
 		maxK = optionsPanel.getUBK();
+		samplesEach = optionsPanel.getSamplesEach();
 	}
 }

@@ -97,8 +97,8 @@ public class SNN extends AbstractClustering {
 	@Override
 	public String getSettingsString() {
 		prepareSettings();
-		return "minPTS{LB:" + minPTS + " UB:" + minPTSBound + "} " + "Epsilon{LB:" + eps + " UB:" + epsBound
-				+ "Num. Neighbors{LB:" + snn + " UB:" + snnBound + "} " + " Samples{" + samples + "}";
+		return "minPTS{LB:" + minPTS + " UB:" + minPTSBound + "} Epsilon{LB:" + eps + " UB:" + epsBound
+				+ "Num. Neighbors{LB:" + snn + " UB:" + snnBound + "}  Samples{" + samples + "}";
 	}
 
 	@Override
