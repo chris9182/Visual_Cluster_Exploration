@@ -223,6 +223,7 @@ public class ClusteringViewer extends JFrame {
 		consensusButton = new JButton("Consensus - BETA");
 		consensusButton.addActionListener(e -> {
 			final ConsensusFunction function = new CoAssociationMatrixAverageLink();
+//			final ConsensusFunction function = new CoAssociationMatrixThreshhold();
 			final List<List<PointContainer>> pointContainers = getContainersByTag();
 			final ClusteringResult[] resultArray = new ClusteringResult[pointContainers.size()];
 			pointContainers.parallelStream().forEach(t -> {

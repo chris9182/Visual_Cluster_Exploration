@@ -100,6 +100,7 @@ public class ClusterWorkflow extends JFrame {
 	private final Random seededRandom = new Random();
 	private Thread worker;
 	private final boolean addGroundTruth = true;
+	private final boolean removeTrivialSolutions = false;
 
 	public ClusterWorkflow(PointContainer container) {
 		final NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
@@ -460,6 +461,22 @@ public class ClusterWorkflow extends JFrame {
 
 			final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings,
 					pointContainer.getHeaders());
+
+			if (removeTrivialSolutions) {
+				final List<ClusteringResult> remove = new ArrayList<ClusteringResult>();
+				for (final ClusteringResult result : sClusterings) {
+					if (result.getParameter().getName().equals(Util.GROUND_TRUTH))
+						continue;
+					int length = 0;
+					for (final double[][] cluster : result.getData())
+						if (cluster.length > 0)
+							++length;
+					if (length == 1 || length == result.getPointCount()) {
+						remove.add(result);
+					}
+				}
+				sClusterings.removeAll(remove);
+			}
 
 			double[][] customData = data;
 			if (sClusterings.size() > 0) {
