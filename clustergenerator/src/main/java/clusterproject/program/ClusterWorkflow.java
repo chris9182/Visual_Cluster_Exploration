@@ -20,6 +20,7 @@ import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -68,6 +69,10 @@ public class ClusterWorkflow extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private static final int OUTER_SPACE = 20;
 	private static final int OPTIONS_WIDTH = 200;
+	private static final boolean DEFAULT_ADD_GROUND_TRUTH = true;
+	private static final boolean DEFAULT_KEEP_TRIVIAL_SOLUTIONS = true;
+	private static final boolean DEFAULT_ADD_TRIVIAL_SOLUTIONS = false;
+
 	public static final FileNameExtensionFilter cwffilter = new FileNameExtensionFilter(
 			"Clustering Workflow Files (cwf)", "cwf");
 	public static final FileNameExtensionFilter crffilter = new FileNameExtensionFilter("Clustering Result Files (crf)",
@@ -87,6 +92,9 @@ public class ClusterWorkflow extends JFrame {
 	private final JComboBox<String> distanceSelector;
 	private final JFormattedTextField minPTSField;
 	private final JFormattedTextField epsField;
+	private final JCheckBox addGroundTruthBox;
+	private final JCheckBox keepTrivialSolutionsBox;
+	private final JCheckBox addTrivialSolutionsBox;
 
 	private final JLabel wfLabel;
 
@@ -99,12 +107,13 @@ public class ClusterWorkflow extends JFrame {
 	private final JProgressBar progressBar = new JProgressBar(0, 100);
 	private final Random seededRandom = new Random();
 	private Thread worker;
-	private final boolean addGroundTruth = true;
-	private final boolean removeTrivialSolutions = false;
 
 	public ClusterWorkflow(PointContainer container) {
 		final NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
 		integerFieldFormatter.setGroupingUsed(false);
+		addGroundTruthBox = new JCheckBox("Add ground truth", DEFAULT_ADD_GROUND_TRUTH);
+		keepTrivialSolutionsBox = new JCheckBox("Keep trivial solutions", DEFAULT_KEEP_TRIVIAL_SOLUTIONS);
+		addTrivialSolutionsBox = new JCheckBox("Add trivial solutions", DEFAULT_ADD_TRIVIAL_SOLUTIONS);
 		minPTSField = new JFormattedTextField(integerFieldFormatter);
 		minPTSField.setValue(2);
 		minPTSField.setColumns(5);
@@ -226,6 +235,11 @@ public class ClusterWorkflow extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, minPTSField, MainWindow.INNER_SPACE, SpringLayout.EAST, minPtsLabel);
 		mainPanel.add(minPTSField, new Integer(1));
 
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, addGroundTruthBox, 0, SpringLayout.VERTICAL_CENTER,
+				minPTSField);
+		layout.putConstraint(SpringLayout.WEST, addGroundTruthBox, OUTER_SPACE, SpringLayout.EAST, minPTSField);
+		mainPanel.add(addGroundTruthBox, new Integer(1));
+
 		final JLabel epsLabel = new JLabel("Eps:");
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, epsLabel, 0, SpringLayout.VERTICAL_CENTER,
 				executeClusterersButton);
@@ -234,6 +248,17 @@ public class ClusterWorkflow extends JFrame {
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, epsField, 0, SpringLayout.VERTICAL_CENTER, epsLabel);
 		layout.putConstraint(SpringLayout.WEST, epsField, 0, SpringLayout.WEST, minPTSField);
 		mainPanel.add(epsField, new Integer(1));
+
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, keepTrivialSolutionsBox, 0, SpringLayout.VERTICAL_CENTER,
+				epsField);
+		layout.putConstraint(SpringLayout.WEST, keepTrivialSolutionsBox, OUTER_SPACE, SpringLayout.EAST, epsField);
+		mainPanel.add(keepTrivialSolutionsBox, new Integer(1));
+
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, addTrivialSolutionsBox, 0, SpringLayout.VERTICAL_CENTER,
+				keepTrivialSolutionsBox);
+		layout.putConstraint(SpringLayout.WEST, addTrivialSolutionsBox, OUTER_SPACE, SpringLayout.EAST,
+				keepTrivialSolutionsBox);
+		mainPanel.add(addTrivialSolutionsBox, new Integer(1));
 
 		saveButton = new JButton("Save Wf");
 		saveButton.setEnabled(false);
@@ -414,6 +439,9 @@ public class ClusterWorkflow extends JFrame {
 		// TODO: enable setting seed from outside
 		seededRandom.setSeed(System.currentTimeMillis());
 //		seededRandom.setSeed(0);
+		final boolean addGroundTruth = addGroundTruthBox.isSelected();
+		final boolean keepTrivialSolutions = keepTrivialSolutionsBox.isSelected();
+		final boolean addTrivialSolutions = addTrivialSolutionsBox.isSelected();
 		worker = new Thread(() -> {
 			progressBar.setString("Calculating Clusterings");
 			for (final IClusterer clusterer : workflow) {
@@ -462,7 +490,7 @@ public class ClusterWorkflow extends JFrame {
 			final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings,
 					pointContainer.getHeaders());
 
-			if (removeTrivialSolutions) {
+			if (!keepTrivialSolutions) {
 				final List<ClusteringResult> remove = new ArrayList<ClusteringResult>();
 				for (final ClusteringResult result : sClusterings) {
 					if (result.getParameter().getName().equals(Util.GROUND_TRUTH))
@@ -479,13 +507,28 @@ public class ClusterWorkflow extends JFrame {
 			}
 
 			double[][] customData = data;
+			List<String> headersList = null;
 			if (sClusterings.size() > 0) {
 				customData = new double[pointContainer.getPoints().size()][];
 				// this is (currently) only safe with no bootstaping
 				customData = sClusterings.get(0).toPointContainer().getPoints().toArray(customData);
+				headersList = sClusterings.get(0).getHeaders();
 			}
 			// customData can now be used as a reference to the points for non elki
 			// clustering algorithms
+			if (addTrivialSolutions) {
+				final Parameter param = new Parameter("Trivial Solution");
+				final ClusteringResult trivialOne = new ClusteringResult(new double[][][] { customData }, param,
+						headersList);
+				final double[][][] trivialDataAll = new double[customData.length][][];
+				for (int i = 0; i < customData.length; ++i)
+					trivialDataAll[i] = new double[][] { customData[i] };
+
+				final Parameter param2 = new Parameter("Trivial Solution");
+				final ClusteringResult trivialAll = new ClusteringResult(trivialDataAll, param2, headersList);
+				sClusterings.add(trivialOne);
+				sClusterings.add(trivialAll);
+			}
 
 			progressBar.setString("Calculating Meta");
 			openClusterViewer(sClusterings);
