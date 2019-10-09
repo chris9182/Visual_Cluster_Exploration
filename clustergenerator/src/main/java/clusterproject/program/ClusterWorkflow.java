@@ -161,7 +161,6 @@ public class ClusterWorkflow extends JFrame {
 		for (int i = 0; i < names2.length; ++i)
 			names2[i] = distances.get(i).getName();
 		distanceSelector = new JComboBox<>(names2);
-		// XXX add selector
 
 		wfLabel = new JLabel("Workflow:");
 
@@ -491,6 +490,7 @@ public class ClusterWorkflow extends JFrame {
 					pointContainer.getHeaders());
 
 			if (!keepTrivialSolutions) {
+				progressBar.setString("Removing Triv. Solutions");
 				final List<ClusteringResult> remove = new ArrayList<ClusteringResult>();
 				for (final ClusteringResult result : sClusterings) {
 					if (result.getParameter().getName().equals(Util.GROUND_TRUTH))
@@ -517,6 +517,7 @@ public class ClusterWorkflow extends JFrame {
 			// customData can now be used as a reference to the points for non elki
 			// clustering algorithms
 			if (addTrivialSolutions) {
+				progressBar.setString("Adding Triv. Solutions");
 				final Parameter param = new Parameter("Trivial Solution");
 				final ClusteringResult trivialOne = new ClusteringResult(new double[][][] { customData }, param,
 						headersList);
@@ -526,6 +527,7 @@ public class ClusterWorkflow extends JFrame {
 
 				final Parameter param2 = new Parameter("Trivial Solution");
 				final ClusteringResult trivialAll = new ClusteringResult(trivialDataAll, param2, headersList);
+				// XXX maybe add in front if addGroundTruth is false
 				sClusterings.add(trivialOne);
 				sClusterings.add(trivialAll);
 			}
