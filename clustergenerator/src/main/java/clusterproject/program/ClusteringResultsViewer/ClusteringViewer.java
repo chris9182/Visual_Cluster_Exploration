@@ -224,7 +224,8 @@ public class ClusteringViewer extends JFrame {
 		consensusButton.addActionListener(e -> {
 			// XXX improve and let user choose?
 			final ConsensusFunction function = new CoAssociationMatrixAverageLink();
-//			final ConsensusFunction function = new CoAssociationMatrixThreshhold();
+			//			final ConsensusFunction function = new CoAssociationMatrixThreshhold();
+			//			final ConsensusFunction function = new CoAssociationMatrixWithCompletion();
 			final List<List<PointContainer>> pointContainers = getContainersByTag();
 			final ClusteringResult[] resultArray = new ClusteringResult[pointContainers.size()];
 			pointContainers.parallelStream().forEach(t -> {
@@ -263,45 +264,45 @@ public class ClusteringViewer extends JFrame {
 		try {
 			mds = new MDS(distanceMatrix,
 					distanceMatrix.length - 1 < MDS_MAX_DIM ? distanceMatrix.length - 1 : MDS_MAX_DIM);
-//			System.err.println(mds.getProportion()[0] + " " + mds.getProportion()[1]);
+			//			System.err.println(mds.getProportion()[0] + " " + mds.getProportion()[1]);
 			final double[][] coords = mds.getCoordinates();
 			final PointContainer mdsContainer = new PointContainer(coords[0].length);
 			mdsContainer.addPoints(coords);
-//XXX remove this
-//			if (coords[0].length > 2) {
-//				final JFrame test = new JFrame();
-//				final int size = coords.length;
-//				final float x;
-//				final float y;
-//				final float z;
-//				float a;
-//
-//				final Coord3d[] points = new Coord3d[size];
-//				final Color[] colors = new Color[size];
-//				a = 0.5f;
-//				for (int i = 0; i < size; i++) {
-//					points[i] = new Coord3d(coords[i][0], coords[i][1], coords[i][2]);
-//					colors[i] = new Color(.5f, .5f, .5f, a);
-//				}
-//
-//				scatter = new Scatter(points, colors);
-//				test.setSize(800, 800);
-//				final Chart chart = AWTChartComponentFactory.chart(Quality.Advanced, "awt");
-//				scatter.setWidth(5);
-//
-//				final AWTCameraMouseController mouseController = new AWTCameraMouseController() {
-//				};
-//				final AWTCameraKeyController keyController = new AWTCameraKeyController();
-//				test.addMouseListener(mouseController);
-//				test.addKeyListener(keyController);
-//				chart.addController(mouseController);
-//				chart.addController(keyController);
-//
-//				chart.getScene().add(scatter);
-//
-//				test.add((Component) chart.getCanvas());
-//				test.setVisible(true);
-//			}
+			//XXX remove this
+			//			if (coords[0].length > 2) {
+			//				final JFrame test = new JFrame();
+			//				final int size = coords.length;
+			//				final float x;
+			//				final float y;
+			//				final float z;
+			//				float a;
+			//
+			//				final Coord3d[] points = new Coord3d[size];
+			//				final Color[] colors = new Color[size];
+			//				a = 0.5f;
+			//				for (int i = 0; i < size; i++) {
+			//					points[i] = new Coord3d(coords[i][0], coords[i][1], coords[i][2]);
+			//					colors[i] = new Color(.5f, .5f, .5f, a);
+			//				}
+			//
+			//				scatter = new Scatter(points, colors);
+			//				test.setSize(800, 800);
+			//				final Chart chart = AWTChartComponentFactory.chart(Quality.Advanced, "awt");
+			//				scatter.setWidth(5);
+			//
+			//				final AWTCameraMouseController mouseController = new AWTCameraMouseController() {
+			//				};
+			//				final AWTCameraKeyController keyController = new AWTCameraKeyController();
+			//				test.addMouseListener(mouseController);
+			//				test.addKeyListener(keyController);
+			//				chart.addController(mouseController);
+			//				chart.addController(keyController);
+			//
+			//				chart.getScene().add(scatter);
+			//
+			//				test.add((Component) chart.getCanvas());
+			//				test.setVisible(true);
+			//			}
 
 			mdsPlot = new ScatterPlot(mdsContainer, true);
 			mdsPlot.addAutoAdjust();
@@ -549,7 +550,7 @@ public class ClusteringViewer extends JFrame {
 			clusterIDs[clustering.inIndex] = clustering.tag;
 		mdsPlot.getPointContainer().setUpClusters();
 		mdsPlot.getPointContainer().getClusterInformation()
-				.setAllClusterIDs(new ArrayList<Integer>(Arrays.asList(clusterIDs)));
+		.setAllClusterIDs(new ArrayList<Integer>(Arrays.asList(clusterIDs)));
 		SwingUtilities.invokeLater(() -> mdsPlot.repaint());
 	}
 
@@ -592,7 +593,7 @@ public class ClusteringViewer extends JFrame {
 	}
 
 	private List<Integer> getNewColors(int previous, int other) { // TODO: maybe something with cluster size for color
-																	// selection?
+		// selection?
 		final ClusteringResult oldClustering = clusterings.get(previous);
 		final ClusteringResult newClustering = clusterings.get(other);
 		final Map<Integer, Integer> oldIDMap = visibleViewer.getPointContainer().getClusterInformation().getIDMap();
@@ -600,39 +601,39 @@ public class ClusteringViewer extends JFrame {
 				.getOriginalClusterIDs();
 		final int matrixSize = oldClustering.getData().length > newClustering.getData().length
 				? oldClustering.getData().length
-				: newClustering.getData().length;
-		final int[][] confusion = new int[matrixSize][matrixSize];
-		final IntStream intersectionStream = IntStream.range(0, oldClustering.getData().length);
-		intersectionStream.parallel().forEach(idx -> {
-			for (int j = 0; j < newClustering.getData().length; ++j) {
-				try {
-					confusion[idx][j] = -Util.intersection(oldClustering.getData()[idx],
-							newClustering.getData()[j]).length;
-				} catch (final ArrayIndexOutOfBoundsException e) {
-					confusion[idx][j] = 0;
+						: newClustering.getData().length;
+				final int[][] confusion = new int[matrixSize][matrixSize];
+				final IntStream intersectionStream = IntStream.range(0, oldClustering.getData().length);
+				intersectionStream.parallel().forEach(idx -> {
+					for (int j = 0; j < newClustering.getData().length; ++j) {
+						try {
+							confusion[idx][j] = -Util.intersection(oldClustering.getData()[idx],
+									newClustering.getData()[j]).length;
+						} catch (final ArrayIndexOutOfBoundsException e) {
+							confusion[idx][j] = 0;
+						}
+					}
+				});
+
+				final HungarianAlgorithm hungarian = new HungarianAlgorithm(confusion);
+				final int[][] assignment = hungarian.findOptimalAssignment();
+				final List<Integer> newIDs = new ArrayList<Integer>();
+
+				final Map<Integer, Integer> idMap = new HashMap<Integer, Integer>();
+
+				for (int idx = 0; idx < matrixSize; ++idx) {
+					if (oldIDMap != null) {
+						if (oldIDMap.get(assignment[idx][1]) == null)
+							oldIDMap.put(assignment[idx][1], getNextFree(oldIDMap));
+						idMap.put(assignment[idx][0], oldIDMap.get(assignment[idx][1]));
+					} else
+						idMap.put(assignment[idx][0], assignment[idx][1]);
 				}
-			}
-		});
-
-		final HungarianAlgorithm hungarian = new HungarianAlgorithm(confusion);
-		final int[][] assignment = hungarian.findOptimalAssignment();
-		final List<Integer> newIDs = new ArrayList<Integer>();
-
-		final Map<Integer, Integer> idMap = new HashMap<Integer, Integer>();
-
-		for (int idx = 0; idx < matrixSize; ++idx) {
-			if (oldIDMap != null) {
-				if (oldIDMap.get(assignment[idx][1]) == null)
-					oldIDMap.put(assignment[idx][1], getNextFree(oldIDMap));
-				idMap.put(assignment[idx][0], oldIDMap.get(assignment[idx][1]));
-			} else
-				idMap.put(assignment[idx][0], assignment[idx][1]);
-		}
-		viewers[other].getPointContainer().getClusterInformation().setIDMap(idMap);
-		for (int idx = 0; idx < currentIDs.size(); ++idx) {
-			newIDs.add(idMap.get(currentIDs.get(idx)));
-		}
-		return newIDs;
+				viewers[other].getPointContainer().getClusterInformation().setIDMap(idMap);
+				for (int idx = 0; idx < currentIDs.size(); ++idx) {
+					newIDs.add(idMap.get(currentIDs.get(idx)));
+				}
+				return newIDs;
 	}
 
 	private Integer getNextFree(Map<Integer, Integer> map) {
