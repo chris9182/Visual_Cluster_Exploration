@@ -21,7 +21,7 @@ import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
-public class DBScan extends AbstractClustering {
+public class DBScan extends AbstractClustering implements IELKIClustering {
 	private static final long serialVersionUID = -5466140815704959353L;
 
 	private transient DBScanOptions optionsPanel = new DBScanOptions();

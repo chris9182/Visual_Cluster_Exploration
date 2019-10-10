@@ -1,22 +1,23 @@
 package clusterproject.program.Clustering.Panel;
 
 import java.text.NumberFormat;
+import java.text.ParseException;
 
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
-public class KMeansOptions extends JPanel {
-	private static final long serialVersionUID = 559822521256476978L;
-
+public class SpectralOptions extends JPanel {
 	private final JFormattedTextField lowerKField;
 	private final JFormattedTextField upperKField;
 	private final JFormattedTextField samplesEachField;
+	private final JFormattedTextField lowerSigmaField;
+	private final JFormattedTextField upperSigmaField;
 
 	private static final int INNER_PAD = 2;
 
-	public KMeansOptions() {
+	public SpectralOptions() {
 		setOpaque(false);
 		final SpringLayout layout = new SpringLayout();
 		setLayout(layout);
@@ -53,14 +54,44 @@ public class KMeansOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, uklbl, 0, SpringLayout.WEST, this);
 		add(uklbl);
 
+		final NumberFormat doubleFieldFormatter = NumberFormat.getNumberInstance();
+		// EPS
+		final JLabel sigmaLbl = new JLabel("sigma");
+		layout.putConstraint(SpringLayout.NORTH, sigmaLbl, 5 * INNER_PAD, SpringLayout.SOUTH, upperKField);
+		layout.putConstraint(SpringLayout.WEST, sigmaLbl, 0, SpringLayout.WEST, this);
+		add(sigmaLbl);
+
+		// lowerBound
+		lowerSigmaField = new JFormattedTextField(doubleFieldFormatter);
+		lowerSigmaField.setValue(new Double(1.0));
+		lowerSigmaField.setColumns(5);
+		layout.putConstraint(SpringLayout.NORTH, lowerSigmaField, INNER_PAD, SpringLayout.SOUTH, sigmaLbl);
+		layout.putConstraint(SpringLayout.EAST, lowerSigmaField, 0, SpringLayout.EAST, this);
+		add(lowerSigmaField);
+		final JLabel lepslbl = new JLabel("lower bound:");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, lepslbl, 0, SpringLayout.VERTICAL_CENTER, lowerSigmaField);
+		layout.putConstraint(SpringLayout.WEST, lepslbl, 0, SpringLayout.WEST, this);
+		add(lepslbl);
+
 		// upperBound
+		upperSigmaField = new JFormattedTextField(doubleFieldFormatter);
+		upperSigmaField.setValue(new Double(1.0));
+		upperSigmaField.setColumns(5);
+		layout.putConstraint(SpringLayout.NORTH, upperSigmaField, INNER_PAD, SpringLayout.SOUTH, lowerSigmaField);
+		layout.putConstraint(SpringLayout.EAST, upperSigmaField, 0, SpringLayout.EAST, this);
+		add(upperSigmaField);
+		final JLabel uepslbl = new JLabel("upper bound:");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, uepslbl, 0, SpringLayout.VERTICAL_CENTER, upperSigmaField);
+		layout.putConstraint(SpringLayout.WEST, uepslbl, 0, SpringLayout.WEST, this);
+		add(uepslbl);
+
 		samplesEachField = new JFormattedTextField(integerFieldFormatter);
 		samplesEachField.setValue(1);
 		samplesEachField.setColumns(5);
-		layout.putConstraint(SpringLayout.NORTH, samplesEachField, INNER_PAD, SpringLayout.SOUTH, upperKField);
+		layout.putConstraint(SpringLayout.NORTH, samplesEachField, INNER_PAD, SpringLayout.SOUTH, upperSigmaField);
 		layout.putConstraint(SpringLayout.EAST, samplesEachField, 0, SpringLayout.EAST, this);
 		add(samplesEachField);
-		final JLabel samplesEachlbl = new JLabel("Samples Each:");
+		final JLabel samplesEachlbl = new JLabel("Samples:");
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, samplesEachlbl, 0, SpringLayout.VERTICAL_CENTER,
 				samplesEachField);
 		layout.putConstraint(SpringLayout.WEST, samplesEachlbl, 0, SpringLayout.WEST, this);
@@ -74,6 +105,30 @@ public class KMeansOptions extends JPanel {
 
 	public int getUBK() {
 		return Integer.parseInt(upperKField.getText());
+	}
+
+	public double getLBSigma() {
+		final NumberFormat format = NumberFormat.getInstance();
+		Number number;
+		try {
+			number = format.parse(lowerSigmaField.getText());
+		} catch (final ParseException e1) {
+			e1.printStackTrace();
+			return 0;
+		}
+		return number.doubleValue();
+	}
+
+	public double getUBSigma() {
+		final NumberFormat format = NumberFormat.getInstance();
+		Number number;
+		try {
+			number = format.parse(upperSigmaField.getText());
+		} catch (final ParseException e1) {
+			e1.printStackTrace();
+			return 0;
+		}
+		return number.doubleValue();
 	}
 
 	public int getSamplesEach() {

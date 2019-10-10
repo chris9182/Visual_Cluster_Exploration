@@ -24,7 +24,5 @@ public abstract class AbstractClustering implements IClusterer {
 			synchronized (progressBar) {
 				progressBar.setValue(progressBar.getValue() + i);
 			}
-
 	}
-
 }

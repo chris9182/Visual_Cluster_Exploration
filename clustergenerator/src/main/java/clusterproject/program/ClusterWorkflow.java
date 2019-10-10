@@ -42,15 +42,19 @@ import clusterproject.data.PointContainer;
 import clusterproject.program.Clustering.DBScan;
 import clusterproject.program.Clustering.DiSHClustering;
 import clusterproject.program.Clustering.IClusterer;
+import clusterproject.program.Clustering.IELKIClustering;
+import clusterproject.program.Clustering.ISimpleClusterer;
 import clusterproject.program.Clustering.LloydKMeadians;
 import clusterproject.program.Clustering.LloydKMeans;
 import clusterproject.program.Clustering.MacQueenKMeans;
 import clusterproject.program.Clustering.SNN;
+import clusterproject.program.Clustering.SpectralClustering;
 import clusterproject.program.Clustering.Parameters.Parameter;
 import clusterproject.program.ClusteringResultsViewer.ClusteringViewer;
 import clusterproject.program.MetaClustering.ClusteringError;
 import clusterproject.program.MetaClustering.IDistanceMeasure;
 import clusterproject.program.MetaClustering.VariationOfInformation;
+import clusterproject.program.MetaClustering.VariationOfInformationBootstrapped;
 import clusterproject.util.HackedObjectInputStream;
 import clusterproject.util.Util;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
@@ -84,7 +88,8 @@ public class ClusterWorkflow extends JFrame {
 
 	private IClusterer selectedClusterer;
 
-	private final List<IClusterer> clusterers;
+	private final List<IClusterer> clusterersELKI;
+	private final List<IClusterer> clusterersOther;
 	private final JComboBox<String> clustererSelector;
 	private final List<IClusterer> workflow;
 
@@ -138,7 +143,8 @@ public class ClusterWorkflow extends JFrame {
 		add(mainPanel);
 
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
-		clusterers = new ArrayList<IClusterer>();
+		clusterersELKI = new ArrayList<IClusterer>();
+		clusterersOther = new ArrayList<IClusterer>();
 		distances = new ArrayList<IDistanceMeasure>();
 		workflow = new ArrayList<IClusterer>();
 		layout = new SpringLayout();
@@ -150,9 +156,12 @@ public class ClusterWorkflow extends JFrame {
 
 		initClusterers();
 		initDistances();
-		final String[] names = new String[clusterers.size()];
+		final String[] names = new String[clusterersELKI.size() + clusterersOther.size()];
 		for (int i = 0; i < names.length; ++i)
-			names[i] = clusterers.get(i).getName();
+			if (i < clusterersELKI.size())
+				names[i] = clusterersELKI.get(i).getName();
+			else
+				names[i] = clusterersOther.get(i - clusterersELKI.size()).getName();
 		clustererSelector = new JComboBox<>(names);
 		mainPanel.add(clustererSelector, new Integer(1));
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, clustererSelector, 0, SpringLayout.VERTICAL_CENTER,
@@ -359,7 +368,7 @@ public class ClusterWorkflow extends JFrame {
 				mainPanel);
 		layout.putConstraint(SpringLayout.EAST, confirmClustererButton, -OUTER_SPACE, SpringLayout.EAST, mainPanel);
 		mainPanel.add(confirmClustererButton, new Integer(1));
-		openClustererSettings(clusterers.get(0).getName());
+		openClustererSettings(clusterersELKI.get(0).getName());
 
 	}
 
@@ -463,8 +472,17 @@ public class ClusterWorkflow extends JFrame {
 		worker = new Thread(() -> {
 			progressBar.setString("Calculating Clusterings");
 			for (final IClusterer clusterer : workflow) {
-				final List<NumberVectorClusteringResult> results = clusterer.cluster(db);
-				clusterings.addAll(results);
+				if (clusterer instanceof IELKIClustering) {
+					final IELKIClustering elkiClusterer = (IELKIClustering) clusterer;
+					List<NumberVectorClusteringResult> results = null;
+					try {
+						results = elkiClusterer.cluster(db);
+					} catch (final Exception e) {
+						e.printStackTrace();
+						continue;
+					}
+					clusterings.addAll(results);
+				}
 			}
 			progressBar.setString("Converting Results");
 			if (pointContainer.hasClusters()) {
@@ -535,6 +553,15 @@ public class ClusterWorkflow extends JFrame {
 			}
 			// customData can now be used as a reference to the points for non elki
 			// clustering algorithms
+
+			progressBar.setString("Calculating Clusterings");
+			for (final IClusterer clusterer : workflow) {
+				if (clusterer instanceof ISimpleClusterer) {
+					final ISimpleClusterer simpleClusterer = (ISimpleClusterer) clusterer;
+					sClusterings.addAll(simpleClusterer.cluster(customData, headersList));
+				}
+			}
+
 			if (addTrivialSolutions) {
 				progressBar.setString("Adding Triv. Solutions");
 				final Parameter param = new Parameter("Trivial Solution");
@@ -599,7 +626,10 @@ public class ClusterWorkflow extends JFrame {
 			selectedClusterer.getOptionsPanel().setVisible(false);
 		}
 		selectedClusterer = null;
-		for (final IClusterer clusterer : clusterers)
+		for (final IClusterer clusterer : clusterersELKI)
+			if (clusterer.getName().equals(name))
+				selectedClusterer = clusterer.duplicate();
+		for (final IClusterer clusterer : clusterersOther)
 			if (clusterer.getName().equals(name))
 				selectedClusterer = clusterer.duplicate();
 		if (selectedClusterer == null)
@@ -690,18 +720,21 @@ public class ClusterWorkflow extends JFrame {
 		// TODO make distances and similar into maps
 //		final List<IDistanceMeasure> distancesList = new ArrayList<IDistanceMeasure>();
 		distances.add(new VariationOfInformation());
+		distances.add(new VariationOfInformationBootstrapped());
 		distances.add(new ClusteringError());
 	}
 
 	private void initClusterers() {
-		clusterers.add(new DBScan());
-		clusterers.add(new DiSHClustering());
-		clusterers.add(new SNN());
-
+		clusterersELKI.add(new DBScan());
+		clusterersELKI.add(new DiSHClustering());
+		clusterersELKI.add(new SNN());
 		// clusterers.add(new CLIQUEClustering());//XXX this is bugged
-		clusterers.add(new LloydKMeans());
-		clusterers.add(new MacQueenKMeans());
-		clusterers.add(new LloydKMeadians());
+		clusterersELKI.add(new LloydKMeans());
+		clusterersELKI.add(new MacQueenKMeans());
+		clusterersELKI.add(new LloydKMeadians());
+
+		clusterersOther.add(new SpectralClustering());
+
 	}
 
 }

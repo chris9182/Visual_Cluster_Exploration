@@ -22,7 +22,7 @@ import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 //import scala.collection.mutable.BitSet;
 
-public class DiSHClustering extends AbstractClustering {
+public class DiSHClustering extends AbstractClustering implements IELKIClustering {
 	private static final long serialVersionUID = -7172931268458883217L;
 
 	private transient DiSHOptions optionsPanel = new DiSHOptions();

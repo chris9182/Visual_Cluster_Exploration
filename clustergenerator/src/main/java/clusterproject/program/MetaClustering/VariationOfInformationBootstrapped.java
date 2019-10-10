@@ -4,15 +4,16 @@ import clusterproject.data.ClusteringResult;
 import clusterproject.util.Util;
 
 //from https://en.wikipedia.org/wiki/Variation_of_information
-public class VariationOfInformation implements IDistanceMeasure {
+public class VariationOfInformationBootstrapped implements IDistanceMeasure {
 
 	@Override
 	public double distanceBetween(ClusteringResult clustering, ClusteringResult clustering2) {
 		final double[][][] data1orig = clustering.getData();
 		final double[][][] data2orig = clustering2.getData();
 
-		final double[][][] data1 = data1orig;
-		final double[][][] data2 = data2orig;
+		final Object[] intersection = Util.intersection(clustering, clustering2);
+		final double[][][] data1 = Util.getReduceTo(intersection, data1orig);
+		final double[][][] data2 = Util.getReduceTo(intersection, data2orig);
 
 		final int n = clustering.getPointCount();
 		double sum = 0;
@@ -32,6 +33,6 @@ public class VariationOfInformation implements IDistanceMeasure {
 
 	@Override
 	public String getName() {
-		return "Variation of Information";
+		return "Variation of Information (Bootstrapping)";
 	}
 }

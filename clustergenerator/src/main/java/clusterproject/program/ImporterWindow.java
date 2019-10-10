@@ -49,7 +49,7 @@ public class ImporterWindow extends JFrame {
 		final BoxLayout layout = new BoxLayout(thisPanel, BoxLayout.Y_AXIS);
 		thisPanel.setLayout(layout);
 		fileChooser = new JFileChooser();
-		final FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV-Files", "csv");
+		final FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV-Files", "csv", "txt");
 		fileChooser.addChoosableFileFilter(filter);
 		final FileNameExtensionFilter filter2 = new FileNameExtensionFilter("Arff-Files", "arff");
 		fileChooser.addChoosableFileFilter(filter2);
@@ -98,6 +98,8 @@ public class ImporterWindow extends JFrame {
 				labelIndex = Integer.parseInt(labelIndexField.getText());
 			} catch (final Exception e) {
 			}
+			if (labelIndex == -2)
+				labelIndex = data.numAttributes() - 1;
 
 			final List<String> headers = new ArrayList<String>();
 			for (int i = 0; i < data.numAttributes(); i++) {
@@ -174,10 +176,13 @@ public class ImporterWindow extends JFrame {
 		Reader in = null;
 		try {
 			in = new FileReader(selectedFile);
-			final CSVParser parser = new CSVParser(in, CSVFormat.DEFAULT.withAllowMissingColumnNames());
+			final CSVParser parser = new CSVParser(in,
+					CSVFormat.DEFAULT.withAllowMissingColumnNames().withIgnoreSurroundingSpaces());
 			pointContainer.empty();
 			final List<CSVRecord> records = parser.getRecords();
 			final int size = records.get(0).size();
+			if (labelIndex == -2)
+				labelIndex = size - 1;
 			final boolean hasLabels = labelIndex > -1;
 			pointContainer.setDim(hasLabels ? size - 1 : size);
 			final CSVRecord firstRecord = records.get(0);

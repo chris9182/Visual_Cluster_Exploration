@@ -166,7 +166,7 @@ public class PointContainer {
 			sampleContainer.addPoint(points.get(i * stride));
 		}
 		if (clusterInformation.hasClusters()) {
-			sampleContainer.clusterInformation.setUpClusters();
+			sampleContainer.setUpClusters();
 			for (int i = 0; i < maxPoints; ++i) {
 				sampleContainer.clusterInformation.getOriginalClusterIDs()
 						.add(clusterInformation.getOriginalClusterIDs().get(i * stride));

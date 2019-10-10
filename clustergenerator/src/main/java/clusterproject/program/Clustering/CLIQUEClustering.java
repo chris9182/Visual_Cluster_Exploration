@@ -20,7 +20,7 @@ import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
-public class CLIQUEClustering extends AbstractClustering {
+public class CLIQUEClustering extends AbstractClustering implements IELKIClustering {
 
 	private static final long serialVersionUID = -724435821167392129L;
 

@@ -26,7 +26,7 @@ import de.lmu.ifi.dbs.elki.math.random.RandomFactory;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
-public class MacQueenKMeans extends AbstractClustering {
+public class MacQueenKMeans extends AbstractClustering implements IELKIClustering {
 	private static final long serialVersionUID = -5466140815704959353L;
 
 	private transient KMeansOptions optionsPanel = new KMeansOptions();
@@ -105,13 +105,13 @@ public class MacQueenKMeans extends AbstractClustering {
 	@Override
 	public String getSettingsString() {
 		prepareSettings();
-		return "k:{LB:" + minK + " UB:" + maxK + "} Samples each:{" + samplesEach + "}";
+		return "k{LB:" + minK + " UB:" + maxK + "} Samples each{" + samplesEach + "}";
 	}
 
 	@Override
 	public int getCount() {
 		prepareSettings();
-		return maxK - minK;
+		return (maxK - minK) * samplesEach;
 	}
 
 	private void prepareSettings() {

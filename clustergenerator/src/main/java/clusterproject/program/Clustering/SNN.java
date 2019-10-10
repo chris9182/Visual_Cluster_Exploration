@@ -22,7 +22,7 @@ import de.lmu.ifi.dbs.elki.index.preprocessed.snn.SharedNearestNeighborPreproces
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
-public class SNN extends AbstractClustering {
+public class SNN extends AbstractClustering implements IELKIClustering {
 	private static final long serialVersionUID = -5466140815704959353L;
 
 	private transient SNNOptions optionsPanel = new SNNOptions();
