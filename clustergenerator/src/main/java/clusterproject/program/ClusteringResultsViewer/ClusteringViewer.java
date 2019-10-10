@@ -220,7 +220,7 @@ public class ClusteringViewer extends JFrame {
 				scatterMatrixButton);
 		mainPanel.add(saveButton, new Integer(1));
 
-		consensusButton = new JButton("Consensus - BETA");
+		consensusButton = new JButton("Consensus");
 		consensusButton.addActionListener(e -> {
 			final ConsensusFunction function = new CoAssociationMatrixAverageLink();
 //			final ConsensusFunction function = new CoAssociationMatrixThreshhold();
@@ -233,6 +233,7 @@ public class ClusteringViewer extends JFrame {
 				final double[][][] data = consesnsus.toData();
 				final Parameter param = new Parameter("Consensus");
 				param.addParameter("Result ID", index);
+				param.addAdditionalParameter("Number of Clusters incl.", t.size());
 				resultArray[index] = (new ClusteringResult(data, param, this.clusterings.get(0).getHeaders()));
 			});
 			final List<ClusteringResult> results = new ArrayList<ClusteringResult>(Arrays.asList(resultArray));

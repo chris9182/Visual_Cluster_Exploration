@@ -46,7 +46,7 @@ public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 							coAssociationMatrix[i][j] += weights.get(t);
 
 					}
-					if (currentWeight <= 0)
+					if (currentWeight <= Double.MIN_NORMAL)
 						coAssociationMatrix[i][j] = 0;
 					else
 						coAssociationMatrix[i][j] /= currentWeight;
@@ -65,7 +65,7 @@ public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 						else if (assignments.get(t).get(pointi) == assignments.get(t).get(pointj))
 							++coAssociationMatrix[i][j];
 					}
-					if (currentWeight <= 0)
+					if (currentWeight <= Double.MIN_NORMAL)
 						coAssociationMatrix[i][j] = 0;
 					else
 						coAssociationMatrix[i][j] /= currentWeight;
@@ -86,12 +86,14 @@ public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 				if (coAssociationMatrix[i][j] > threshhold) {
 					int set1 = -1;
 					int set2 = -1;
+					final double[] point1 = points.get(i);
+					final double[] point2 = points.get(j);
 					for (int z = 0; z < consensus.size(); ++z) {
-						if (consensus.get(z).contains(points.get(i)))
+						if (consensus.get(z).contains(point1))
 							set1 = z;
 					}
 					for (int z = 0; z < consensus.size(); ++z) {
-						if (consensus.get(z).contains(points.get(j)))
+						if (consensus.get(z).contains(point2))
 							set2 = z;
 					}
 					if (set1 != set2) {
@@ -105,10 +107,14 @@ public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 		final PointContainer newContainer = new PointContainer(results.get(0).getDim());
 		newContainer.setPoints(points);
 		newContainer.setUpClusters();
-		for (final double[] point : points) {
-			for (int i = 0; i < consensus.size(); ++i)
-				if (consensus.get(i).contains(point))
-					newContainer.getClusterInformation().addClusterID(i);
+		final int size = consensus.size();
+		for (int i = 0; i < pointCount; ++i) {
+			for (int j = 0; j < size; ++j)
+				if (consensus.get(j).contains(points.get(i))) {
+					newContainer.getClusterInformation().addClusterID(j);
+					break;
+				}
+			// TODO: use hashtable? break here?
 		}
 		newContainer.setHeaders(results.get(0).getHeaders());
 		return newContainer;

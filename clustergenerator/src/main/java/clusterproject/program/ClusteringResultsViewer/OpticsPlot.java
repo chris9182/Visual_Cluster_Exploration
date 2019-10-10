@@ -38,7 +38,7 @@ public class OpticsPlot extends JLayeredPane {
 	private final JPanel opticsBars;
 	private final SpringLayout layout;
 	private final List<OpticsBar> bars;
-	private double threshhold = 0.5;
+	private double threshhold = -Double.MIN_NORMAL;
 	private double max = 0;
 	private final ClusteringViewer clusteringViewer;
 	private final int NOISE_TAG = -2;

@@ -5,13 +5,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
 
-import com.google.common.util.concurrent.AtomicDouble;
-
 import clusterproject.data.PointContainer;
+import clusterproject.util.Container;
 
 public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 
@@ -50,7 +48,7 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 							coAssociationMatrix[i][j] += weights.get(t);
 
 					}
-					if (currentWeight <= 0)
+					if (currentWeight <= Double.MIN_NORMAL)
 						coAssociationMatrix[i][j] = 0;
 					else
 						coAssociationMatrix[i][j] /= currentWeight;
@@ -69,7 +67,7 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 						else if (assignments.get(t).get(pointi) == assignments.get(t).get(pointj))
 							++coAssociationMatrix[i][j];
 					}
-					if (currentWeight <= 0)
+					if (currentWeight <= Double.MIN_NORMAL)
 						coAssociationMatrix[i][j] = 0;
 					else
 						coAssociationMatrix[i][j] /= currentWeight;
@@ -88,15 +86,17 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 		boolean cont = true;
 		final ReentrantLock lock = new ReentrantLock();
 		while (cont) {
-			final AtomicDouble maxAvgLink = new AtomicDouble(-Double.MAX_VALUE);
-			final AtomicInteger idx1 = new AtomicInteger(-1);
-			final AtomicInteger idx2 = new AtomicInteger(-1);
+			final Container<Double> maxAvgLink = new Container<Double>(-Double.MAX_VALUE);
+			final Container<Integer> idx1 = new Container<Integer>(-1);
+			final Container<Integer> idx2 = new Container<Integer>(-1);
 			IntStream.range(0, consensus.size()).parallel().forEach(i -> {
 				int myIDx1 = -1;
 				int myIDx2 = -1;
 				double myMaxAvgLink = -Double.MAX_VALUE;
-				for (int j = i + 1; j < consensus.size(); ++j) {
-					final double avgLink = calcAvgLink(consensus.get(i), consensus.get(j), coAssociationMatrix);
+				final Set<Integer> set1 = consensus.get(i);
+				final int size = consensus.size();
+				for (int j = i + 1; j < size; ++j) {
+					final double avgLink = calcAvgLink(set1, consensus.get(j), coAssociationMatrix);
 					if (avgLink > myMaxAvgLink) {
 						myIDx1 = i;
 						myIDx2 = j;
@@ -105,10 +105,10 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 				}
 				lock.lock();
 				try {
-					if (myMaxAvgLink > maxAvgLink.get()) {
-						idx1.set(myIDx1);
-						idx2.set(myIDx2);
-						maxAvgLink.set(myMaxAvgLink);
+					if (myMaxAvgLink > maxAvgLink.getValue()) {
+						idx1.setValue(myIDx1);
+						idx2.setValue(myIDx2);
+						maxAvgLink.setValue(myMaxAvgLink);
 					}
 				} finally {
 					lock.unlock();
@@ -116,23 +116,25 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 
 			});
 
-			if (maxAvgLink.get() < threshhold)
+			if (maxAvgLink.getValue() < threshhold)
 				cont = false;
 			else {
-				consensus.get(idx1.get()).addAll(consensus.get(idx2.get()));
-				consensus.remove(idx2.get());
+				consensus.get(idx1.getValue()).addAll(consensus.get(idx2.getValue()));
+				consensus.remove((int) idx2.getValue());
 			}
 		}
 
 		final PointContainer newContainer = new PointContainer(results.get(0).getDim());
 		newContainer.setPoints(points);
 		newContainer.setUpClusters();
+		final int size = consensus.size();
 		for (int i = 0; i < pointCount; ++i) {
-			for (int j = 0; j < consensus.size(); ++j)
-				if (consensus.get(j).contains(i))
+			for (int j = 0; j < size; ++j)
+				if (consensus.get(j).contains(i)) {
 					newContainer.getClusterInformation().addClusterID(j);
+					break;
+				}
 			// TODO: use hashtable? break here?
-
 		}
 		newContainer.setHeaders(results.get(0).getHeaders());
 		return newContainer;
@@ -141,8 +143,18 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 	private double calcAvgLink(Set<Integer> s1, Set<Integer> s2, double[][] coAssociationMatrix) {
 		double dist = 0;
 		for (final Integer i : s1)
-			for (final Integer j : s2)
-				dist += coAssociationMatrix[i < j ? i : j][i < j ? j : i];
+			for (final Integer j : s2) {
+				int x;
+				int y;
+				if (i < j) {
+					x = i;
+					y = j;
+				} else {
+					x = j;
+					y = i;
+				}
+				dist += coAssociationMatrix[x][y];
+			}
 		dist /= s1.size() * s2.size();
 		return dist;
 	}

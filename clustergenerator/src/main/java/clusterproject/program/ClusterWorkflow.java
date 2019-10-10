@@ -70,8 +70,8 @@ public class ClusterWorkflow extends JFrame {
 	private static final int OUTER_SPACE = 20;
 	private static final int OPTIONS_WIDTH = 200;
 	private static final boolean DEFAULT_ADD_GROUND_TRUTH = true;
-	private static final boolean DEFAULT_KEEP_TRIVIAL_SOLUTIONS = true;
-	private static final boolean DEFAULT_ADD_TRIVIAL_SOLUTIONS = false;
+	private static final boolean DEFAULT_KEEP_TRIVIAL_SOLUTIONS = false;
+	private static final boolean DEFAULT_ADD_TRIVIAL_SOLUTIONS = true;
 
 	public static final FileNameExtensionFilter cwffilter = new FileNameExtensionFilter(
 			"Clustering Workflow Files (cwf)", "cwf");
@@ -92,6 +92,7 @@ public class ClusterWorkflow extends JFrame {
 	private final JComboBox<String> distanceSelector;
 	private final JFormattedTextField minPTSField;
 	private final JFormattedTextField epsField;
+	private final JFormattedTextField seedField;
 	private final JCheckBox addGroundTruthBox;
 	private final JCheckBox keepTrivialSolutionsBox;
 	private final JCheckBox addTrivialSolutionsBox;
@@ -114,6 +115,10 @@ public class ClusterWorkflow extends JFrame {
 		addGroundTruthBox = new JCheckBox("Add ground truth", DEFAULT_ADD_GROUND_TRUTH);
 		keepTrivialSolutionsBox = new JCheckBox("Keep trivial solutions", DEFAULT_KEEP_TRIVIAL_SOLUTIONS);
 		addTrivialSolutionsBox = new JCheckBox("Add trivial solutions", DEFAULT_ADD_TRIVIAL_SOLUTIONS);
+		seedField = new JFormattedTextField(integerFieldFormatter);
+		seedField.setValue(-1);
+		seedField.setColumns(10);
+		seedField.setHorizontalAlignment(SwingConstants.RIGHT);
 		minPTSField = new JFormattedTextField(integerFieldFormatter);
 		minPTSField.setValue(2);
 		minPTSField.setColumns(5);
@@ -234,9 +239,18 @@ public class ClusterWorkflow extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, minPTSField, MainWindow.INNER_SPACE, SpringLayout.EAST, minPtsLabel);
 		mainPanel.add(minPTSField, new Integer(1));
 
+		final JLabel seedLabel = new JLabel("Seed:");
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, seedLabel, 0, SpringLayout.VERTICAL_CENTER, minPTSField);
+		layout.putConstraint(SpringLayout.WEST, seedLabel, OUTER_SPACE, SpringLayout.EAST, minPTSField);
+		mainPanel.add(seedLabel, new Integer(1));
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, seedField, 0, SpringLayout.VERTICAL_CENTER, seedLabel);
+		layout.putConstraint(SpringLayout.WEST, seedField, MainWindow.INNER_SPACE, SpringLayout.EAST, seedLabel);
+		mainPanel.add(seedField, new Integer(1));
+//		seedField
+
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, addGroundTruthBox, 0, SpringLayout.VERTICAL_CENTER,
 				minPTSField);
-		layout.putConstraint(SpringLayout.WEST, addGroundTruthBox, OUTER_SPACE, SpringLayout.EAST, minPTSField);
+		layout.putConstraint(SpringLayout.WEST, addGroundTruthBox, OUTER_SPACE, SpringLayout.EAST, seedField);
 		mainPanel.add(addGroundTruthBox, new Integer(1));
 
 		final JLabel epsLabel = new JLabel("Eps:");
@@ -436,7 +450,12 @@ public class ClusterWorkflow extends JFrame {
 		}
 		progressBar.setMaximum(maximum);
 		// TODO: enable setting seed from outside
-		seededRandom.setSeed(System.currentTimeMillis());
+		final long seed = seedField.getValue() instanceof Integer ? (Integer) seedField.getValue()
+				: (Long) seedField.getValue();
+		if (seed > -1)
+			seededRandom.setSeed(seed);
+		else
+			seededRandom.setSeed(System.currentTimeMillis());
 //		seededRandom.setSeed(0);
 		final boolean addGroundTruth = addGroundTruthBox.isSelected();
 		final boolean keepTrivialSolutions = keepTrivialSolutionsBox.isSelected();
@@ -527,9 +546,14 @@ public class ClusterWorkflow extends JFrame {
 
 				final Parameter param2 = new Parameter("Trivial Solution");
 				final ClusteringResult trivialAll = new ClusteringResult(trivialDataAll, param2, headersList);
-				// XXX maybe add in front if addGroundTruth is false
-				sClusterings.add(trivialOne);
-				sClusterings.add(trivialAll);
+
+				if (!addGroundTruth) {
+					sClusterings.add(0, trivialAll);
+					sClusterings.add(0, trivialOne);
+				} else {
+					sClusterings.add(trivialOne);
+					sClusterings.add(trivialAll);
+				}
 			}
 
 			progressBar.setString("Calculating Meta");
