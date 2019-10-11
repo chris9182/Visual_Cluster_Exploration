@@ -24,5 +24,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="/LAML/LAML-1.6.5.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

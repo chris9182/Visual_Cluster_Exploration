@@ -22,14 +22,15 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 		for (final PointContainer container : results)
 			allpoints.addAll(container.getPoints());
 		final List<double[]> points = new ArrayList<double[]>(allpoints);
-		final int pointCount=points.size();
+		final int pointCount = points.size();
 
-		final double[][] coAssociationMatrix=CoAssociationMatrix.buildMatrix(results, weights,points,pointCount);
+		final double[][] coAssociationMatrix = CoAssociationMatrix.buildMatrix(results, weights, points, pointCount);
 
 		return link(results, pointCount, points, coAssociationMatrix);
 	}
 
-	public static PointContainer link(List<PointContainer> results,int pointCount,List<double[]> points,double[][] coAssociationMatrix) {
+	public static PointContainer link(List<PointContainer> results, int pointCount, List<double[]> points,
+			double[][] coAssociationMatrix) {
 		final List<Set<Integer>> consensus = new ArrayList<Set<Integer>>();
 
 		for (int i = 0; i < pointCount; ++i) {

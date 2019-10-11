@@ -60,7 +60,7 @@ public class OpticsPlot extends JLayeredPane {
 		layout.putConstraint(SpringLayout.NORTH, setHistogramDataButton, 0, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.EAST, setHistogramDataButton, 0, SpringLayout.EAST, this);
 		setHistogramDataButton.setBackground(new Color(255, 255, 255, 0));// color doesnt matter just for transparancy
-																			// to kick in
+		// to kick in
 		setHistogramDataButton.setOpaque(false);
 		setHistogramDataButton.setFocusable(false);
 		opticsBars = new JPanel();
@@ -234,6 +234,10 @@ public class OpticsPlot extends JLayeredPane {
 		return clusteringViewer.getDistanceToTruth(i);
 	}
 
+	public Double getNMIToTruth(int i) {
+		return clusteringViewer.getNMIToTruth(i);
+	}
+
 	private class OpticsBar extends JComponent {
 		/**
 		 *
@@ -253,9 +257,10 @@ public class OpticsPlot extends JLayeredPane {
 			final Double dist = plot.getDistanceToTruth(myid);
 			if (!dist.equals(Double.NaN)) {
 				if (Math.abs(dist) < Double.MIN_NORMAL)
-					setToolTipText("Equal to Ground Truth");
+					setToolTipText("<html>" + "Equal to Ground Truth" + "</html>");
 				else
-					setToolTipText("Distance to Ground Truth: " + Float.toString((float) ((double) dist)));
+					setToolTipText("<html>" + "Distance to Ground Truth: " + Float.toString((float) (double) dist)
+							+ "<br> NMI: " + Float.toString((float) (double) plot.getNMIToTruth(myid)) + "</html>");
 			}
 		}
 

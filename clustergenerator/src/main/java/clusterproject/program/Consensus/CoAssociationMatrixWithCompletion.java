@@ -12,9 +12,8 @@ import la.matrix.SparseMatrix;
 import ml.recovery.MatrixCompletion;
 
 public class CoAssociationMatrixWithCompletion implements ConsensusFunction {
-	public static final double UPPERBOUND=0.6;
-	public static final double LOWERBOUND=0.4;
-
+	public static final double UPPERBOUND = 0.6;
+	public static final double LOWERBOUND = 0.4;
 
 	@Override
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights) {
@@ -24,34 +23,36 @@ public class CoAssociationMatrixWithCompletion implements ConsensusFunction {
 		for (final PointContainer container : results)
 			allpoints.addAll(container.getPoints());
 		final List<double[]> points = new ArrayList<double[]>(allpoints);
-		final int pointCount=points.size();
+		final int pointCount = points.size();
 
-		double[][] coAssociationMatrix=CoAssociationMatrix.buildMatrix(results, weights,points,pointCount);
-		for(int i=0;i<pointCount;++i)
-			coAssociationMatrix[i][i]=1;
+		double[][] coAssociationMatrix = CoAssociationMatrix.buildMatrix(results, weights, points, pointCount);
+		for (int i = 0; i < pointCount; ++i)
+			coAssociationMatrix[i][i] = 1;
 
-		for(int i=0;i<pointCount;++i)
+		for (int i = 0; i < pointCount; ++i)
 			for (int j = 0; j < i; ++j) {
-				coAssociationMatrix[i][j]=coAssociationMatrix[j][i];
+				coAssociationMatrix[i][j] = coAssociationMatrix[j][i];
 			}
 
-		final SparseMatrix smat=new SparseMatrix(pointCount, pointCount);
-		final MatrixCompletion completion=new MatrixCompletion();
+		final SparseMatrix smat = new SparseMatrix(pointCount, pointCount);
+		final MatrixCompletion completion = new MatrixCompletion();
 		final Matrix m = new DenseMatrix(coAssociationMatrix);
-		//		final double[][] indices=new double[coAssociationMatrix.length][coAssociationMatrix[0].length];
-		for(int i=0;i<coAssociationMatrix.length;++i)
-			for(int j=0;j<coAssociationMatrix[0].length;++j)
-				if(coAssociationMatrix[i][j]>LOWERBOUND&&coAssociationMatrix[i][j]<UPPERBOUND)
+		// final double[][] indices=new
+		// double[coAssociationMatrix.length][coAssociationMatrix[0].length];
+		for (int i = 0; i < coAssociationMatrix.length; ++i)
+			for (int j = 0; j < coAssociationMatrix[0].length; ++j)
+				if (coAssociationMatrix[i][j] > LOWERBOUND && coAssociationMatrix[i][j] < UPPERBOUND)
 					smat.setEntry(i, j, 1);
-		//					indices[i][j]=1;
-		//				else
-		//					indices[i][j]=0;
+		// indices[i][j]=1;
+		// else
+		// indices[i][j]=0;
 
 		completion.feedData(m);
-		//		completion.feedIndices(new DenseMatrix(indices));
+		// completion.feedIndices(new DenseMatrix(indices));
 		completion.feedIndices(smat);
 		completion.run();
-		final Matrix result=completion.GetLowRankEstimation();
-		coAssociationMatrix=result.getData();
+		final Matrix result = completion.GetLowRankEstimation();
+		coAssociationMatrix = result.getData();
 		return CoAssociationMatrixThreshhold.link(results, pointCount, points, coAssociationMatrix);
-	}}
+	}
+}

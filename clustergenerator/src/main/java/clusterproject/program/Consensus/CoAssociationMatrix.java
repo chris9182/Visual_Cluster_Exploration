@@ -8,7 +8,8 @@ import java.util.stream.IntStream;
 import clusterproject.data.PointContainer;
 
 public class CoAssociationMatrix {
-	public static double[][] buildMatrix(List<PointContainer> results, List<Double> weights,final List<double[]> points, int pointCount){
+	public static double[][] buildMatrix(List<PointContainer> results, List<Double> weights,
+			final List<double[]> points, int pointCount) {
 		final List<Map<double[], Integer>> assignments = new ArrayList<Map<double[], Integer>>();
 		for (final PointContainer result : results)
 			assignments.add(result.getLabelMap());
