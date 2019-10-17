@@ -51,7 +51,7 @@ import clusterproject.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.program.ClusterViewerElement.ScatterPlotMatrix;
 import clusterproject.program.Clustering.Parameters.Parameter;
 import clusterproject.program.ClusteringResultsViewer.FilterWindow.HistogramData;
-import clusterproject.program.Consensus.CoAssociationMatrixAverageLink;
+import clusterproject.program.Consensus.CoAssociationMatrixAverageLinkLifetime;
 import clusterproject.program.Consensus.ConsensusFunction;
 import clusterproject.program.MetaClustering.ClusteringWithDistance;
 import clusterproject.program.MetaClustering.DistanceCalculation;
@@ -224,7 +224,8 @@ public class ClusteringViewer extends JFrame {
 		consensusButton = new JButton("Consensus");
 		consensusButton.addActionListener(e -> {
 			// XXX improve and let user choose?
-			final ConsensusFunction function = new CoAssociationMatrixAverageLink();
+			// final ConsensusFunction function = new CoAssociationMatrixAverageLink();
+			final ConsensusFunction function = new CoAssociationMatrixAverageLinkLifetime();
 			// final ConsensusFunction function = new CoAssociationMatrixThreshhold();
 			// final ConsensusFunction function = new CoAssociationMatrixWithCompletion();
 			final List<List<PointContainer>> pointContainers = getContainersByTag();
@@ -263,8 +264,9 @@ public class ClusteringViewer extends JFrame {
 
 		MDS mds = null;
 		try {
-			mds = new MDS(distanceMatrix,
-					distanceMatrix.length - 1 < MDS_MAX_DIM ? distanceMatrix.length - 1 : MDS_MAX_DIM);
+			int k = distanceMatrix.length - 1 < MDS_MAX_DIM ? distanceMatrix.length - 1 : MDS_MAX_DIM;
+			k = k < 1 ? 1 : k;
+			mds = new MDS(distanceMatrix, k);
 			// System.err.println(mds.getProportion()[0] + " " + mds.getProportion()[1]);
 			final double[][] coords = mds.getCoordinates();
 			final PointContainer mdsContainer = new PointContainer(coords[0].length);

@@ -485,7 +485,7 @@ public class ClusterWorkflow extends JFrame {
 				}
 			}
 			progressBar.setString("Converting Results");
-			if (pointContainer.hasClusters()) {
+			if (pointContainer.hasClusters() && addGroundTruth) {
 				final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
 				final List<List<NumberVector>> pointList = new ArrayList<List<NumberVector>>();
@@ -509,18 +509,17 @@ public class ClusterWorkflow extends JFrame {
 						continue;
 					betterPointList.add(lNV1);
 				}
-				if (addGroundTruth) {
-					final NumberVector[][] clustersArr = new NumberVector[betterPointList.size()][];
-					i = 0;
-					for (final List<NumberVector> lNV2 : betterPointList) {
-						NumberVector[] clusterArr = new NumberVector[lNV2.size()];
-						clusterArr = lNV2.toArray(clusterArr);
-						clustersArr[i] = clusterArr;
-						++i;
-					}
-					final Parameter param = new Parameter(Util.GROUND_TRUTH);
-					clusterings.add(0, new NumberVectorClusteringResult(clustersArr, param));
+				final NumberVector[][] clustersArr = new NumberVector[betterPointList.size()][];
+				i = 0;
+				for (final List<NumberVector> lNV2 : betterPointList) {
+					NumberVector[] clusterArr = new NumberVector[lNV2.size()];
+					clusterArr = lNV2.toArray(clusterArr);
+					clustersArr[i] = clusterArr;
+					++i;
 				}
+				final Parameter param = new Parameter(Util.GROUND_TRUTH);
+				clusterings.add(0, new NumberVectorClusteringResult(clustersArr, param));
+
 			}
 
 			final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings,
@@ -574,7 +573,7 @@ public class ClusterWorkflow extends JFrame {
 				final Parameter param2 = new Parameter("Trivial Solution");
 				final ClusteringResult trivialAll = new ClusteringResult(trivialDataAll, param2, headersList);
 
-				if (!addGroundTruth) {
+				if (!pointContainer.hasClusters() || !addGroundTruth) {
 					sClusterings.add(0, trivialAll);
 					sClusterings.add(0, trivialOne);
 				} else {

@@ -12,8 +12,8 @@ import la.matrix.SparseMatrix;
 import ml.recovery.MatrixCompletion;
 
 public class CoAssociationMatrixWithCompletion implements ConsensusFunction {
-	public static final double UPPERBOUND = 0.6;
-	public static final double LOWERBOUND = 0.4;
+	public static final double UPPERBOUND = 0.5;
+	public static final double LOWERBOUND = 0.5;
 
 	@Override
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights) {
@@ -42,6 +42,8 @@ public class CoAssociationMatrixWithCompletion implements ConsensusFunction {
 		for (int i = 0; i < coAssociationMatrix.length; ++i)
 			for (int j = 0; j < coAssociationMatrix[0].length; ++j)
 				if (coAssociationMatrix[i][j] > LOWERBOUND && coAssociationMatrix[i][j] < UPPERBOUND)
+					smat.setEntry(i, j, 0);
+				else
 					smat.setEntry(i, j, 1);
 		// indices[i][j]=1;
 		// else
@@ -52,7 +54,9 @@ public class CoAssociationMatrixWithCompletion implements ConsensusFunction {
 		completion.feedIndices(smat);
 		completion.run();
 		final Matrix result = completion.GetLowRankEstimation();
+		System.err.println(result);
 		coAssociationMatrix = result.getData();
-		return CoAssociationMatrixThreshhold.link(results, pointCount, points, coAssociationMatrix);
+		return CoAssociationMatrixAverageLink.link(results, pointCount, points, coAssociationMatrix,
+				CoAssociationMatrixAverageLink.threshhold);
 	}
 }
