@@ -203,4 +203,16 @@ public class Util {
 		return newData;
 	}
 
+	// XXX: expensive, maybe combine with matrix calculation
+	public static List<ClusteringResult> removeDuplicates(List<ClusteringResult> clusterings) {
+		final List<ClusteringResult> dedup = new ArrayList<ClusteringResult>(clusterings);
+		for (int i = 0; i < clusterings.size(); ++i)
+			for (int j = i + 1; j < clusterings.size(); ++j) {
+				if (NMI.calc(clusterings.get(i).toPointContainer(), clusterings.get(j).toPointContainer()) == (1))
+					dedup.remove(clusterings.get(j));
+			}
+		return dedup;
+
+	}
+
 }

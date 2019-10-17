@@ -581,8 +581,9 @@ public class ClusterWorkflow extends JFrame {
 					sClusterings.add(trivialAll);
 				}
 			}
-
+//			final List<ClusteringResult> dedup = Util.removeDuplicates(sClusterings);
 			progressBar.setString("Calculating Meta");
+//			openClusterViewer(dedup);
 			openClusterViewer(sClusterings);
 			progressBar.setString("Done");
 		});
@@ -604,6 +605,7 @@ public class ClusterWorkflow extends JFrame {
 			minPTS = 2;
 		if (number != null)
 			eps = number.doubleValue() < 0 ? Double.MAX_VALUE : number.doubleValue();
+
 		final ClusteringViewer cv = new ClusteringViewer(clusterings, getDistanceMeasure(), minPTS, eps);
 		cv.setMinimumSize(new Dimension(800, 600));
 		cv.setExtendedState(Frame.MAXIMIZED_BOTH);
