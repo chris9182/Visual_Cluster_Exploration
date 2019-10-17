@@ -437,8 +437,13 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private synchronized void executeWorkflow() {
-		if (worker != null && worker.isAlive())
+		if (worker != null && worker.isAlive()) {
+			final int option = JOptionPane.showConfirmDialog(null, "Do you want to cancel this operation?",
+					"Cancel Clustering", JOptionPane.YES_NO_OPTION);
+			if (option == JOptionPane.YES_OPTION)
+				worker.interrupt();
 			return;
+		}
 		if (pointContainer.getPoints().size() < 2) {
 			JOptionPane.showMessageDialog(null, "Not enought data points!");
 			return;
@@ -476,7 +481,13 @@ public class ClusterWorkflow extends JFrame {
 					final IELKIClustering elkiClusterer = (IELKIClustering) clusterer;
 					List<NumberVectorClusteringResult> results = null;
 					try {
+						if (Thread.interrupted())
+							throw new InterruptedException();
 						results = elkiClusterer.cluster(db);
+					} catch (final InterruptedException e) {
+						progressBar.setValue(0);
+						progressBar.setString("Canceled");
+						return;
 					} catch (final Exception e) {
 						e.printStackTrace();
 						continue;
@@ -522,8 +533,36 @@ public class ClusterWorkflow extends JFrame {
 
 			}
 
-			final List<ClusteringResult> sClusterings = Util.convertClusterings(clusterings,
-					pointContainer.getHeaders());
+			final List<ClusteringResult> sClusterings = new ArrayList<ClusteringResult>();
+
+			if (clusterings != null && clusterings.size() > 0)
+				sClusterings.addAll(Util.convertClusterings(clusterings, pointContainer.getHeaders()));
+
+			double[][] customData = data;
+			List<String> headersList = pointContainer.getHeaders();
+			if (sClusterings.size() > 0) {
+				customData = new double[pointContainer.getPoints().size()][];
+				// this is (currently) only safe with no bootstaping
+				customData = sClusterings.get(0).toPointContainer().getPoints().toArray(customData);
+				headersList = sClusterings.get(0).getHeaders();
+			}
+			// customData can now be used as a reference to the points for non elki
+			// clustering algorithms
+
+			progressBar.setString("Calculating Clusterings");
+			for (final IClusterer clusterer : workflow) {
+				if (clusterer instanceof ISimpleClusterer)
+					try {
+						{
+							final ISimpleClusterer simpleClusterer = (ISimpleClusterer) clusterer;
+							sClusterings.addAll(simpleClusterer.cluster(customData, headersList));
+						}
+					} catch (final InterruptedException e) {
+						progressBar.setValue(0);
+						progressBar.setString("Canceled");
+						return;
+					}
+			}
 
 			if (!keepTrivialSolutions) {
 				progressBar.setString("Removing Triv. Solutions");
@@ -540,25 +579,6 @@ public class ClusterWorkflow extends JFrame {
 					}
 				}
 				sClusterings.removeAll(remove);
-			}
-
-			double[][] customData = data;
-			List<String> headersList = null;
-			if (sClusterings.size() > 0) {
-				customData = new double[pointContainer.getPoints().size()][];
-				// this is (currently) only safe with no bootstaping
-				customData = sClusterings.get(0).toPointContainer().getPoints().toArray(customData);
-				headersList = sClusterings.get(0).getHeaders();
-			}
-			// customData can now be used as a reference to the points for non elki
-			// clustering algorithms
-
-			progressBar.setString("Calculating Clusterings");
-			for (final IClusterer clusterer : workflow) {
-				if (clusterer instanceof ISimpleClusterer) {
-					final ISimpleClusterer simpleClusterer = (ISimpleClusterer) clusterer;
-					sClusterings.addAll(simpleClusterer.cluster(customData, headersList));
-				}
 			}
 
 			if (addTrivialSolutions) {

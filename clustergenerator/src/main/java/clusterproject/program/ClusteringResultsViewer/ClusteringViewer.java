@@ -74,7 +74,7 @@ public class ClusteringViewer extends JFrame {
 	public static final int RIGHT_PANEL_WIDTH = 300;
 	private static final int MAX_HEATMAP_SIZE = 130;
 
-	private static final int MDS_MAX_DIM = 10;
+	private static final int MDS_MAX_DIM = 3;
 
 	private final List<ClusteringResult> clusterings;
 	private final List<ClusteringWithDistance> clusteredList;
@@ -233,8 +233,8 @@ public class ClusteringViewer extends JFrame {
 			pointContainers.parallelStream().forEach(t -> {
 				final int index = pointContainers.indexOf(t);
 				final List<Double> weights = null;
-				final PointContainer consesnsus = function.calculateConsensus(t, weights);
-				final double[][][] data = consesnsus.toData();
+				final PointContainer consensus = function.calculateConsensus(t, weights);
+				final double[][][] data = consensus.toData();
 				final Parameter param = new Parameter("Consensus");
 				param.addParameter("Result ID", index);
 				param.addAdditionalParameter("Number of Clusters incl.", t.size());
@@ -888,6 +888,7 @@ public class ClusteringViewer extends JFrame {
 		return weightsList;
 	}
 
+	// TODO: what if there is no mds?
 	public List<List<PointContainer>> getContainersByTag() {
 		final Map<Integer, List<PointContainer>> containerLists = new TreeMap<Integer, List<PointContainer>>();
 		final List<Integer> tags = mdsPlot.getPointContainer().getClusterInformation().getClusterIDs();

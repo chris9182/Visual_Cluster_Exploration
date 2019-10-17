@@ -45,7 +45,7 @@ public class SNN extends AbstractClustering implements IELKIClustering {
 	}
 
 	@Override
-	public List<NumberVectorClusteringResult> cluster(Database db) {
+	public List<NumberVectorClusteringResult> cluster(Database db) throws InterruptedException {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
@@ -53,6 +53,8 @@ public class SNN extends AbstractClustering implements IELKIClustering {
 		if (random == null)
 			random = new Random();
 		for (int i = 0; i < samples; ++i) {
+			if (Thread.interrupted())
+				throw new InterruptedException();
 			final int calcEps = random.nextInt((epsBound - eps) + 1) + eps;
 			final int calcMinPTS = random.nextInt((minPTSBound - minPTS) + 1) + minPTS;
 			final int calcSNN = random.nextInt((snnBound - snn) + 1) + snn;

@@ -41,7 +41,7 @@ public class LloydKMeadians extends AbstractClustering implements IELKIClusterin
 	}
 
 	@Override
-	public List<NumberVectorClusteringResult> cluster(Database db) {
+	public List<NumberVectorClusteringResult> cluster(Database db) throws InterruptedException {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
@@ -51,6 +51,8 @@ public class LloydKMeadians extends AbstractClustering implements IELKIClusterin
 
 		for (int s = 0; s < samplesEach; ++s)
 			for (int i = minK; i <= maxK; ++i) {
+				if (Thread.interrupted())
+					throw new InterruptedException();
 				final int calcK = i;
 
 				final ListParameterization params = new ListParameterization();

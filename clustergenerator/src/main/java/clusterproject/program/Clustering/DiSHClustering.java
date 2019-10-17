@@ -43,13 +43,15 @@ public class DiSHClustering extends AbstractClustering implements IELKIClusterin
 	}
 
 	@Override
-	public List<NumberVectorClusteringResult> cluster(Database db) {
+	public List<NumberVectorClusteringResult> cluster(Database db) throws InterruptedException {
 		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 		prepareSettings();
 		if (random == null)
 			random = new Random();
 		for (int i = 0; i < samples; ++i) {
+			if (Thread.interrupted())
+				throw new InterruptedException();
 			final double calcEps = eps + (epsBound - eps) * random.nextDouble();
 			final int calcMu = random.nextInt((MuBound - Mu) + 1) + Mu;
 			final ListParameterization params = new ListParameterization();

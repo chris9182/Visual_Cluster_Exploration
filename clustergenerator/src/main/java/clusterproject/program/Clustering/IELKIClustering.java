@@ -6,5 +6,5 @@ import clusterproject.data.NumberVectorClusteringResult;
 import de.lmu.ifi.dbs.elki.database.Database;
 
 public interface IELKIClustering extends IClusterer {
-	List<NumberVectorClusteringResult> cluster(Database db);
+	List<NumberVectorClusteringResult> cluster(Database db) throws InterruptedException;
 }

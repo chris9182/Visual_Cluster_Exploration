@@ -32,17 +32,19 @@ public class SpectralClustering extends AbstractClustering implements ISimpleClu
 	@Override
 	public String getSettingsString() {
 		prepareSettings();
-		return "k{LB:" + minK + " UB:" + maxK + "} sigma{LB:" + minSigma + " UB:" + maxSigma + "} Samples each{"
-				+ samples + "}";
+		return "k{LB:" + minK + " UB:" + maxK + "} sigma{LB:" + minSigma + " UB:" + maxSigma + "} Samples{" + samples
+				+ "}";
 	}
 
 	@Override
-	public List<ClusteringResult> cluster(double[][] data, List<String> headers) {
+	public List<ClusteringResult> cluster(double[][] data, List<String> headers) throws InterruptedException {
 		if (random == null)
 			random = new Random();
 		final List<ClusteringResult> results = new ArrayList<ClusteringResult>();
 		final int pointCount = data.length;
 		for (int i = 0; i < samples; ++i) {
+			if (Thread.interrupted())
+				throw new InterruptedException();
 			final double calcSigma = minSigma + (maxSigma - minSigma) * random.nextDouble();
 			final int calcK = random.nextInt((maxK - minK) + 1) + minK;
 			final smile.clustering.SpectralClustering smSpectralClustering = new smile.clustering.SpectralClustering(
