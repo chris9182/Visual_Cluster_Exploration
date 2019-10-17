@@ -823,8 +823,9 @@ public class ClusteringViewer extends JFrame {
 		if (groundTruth < 0)
 			return Double.NaN;
 		return NMI.calc(//
-				viewers[groundTruth].getPointContainer().getClusterInformation().getOriginalClusterIDs(), //
-				viewers[i].getPointContainer().getClusterInformation().getOriginalClusterIDs());
+
+				viewers[groundTruth].getPointContainer(), //
+				viewers[i].getPointContainer());
 	}
 
 	public void setHistogramData(List<ClusteringResult> newData, HistogramData histogramData) {

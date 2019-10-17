@@ -1,16 +1,25 @@
 package clusterproject.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import clusterproject.data.PointContainer;
+
 public class NMI {
 
-	public static double calc(List<Integer> targetLabels, List<Integer> clusterLabels) {
+	public static double calc(PointContainer pointContainerTarget, PointContainer pointContainerCluster) {
+		final List<Integer> targetLabels = pointContainerTarget.getClusterInformation().getOriginalClusterIDs();
+		final List<Integer> clusterLabels = new ArrayList<Integer>();
+		final Map<double[], Integer> m2 = pointContainerCluster.getLabelMap();
+		for (final double[] point : pointContainerTarget.getPoints())
+			clusterLabels.add(m2.get(point));
 		final int length1 = targetLabels.size();
 		final int length2 = clusterLabels.size();
 		if (length1 != length2)
 			throw new IllegalArgumentException("The label lists need to have the same length to compute NMI!");
+		// XXX: bootstraping?
 		final int length = length1;
 		final Map<Integer, Integer> countPerLabel1 = new HashMap<Integer, Integer>();
 		for (int i = 0; i < length; ++i) {
