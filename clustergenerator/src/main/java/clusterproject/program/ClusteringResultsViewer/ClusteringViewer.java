@@ -464,6 +464,9 @@ public class ClusteringViewer extends JFrame {
 				clusterings.get(i).getParameter().addAdditionalParameter(Util.GROUND_TRUTH,
 						distanceMatrix[groundTruth][i]);
 			}
+			for (int i = 0; i < clusterings.size(); ++i) {
+				clusterings.get(i).getParameter().addAdditionalParameter("NMI", getNMIToTruth(i));
+			}
 		}
 		for (final ClusteringResult result : clusterings) {
 			int length = 0;

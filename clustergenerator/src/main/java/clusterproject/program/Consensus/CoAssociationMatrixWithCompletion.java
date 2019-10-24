@@ -52,6 +52,7 @@ public class CoAssociationMatrixWithCompletion implements ConsensusFunction {
 		completion.feedData(m);
 		// completion.feedIndices(new DenseMatrix(indices));
 		completion.feedIndices(smat);
+		// XXX: this uses the LAML library
 		completion.run();
 		final Matrix result = completion.GetLowRankEstimation();
 		System.err.println(result);

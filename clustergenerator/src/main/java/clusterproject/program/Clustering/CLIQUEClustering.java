@@ -78,7 +78,7 @@ public class CLIQUEClustering extends AbstractClustering implements IELKICluster
 			final Parameter param = new Parameter(getName());
 			param.addParameter("xsi", calcXsi);
 			param.addParameter("tauilon", calcTau);
-			param.addParameter("prune", i % 2 == 0);
+			param.addParameter("prune", i % 2 == 1);
 			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));// TODO:
 			// show
 			// pruning

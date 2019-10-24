@@ -92,7 +92,7 @@ public class PointContainer {
 	public MinMax getMinMaxFrom(int dimension) {
 		final MinMax minMax = new MinMax();
 		for (final double[] point : points) {
-			if (point[dimension] == Double.NaN)
+			if (Double.isNaN(point[dimension]))
 				continue;
 			minMax.add(point[dimension]);
 		}

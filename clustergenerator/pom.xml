@@ -33,6 +33,12 @@
 	 <name>Jzy3d Snapshots</name>
 	 <url>http://maven.jzy3d.org/releases </url>
   </repository>
+    <repository>
+	 <id>jena-bio</id>
+	 <name>Jena Bio</name>
+	 <url>https://bio.informatik.uni-jena.de/repository/libs-release-oss/ </url>
+  </repository>
+  	
 </repositories>
   <dependencies>
     <dependency>
@@ -147,6 +153,13 @@
     <artifactId>elki</artifactId>
     <version>0.7.1</version>
 </dependency>
+<!-- https://mvnrepository.com/artifact/net.sourceforge/javaml -->
+<dependency>
+    <groupId>net.sourceforge</groupId>
+    <artifactId>javaml</artifactId>
+    <version>0.1.7</version>
+</dependency>
+
   </dependencies>
   <description> </description>
 </project>

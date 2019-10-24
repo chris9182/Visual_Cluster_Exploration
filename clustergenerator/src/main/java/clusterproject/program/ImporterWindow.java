@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -188,6 +190,8 @@ public class ImporterWindow extends JFrame {
 			final CSVRecord firstRecord = records.get(0);
 			boolean hasHeaders = false;
 			for (int i = 0; i < size; ++i) {
+				if (i == labelIndex)
+					continue;
 				final String entry = firstRecord.get(i);
 				try {
 					format.parse(entry).doubleValue();
@@ -228,14 +232,17 @@ public class ImporterWindow extends JFrame {
 				pointContainer.addPoint(point);
 			}
 			if (hasLabels) {
+				final Map<String, Integer> translation = new HashMap<String, Integer>();
+				int minFree = 0;
 				pointContainer.setUpClusters();
 				for (final CSVRecord record : records) {
-					try {
-						pointContainer.getClusterInformation()
-								.addClusterID((int) format.parse(record.get(labelIndex)).doubleValue());
-					} catch (final Exception e) {
-						pointContainer.getClusterInformation().addClusterID(-1);
+					final String val = record.get(labelIndex);
+					Integer classVal = translation.get(val);
+					if (classVal == null) {
+						classVal = minFree++;
+						translation.put(val, classVal);
 					}
+					pointContainer.getClusterInformation().addClusterID(classVal);
 				}
 			}
 			parser.close();

@@ -463,14 +463,12 @@ public class ClusterWorkflow extends JFrame {
 			maximum += clusterer.getCount();
 		}
 		progressBar.setMaximum(maximum);
-		// TODO: enable setting seed from outside
 		final long seed = seedField.getValue() instanceof Integer ? (Integer) seedField.getValue()
 				: (Long) seedField.getValue();
 		if (seed > -1)
 			seededRandom.setSeed(seed);
 		else
 			seededRandom.setSeed(System.currentTimeMillis());
-//		seededRandom.setSeed(0);
 		final boolean addGroundTruth = addGroundTruthBox.isSelected();
 		final boolean keepTrivialSolutions = keepTrivialSolutionsBox.isSelected();
 		final boolean addTrivialSolutions = addTrivialSolutionsBox.isSelected();
