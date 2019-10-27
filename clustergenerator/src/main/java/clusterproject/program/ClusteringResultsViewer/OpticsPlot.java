@@ -1,20 +1,21 @@
 package clusterproject.program.ClusteringResultsViewer;
 
 import java.awt.AlphaComposite;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
@@ -37,19 +38,22 @@ public class OpticsPlot extends JLayeredPane {
 	private final List<ClusteringWithDistance> clusteringList;
 	private final JPanel opticsBars;
 	private final SpringLayout layout;
-	private final List<OpticsBar> bars;
 	private double threshhold = -Double.MIN_NORMAL;
 	private double max = 0;
 	private final ClusteringViewer clusteringViewer;
 	private final int NOISE_TAG = -2;
 	private final JButton setHistogramDataButton;
+	Map<Integer, Integer> indexMap;
 
 	public OpticsPlot(ClusteringViewer clusteringViewer, List<ClusteringWithDistance> clusteringList) {
 		this.clusteringViewer = clusteringViewer;
 		this.clusteringList = clusteringList;
 		layout = new SpringLayout();
 		setLayout(layout);
-		bars = new ArrayList<OpticsBar>(clusteringList.size());
+		this.indexMap = new HashMap<Integer, Integer>();
+		int key = 0;
+		for (final ClusteringWithDistance clu : clusteringList)
+			indexMap.put(key++, clu.inIndex);
 		setOpaque(false);
 		setHistogramDataButton = new JButton("Clusters to Histogram");
 		setHistogramDataButton.addActionListener(e -> {
@@ -65,9 +69,7 @@ public class OpticsPlot extends JLayeredPane {
 		setHistogramDataButton.setFocusable(false);
 		opticsBars = new JPanel();
 		opticsBars.setOpaque(false);
-		final GridLayout gridLayout = new GridLayout(0, clusteringList.size());
-		opticsBars.setLayout(gridLayout);
-		opticsBars.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.gray));
+		opticsBars.setLayout(new BorderLayout());
 
 		layout.putConstraint(SpringLayout.NORTH, opticsBars, 0, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.EAST, opticsBars, 0, SpringLayout.EAST, this);
@@ -82,23 +84,7 @@ public class OpticsPlot extends JLayeredPane {
 		else
 			max *= 1.1;
 
-		for (int i = 0; i < clusteringList.size(); ++i) {
-			final int selection = clusteringList.get(i).inIndex;
-			final OpticsBar bar = new OpticsBar(this, Math.min(clusteringList.get(i).distance / max, 1),
-					clusteringList.get(i).inIndex);
-			bar.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					// if(e.isShiftDown())
-					// shiftHighlight(selection);//TODO: maybe shift selection?
-					// else
-					highlight(selection, !e.isControlDown(), e.getClickCount() == 1);
-
-				}
-			});
-			bars.add(bar);
-			opticsBars.add(bar);
-		}
+		opticsBars.add(new OpticsDataPainter(this, clusteringList));
 		add(opticsBars, new Integer(20));
 		final JPanel threshholdClicker = new JPanel() {
 			private static final long serialVersionUID = -343022910473819436L;
@@ -199,9 +185,6 @@ public class OpticsPlot extends JLayeredPane {
 			++clusterer[curindex];
 		}
 		tag(clusterOrder, clusterer);
-		for (int i = 0; i < datalength; ++i) {
-			bars.get(i).setColor(Util.getColor(clusterOrder.get(i).tag + 2));
-		}
 	}
 
 	private void tag(List<ClusteringWithDistance> clusterOrder, int[] clusterer) {
@@ -238,78 +221,110 @@ public class OpticsPlot extends JLayeredPane {
 		return clusteringViewer.getNMIToTruth(i);
 	}
 
-	private class OpticsBar extends JComponent {
-		/**
-		 *
-		 */
-		private static final long serialVersionUID = 1L;
+	private class OpticsDataPainter extends JComponent {
+		private static final long serialVersionUID = 1159563867382183801L;
 		private final static int INNER_SPACE = 2;
 		private final static int BORDER_MIN_SIZE = 2;
-		private final double heightPercent;
-		private final int myid;
-		private Color color = Color.blue;
-		private final OpticsPlot plot;
+		final OpticsPlot plot;
+		final List<ClusteringWithDistance> clusteringList;
+		final List<Double> percentages;
 
-		public OpticsBar(OpticsPlot plot, double heightPercent, int myid) {
+		public OpticsDataPainter(OpticsPlot plot, List<ClusteringWithDistance> clusteringList) {
 			this.plot = plot;
-			this.heightPercent = heightPercent;
-			this.myid = myid;
-			final Double dist = plot.getDistanceToTruth(myid);
-			if (!dist.equals(Double.NaN)) {
-				if (Math.abs(dist) < Double.MIN_NORMAL)
-					setToolTipText("<html>" + "Equal to Ground Truth" + "</html>");
-				else
-					setToolTipText("<html>" + "Distance to Ground Truth: " + Float.toString((float) (double) dist)
-							+ "<br> NMI: " + Float.toString((float) (double) plot.getNMIToTruth(myid)) + "</html>");
-			}
+			this.clusteringList = clusteringList;
+			percentages = new ArrayList<Double>();
+			for (final ClusteringWithDistance clu : clusteringList)
+				percentages.add(Math.min(clu.distance / max, 1));
+			addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					final int width = getWidth();
+					final int length = clusteringList.size();
+					final double singleWidth = width / (double) length;
+					final int selected = (int) ((e.getX()) / singleWidth);
+					// if(e.isShiftDown())
+					// shiftHighlight(selection);//TODO: maybe shift selection?
+					// else
+					highlight(plot.getInIndex(selected), !e.isControlDown(), e.getClickCount() == 1);
+				}
+			});
 		}
 
 		@Override
 		public void paint(Graphics g) {
 			final Graphics2D g2 = (Graphics2D) g;
-			final boolean highlighted = plot.getHighlighted().contains(myid);
 			final Set<Integer> filtered = plot.getFilteredIndexes();
 			final int truth = plot.getTruth();
-			if (filtered != null && !filtered.contains(myid) && myid != truth)
-				g2.setComposite(AlphaComposite.SrcOver.derive(Util.FILTER_ALPHA));
-			else
-				g2.setComposite(AlphaComposite.SrcOver);
+			final int width = getWidth();
+			final double singleWidth = width / (double) clusteringList.size();
+			double startx = 0;
+			final int height = getHeight();
+			for (int i = 0; i < clusteringList.size(); ++i) {
+				final Color color = Util.getColor(clusteringList.get(i).tag + 2);
+				final int myid = plot.getInIndex(i);
+				final double heightPercent = percentages.get(i);
+				final boolean highlighted = plot.getHighlighted().contains(myid);
+				if (filtered != null && !filtered.contains(myid) && myid != truth)
+					g2.setComposite(AlphaComposite.SrcOver.derive(Util.FILTER_ALPHA));
+				else
+					g2.setComposite(AlphaComposite.SrcOver);
 
-			if (getWidth() - INNER_SPACE > BORDER_MIN_SIZE && !highlighted) {
-				g2.setColor(color);
-				g2.fillRect(INNER_SPACE / 2, (int) (getHeight() * (1 - heightPercent)) + 1, getWidth() - INNER_SPACE,
-						(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
-				g2.setColor(Color.BLACK);
-				g2.drawRect(INNER_SPACE / 2, (int) Math.min((getHeight() * (1 - heightPercent)), getHeight() - 2),
-						getWidth() - INNER_SPACE,
-						(getHeight() - (int) Math.min((getHeight() * (1 - heightPercent)), getHeight() - 2)) - 1);
-			} else {
-				if (highlighted) {
-					g2.setColor(Color.lightGray);
-					g2.fillRect(0, 0, getWidth(), getHeight());
-					g2.setColor(Util.HIGHLIGHT_COLOR);
-					g2.fillRect(0, (int) (getHeight() * (1 - heightPercent) - 1), getWidth(),
-							(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
-				} else {
+				if (singleWidth - INNER_SPACE > BORDER_MIN_SIZE && !highlighted) {
+					final int istartx = (int) Math.round(startx + INNER_SPACE / 2);
+					final int iendx = (int) Math.round(startx - INNER_SPACE / 2 + singleWidth);
+					final int istarty = (int) (height * (1 - heightPercent)) + 1;
+					final int iendy = height - 1;
+					final int istarty2 = (int) Math.min((height * (1 - heightPercent)), height - 2);
+					final int iendy2 = height - 1;
 					g2.setColor(color);
-					g2.fillRect(0, (int) (getHeight() * (1 - heightPercent) - 1), getWidth(),
-							(getHeight() - (int) (getHeight() * (1 - heightPercent))) + 1);
+					if (istarty < iendy)
+						g2.fillPolygon(new int[] { istartx, iendx, iendx, istartx },
+								new int[] { istarty, istarty, iendy, iendy }, 4);
+					g2.setColor(Color.BLACK);
+					if (istarty2 < iendy2)
+						g2.drawPolygon(new int[] { istartx, iendx, iendx, istartx },
+								new int[] { istarty2, istarty2, iendy2, iendy2 }, 4);
+
+				} else {
+					if (highlighted) {
+						final int istartx;
+						final int iendx;
+						final int iendy;
+						if (singleWidth - INNER_SPACE > BORDER_MIN_SIZE) {
+							istartx = (int) Math.round(startx + INNER_SPACE / 2);
+							iendx = (int) Math.round(startx + singleWidth);
+							iendy = height;
+						} else {
+							istartx = (int) Math.round(startx);
+							iendx = (int) Math.round(startx + singleWidth);
+							iendy = height - 1;
+						}
+						final int istarty = Math.min((int) (height * (1 - heightPercent)), height - 1);
+						g2.setColor(Color.lightGray);
+						g2.fillPolygon(new int[] { istartx, iendx, iendx, istartx }, new int[] { 0, 0, iendy, iendy },
+								4);
+						g2.setColor(Util.HIGHLIGHT_COLOR);
+						if (istarty < iendy)
+							g2.fillPolygon(new int[] { istartx, iendx, iendx, istartx },
+									new int[] { istarty, istarty, iendy, iendy }, 4);
+					} else {
+						final int istartx = (int) Math.round(startx);
+						final int iendx = (int) Math.round(startx + singleWidth);
+						final int istarty = (int) (height * (1 - heightPercent) - 1);
+						final int iendy = height - 1;
+						g2.setColor(color);
+						if (istarty < iendy)
+							g2.fillPolygon(new int[] { istartx, iendx, iendx, istartx },
+									new int[] { istarty, istarty, iendy, iendy }, 4);
+					}
 				}
+				startx += singleWidth;
 			}
-
 		}
+	}
 
-		public Color getColor() {
-			return color;
-		}
-
-		public void setColor(Color color) {
-			this.color = color;
-		}
-
-		public double getHeightPercent() {
-			return heightPercent;
-		}
+	private int getInIndex(int selected) {
+		return indexMap.get(selected);
 	}
 
 }
