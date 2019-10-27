@@ -72,7 +72,7 @@ public class ClusteringViewer extends JFrame {
 	private static final int OUTER_SPACE = 20;
 	public static final int VIEWER_SPACE = 4;
 	public static final int RIGHT_PANEL_WIDTH = 300;
-	private static final int MAX_HEATMAP_SIZE = 130;
+	private static final int MAX_HEATMAP_SIZE = 500;// 130;
 
 	private static final int MDS_MAX_DIM = 3;
 

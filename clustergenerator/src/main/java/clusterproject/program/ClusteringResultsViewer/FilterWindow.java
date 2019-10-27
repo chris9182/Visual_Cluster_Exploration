@@ -55,7 +55,7 @@ public class FilterWindow extends JPanel {
 	private static final int SPACING = 10;
 	private static final int ABOVE_BAR_SPACE = 120;
 	private static final int SLIDERHEIGHT = 30;
-	private static final int MAX_BINS = 21;
+	private static final int MAX_BINS = 41;
 
 	private SpringLayout mainLayout = new SpringLayout();
 
@@ -139,7 +139,7 @@ public class FilterWindow extends JPanel {
 					allParameters[k] = value;
 					minMax.add(value);
 				}
-				int bins = (int) Math.sqrt(allParameters.length);
+				int bins = (int) Math.ceil(Math.sqrt(allParameters.length)) + 1;
 				if (parameters.get(i).get(j).size() <= 1)
 					bins = 1;
 				else if (parameters.get(i).get(j).get(0) instanceof Integer)

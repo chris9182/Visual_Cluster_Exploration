@@ -1,18 +1,20 @@
 package clusterproject.program.ClusteringResultsViewer;
 
 import java.awt.AlphaComposite;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComponent;
@@ -22,6 +24,7 @@ import javax.swing.SpringLayout;
 
 import clusterproject.program.MetaClustering.ClusteringWithDistance;
 import clusterproject.util.Util;
+import smile.math.Math;
 
 public class HeatMap extends JLayeredPane {
 
@@ -35,37 +38,30 @@ public class HeatMap extends JLayeredPane {
 	private final SpringLayout layout;
 	private final JPanel heatMap;
 	private final ClusteringViewer clusteringViewer;
+	Map<Integer, Integer> indexMap;
 
 	public HeatMap(double[][] distances, ClusteringViewer clusteringViewer,
 			List<ClusteringWithDistance> clusteringList) {
 		this.distances = distances;
 		this.clusteringViewer = clusteringViewer;
+		this.indexMap = new HashMap<Integer, Integer>();
+		int key = 0;
+		for (final ClusteringWithDistance clu : clusteringList)
+			indexMap.put(key++, clu.inIndex);
 		heatMap = new JPanel();
 		layout = new SpringLayout();
 		setLayout(layout);
 		setOpaque(false);
 		heatMap.setOpaque(false);
-		heatMap.setLayout(new GridLayout(distances.length, distances.length));
+		heatMap.setLayout(new BorderLayout());
+		// heatMap.setLayout(new GridLayout(distances.length, distances.length));
 		double maxDistance = -Double.MAX_VALUE;
 		for (int i = 0; i < distances.length; ++i)
 			for (int j = i; j < distances.length; ++j) {
 				if (distances[i][j] > maxDistance)
 					maxDistance = distances[i][j];
 			}
-		for (int i = distances.length - 1; i >= 0; --i)
-			for (int j = 0; j < distances.length; ++j) {
-				final HeatCell cell = new HeatCell(this, distances[i][j] / maxDistance, clusteringList.get(i).inIndex,
-						clusteringList.get(j).inIndex);
-				heatMap.add(cell);
-				final int selected = clusteringList.get(j).inIndex;
-				cell.addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseClicked(MouseEvent e) {
-						highlight(selected, !e.isControlDown(), e.getClickCount() == 1);
-
-					}
-				});
-			}
+		heatMap.add(new HeatMapDataPainter(this, distances, maxDistance));
 
 		final GradientBar bar = new GradientBar(maxDistance);
 		layout.putConstraint(SpringLayout.NORTH, bar, 0, SpringLayout.NORTH, this);
@@ -98,20 +94,26 @@ public class HeatMap extends JLayeredPane {
 		return clusteringViewer.getGroundTruth();
 	}
 
-	private class HeatCell extends JComponent {
-		private static final long serialVersionUID = -1175380889963981647L;
+	private class HeatMapDataPainter extends JComponent {
+		private static final long serialVersionUID = 6140315256167371111L;
+		final double[][] distances;
+		final double maxDistance;
+		final HeatMap heatMap;
 
-		private final int i;
-		private final int j;
-		private final Color myColor;
-
-		private final HeatMap heatMap;
-
-		public HeatCell(HeatMap heatMap, double percent, int i, int j) {
-			myColor = (getColor(percent, MIN_COLOR, MAX_COLOR));
+		public HeatMapDataPainter(HeatMap heatMap, double[][] distances, double maxDistance) {
+			this.distances = distances;
+			this.maxDistance = maxDistance;
 			this.heatMap = heatMap;
-			this.i = i;
-			this.j = j;
+			addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					final int width = getWidth();
+					final int length = distances.length;
+					final double singleWidth = width / (double) length;
+					final int selected = (int) ((e.getX()) / singleWidth);
+					highlight(heatMap.getInIndex(selected), !e.isControlDown(), e.getClickCount() == 1);
+				}
+			});
 		}
 
 		@Override
@@ -120,17 +122,42 @@ public class HeatMap extends JLayeredPane {
 			final Set<Integer> filtered = heatMap.getFilteredIndexes();
 			final LinkedHashSet<Integer> highlighted = heatMap.getHighlighted();
 			final int truth = heatMap.getTruth();
-			g2.setColor(myColor);
-			if (i == j) {
-				if (filtered != null && !filtered.contains(i) && i != truth)
-					g2.setComposite(AlphaComposite.SrcOver.derive(Util.FILTER_ALPHA));
-				else
-					g2.setComposite(AlphaComposite.SrcOver);
+			final int width = getWidth();
+			final int height = getHeight();
+			final int length = distances.length;
+			double startx;
+			double starty = 0;
+			final double singleWidth = width / (double) length;
+			final double singleHeight = height / (double) length;
+			for (int i = length - 1; i >= 0; --i) {
+				final int myIndex = heatMap.getInIndex(i);
+				startx = 0;
+				for (int j = 0; j < length; ++j) {
+					final int myIndex2 = heatMap.getInIndex(j);
 
-				if (highlighted.contains(i))
-					g2.setColor(Util.HIGHLIGHT_COLOR);
+					if (filtered != null && (!filtered.contains(myIndex) || !filtered.contains(myIndex2))
+							&& myIndex != truth)
+						g2.setComposite(AlphaComposite.SrcOver.derive(Util.FILTER_ALPHA));
+					else
+						g2.setComposite(AlphaComposite.SrcOver);
+
+					if (i == j && highlighted.contains(myIndex))
+						g2.setColor(Util.HIGHLIGHT_COLOR);
+
+					else
+						g2.setColor(getColor(distances[i][j] / maxDistance, MIN_COLOR, MAX_COLOR));
+					final int iStartx = (int) Math.round(startx);
+					final int iEndx = (int) Math.round(startx + singleWidth);
+					final int iStarty = (int) Math.round(starty);
+					final int iEndy = (int) Math.round(starty + singleHeight);
+					g2.fillPolygon(new int[] { iStartx, iEndx, iEndx, iStartx },
+							new int[] { iStarty, iStarty, iEndy, iEndy }, 4);
+					startx += singleWidth;
+				}
+				starty += singleHeight;
 			}
-			g.fillRect(0, 0, getWidth(), getHeight());
+
+			super.paint(g);
 		}
 
 		public Color getColor(double x, Color c1, Color c2) {
@@ -169,6 +196,10 @@ public class HeatMap extends JLayeredPane {
 			Util.drawRotatedString(g2, LABLE_OFFSET, getHeight() - LABLE_OFFSET - endTickWidth, 90, df.format(0));
 
 		}
+	}
+
+	private int getInIndex(int selected) {
+		return indexMap.get(selected);
 	}
 
 }

@@ -79,6 +79,15 @@ public class ImporterWindow extends JFrame {
 		labelIndexField = new JFormattedTextField(integerFieldFormatter);
 		labelIndexField.setValue(-1);
 		labelIndexField.setHorizontalAlignment(SwingConstants.RIGHT);
+		labelIndexField.addActionListener(e -> {
+			selectedFile = fileChooser.getSelectedFile();
+			if (selectedFile == null)
+				return;
+			if (filter.accept(selectedFile))
+				importCSVFile();
+			else if (filter2.accept(selectedFile))
+				importARFFFile();
+		});
 		final JLabel indexLabel = new JLabel("Index of Cluster Labels");
 		indexPanel.add(indexLabel);
 		indexPanel.add(labelIndexField);
