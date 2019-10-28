@@ -1,20 +1,22 @@
 package clusterproject.program.ClusteringResultsViewer;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,17 +30,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.ui.RectangleInsets;
-import org.jfree.data.xy.CategoryTableXYDataset;
 
 import clusterproject.data.ClusteringResult;
 import clusterproject.program.MainWindow;
@@ -55,7 +46,9 @@ public class FilterWindow extends JPanel {
 	private static final int SPACING = 10;
 	private static final int ABOVE_BAR_SPACE = 120;
 	private static final int SLIDERHEIGHT = 30;
-	private static final int MAX_BINS = 41;
+	private static final int MAX_BINS = 31;
+	private static final int MIN_BINS = 7;
+	private static final int CHART_SLIDER_OVERLAP = 8;
 
 	private SpringLayout mainLayout = new SpringLayout();
 
@@ -73,14 +66,14 @@ public class FilterWindow extends JPanel {
 	private final LinkedHashSet<String> clusteringNames;
 	private final List<LinkedHashSet<String>> parameterNames;
 	private List<List<List<Object>>> parameters;
-	private final Map<String, JFreeChart> charts;
+	private final Map<String, HistogramDataPainter> charts;
 	private final List<ClusteringResult> clusteringBaseResults;
 	private boolean ignoreChange = false;
 	private HistogramData histogramData = HistogramData.All;
 
 	public FilterWindow(List<ClusteringResult> clusteringResults, ClusteringViewer clusteringViewer) {
 		mainLayout = new SpringLayout();
-		charts = new HashMap<String, JFreeChart>();
+		charts = new HashMap<String, HistogramDataPainter>();
 		this.clusteringViewer = clusteringViewer;
 		allParametersMap = new HashMap<String, double[]>();
 		allParametersRangeMap = new HashMap<String, MinMax>();
@@ -140,16 +133,22 @@ public class FilterWindow extends JPanel {
 					minMax.add(value);
 				}
 				int bins = (int) Math.ceil(Math.sqrt(allParameters.length)) + 1;
+
 				if (parameters.get(i).get(j).size() <= 1)
 					bins = 1;
 				else if (parameters.get(i).get(j).get(0) instanceof Integer)
 					bins = (int) (minMax.getRange() + 1);// TODO check if this is good
+
 				else if (parameters.get(i).get(j).get(0) instanceof Boolean)
-					bins = 2;
+					bins = 3;
 				if (bins < 1)
 					bins = 1;
 				if (bins > MAX_BINS)
 					bins = MAX_BINS;
+				if (parameters.get(i).get(j).get(0) instanceof Double
+						|| parameters.get(i).get(j).get(0) instanceof Integer && bins < MIN_BINS) {
+					bins = MIN_BINS;
+				}
 				bucketsMap.put(clusteringName + " " + parameterName, bins);
 				allParametersRangeMap.put(clusteringName + " " + parameterName, minMax);
 			}
@@ -269,30 +268,20 @@ public class FilterWindow extends JPanel {
 
 					final Rectangle sliderRectangle = ((RangeSliderUI) slider.getUI()).getTrackRectangle();
 					final int bins = bucketsMap.get(clusteringName + " " + parameterName);
-					final CategoryTableXYDataset dataset = createDataset(allParameters, null, bins, minMax);
-					final JFreeChart chart = createChart(dataset);
-					charts.put(clusteringName + " " + parameterName, chart);
 
-					final ChartPanel chartPanel = new ChartPanel(chart);
-					final MouseAdapter adapter = new MouseAdapter() {
-						@Override
-						public void mouseMoved(MouseEvent e) {
-							super.mouseMoved(e);
-						}
-					};
-					chartPanel.addMouseMotionListener(adapter);
-					chartPanel.setRangeZoomable(false);
-					chartPanel.setDomainZoomable(false);
-					chartPanel.setPopupMenu(null);
-					chartPanel.setBorder(null);
-					mainLayout.putConstraint(SpringLayout.NORTH, chartPanel, -ABOVE_BAR_SPACE, SpringLayout.NORTH,
+					final HistogramDataPainter painter = new HistogramDataPainter(
+							createDataset(allParameters, null, bins, minMax));
+
+					charts.put(clusteringName + " " + parameterName, painter);
+
+					mainLayout.putConstraint(SpringLayout.NORTH, painter, -ABOVE_BAR_SPACE, SpringLayout.NORTH, slider);
+					mainLayout.putConstraint(SpringLayout.SOUTH, painter, CHART_SLIDER_OVERLAP, SpringLayout.NORTH,
 							slider);
-					mainLayout.putConstraint(SpringLayout.SOUTH, chartPanel, 0, SpringLayout.NORTH, slider);
-					mainLayout.putConstraint(SpringLayout.WEST, chartPanel, (int) sliderRectangle.getX() - 2,
+					mainLayout.putConstraint(SpringLayout.WEST, painter, (int) sliderRectangle.getX() - 2,
 							SpringLayout.WEST, this);
-					mainLayout.putConstraint(SpringLayout.EAST, chartPanel, (int) (-sliderRectangle.getX() + 2),
+					mainLayout.putConstraint(SpringLayout.EAST, painter, (int) (-sliderRectangle.getX() + 2),
 							SpringLayout.EAST, this);
-					this.add(chartPanel, new Integer(4));
+					this.add(painter, new Integer(4));
 				} else {
 					System.err.println("no values found");
 				}
@@ -310,81 +299,113 @@ public class FilterWindow extends JPanel {
 			}
 	}
 
-	public CategoryTableXYDataset createDataset(double[] allParameters, double[] filteredParametersD, int bins,
-			MinMax minMax) {
-		final double[] activeParametersBins = new double[bins];
+	public int[][] createDataset(double[] allParameters, double[] filteredParametersD, int bins, MinMax minMax) {
+		final int[] activeParametersBins = new int[bins];
 		for (int i = 0; i < bins; ++i) {
 			activeParametersBins[i] = 0;
 		}
-		double[] filteredParametersBins = new double[bins];
+		final int[] filteredParametersBins = new int[bins];
 		for (int i = 0; i < bins; ++i) {
 			filteredParametersBins[i] = 0;
 		}
 		final double start = minMax.getRange();
 		final double width = start / (bins - 1);
-		for (int i = 0; i < allParameters.length; ++i) {
-			activeParametersBins[(int) ((allParameters[i] - minMax.min) / width)] += 1;
-		}
-		if (filteredParametersD == null)
-			filteredParametersBins = null;
-		else {
+
+		if (filteredParametersD == null) {
+			for (int i = 0; i < allParameters.length; ++i) {
+				activeParametersBins[(int) Math.round((allParameters[i] - minMax.min) / width)] += 1;
+			}
+		} else {
 			for (int i = 0; i < filteredParametersD.length; ++i) {
-				filteredParametersBins[(int) ((filteredParametersD[i] - minMax.min) / width)] += 1;
+				final int idx = (int) Math.round((filteredParametersD[i] - minMax.min) / width);
+				filteredParametersBins[idx] -= 1;
+				activeParametersBins[idx] += 1;
 			}
-			for (int i = 0; i < filteredParametersBins.length; ++i) {
-				activeParametersBins[i] -= filteredParametersBins[i];
+			for (int i = 0; i < allParameters.length; ++i) {
+				filteredParametersBins[(int) Math.round((allParameters[i] - minMax.min) / width)] += 1;
 			}
 		}
 
-		final CategoryTableXYDataset dataSet = new CategoryTableXYDataset();
-		if (filteredParametersBins != null)
-			for (int i = 0; i < filteredParametersBins.length; ++i) {
-				dataSet.add(i, filteredParametersBins[i], "Filtered");
-			}
-		for (int i = 0; i < activeParametersBins.length; ++i) {
-			dataSet.add(i, activeParametersBins[i], "Active");
-		}
-
-		return dataSet;
+		return new int[][] { activeParametersBins, filteredParametersBins };
 	}
 
-	public JFreeChart createChart(CategoryTableXYDataset dataset) {
+	private class HistogramDataPainter extends JComponent {
+		private static final long serialVersionUID = 3116762462606134991L;
+		final int max;
+		int[] activeParametersBins;
+		int[] filteredParametersBins;
 
-		final JFreeChart chart = ChartFactory.createXYAreaChart(null, // Alternative: createStackedXYAreaChart
-				"Value X", "Value Y", dataset, // data
-				PlotOrientation.VERTICAL, // orientation
-				false, // include legend
-				false, false);
+		public HistogramDataPainter(int[][] bins) {
+			int max = -Integer.MAX_VALUE;
+			for (int i = 0; i < bins[0].length; ++i)
+				if (bins[0][i] > max)
+					max = bins[0][i];
+			this.max = max;
+			setData(bins);
+		}
 
-		chart.setBackgroundPaint(Color.white);
+		public void setData(int[][] bins) {
+			this.activeParametersBins = bins[0];
+			this.filteredParametersBins = bins[1];
+		}
 
-		final XYPlot plot = (XYPlot) chart.getPlot();
-		plot.setForegroundAlpha(0.5f);
-		plot.setBackgroundPaint(null);
-		plot.setDomainGridlinesVisible(false);
-		plot.setRangeGridlinesVisible(false);
-		plot.setRangeMinorGridlinesVisible(false);
-		plot.setRangeMinorGridlinesVisible(false);
-
-		final ValueAxis domainAxis = plot.getDomainAxis();
-		domainAxis.setLowerMargin(0.0);
-		domainAxis.setUpperMargin(0.0);
-		domainAxis.setVisible(false);
-
-		final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		rangeAxis.setVisible(false);
-		rangeAxis.setLowerMargin(0);
-		rangeAxis.setUpperMargin(0);
-		rangeAxis.setRange(rangeAxis.getLowerBound(), rangeAxis.getUpperBound());
-
-		final XYItemRenderer renderer = plot.getRenderer();
-		renderer.setDefaultItemLabelsVisible(false);
-
-		plot.setInsets(new RectangleInsets(0, 0, 0, 0));
-		chart.setPadding(new RectangleInsets(0, 0, 0, 0));
-
-		return chart;
-
+		@Override
+		public void paint(Graphics g) {
+			final Graphics2D g2 = (Graphics2D) g;
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+			g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+			final int width = getWidth();
+			final int height = getHeight();
+			g2.setComposite(AlphaComposite.SrcOver.derive(.5f));
+			g2.setColor(Color.RED);
+			final List<Integer> xpoints = new ArrayList<Integer>();
+			xpoints.add(width);
+			xpoints.add(0);
+			final List<Integer> ypoints = new ArrayList<Integer>();
+			ypoints.add(height);
+			ypoints.add(height);
+			final double singleWidth = width / (double) (activeParametersBins.length - 1);
+			double curx = 0;
+			for (int i = 0; i < activeParametersBins.length; ++i) {
+				xpoints.add((int) Math.round(curx));
+//				xpoints.add((int) Math.round(curx - singleWidth / 2));
+				ypoints.add((int) Math.round(height - (height * (activeParametersBins[i] / (double) max))));
+//				xpoints.add((int) Math.round(curx + singleWidth / 2));
+//				ypoints.add((int) Math.round(height - (height * (activeParametersBins[i] / (double) max))));
+				curx += singleWidth;
+			}
+			if (activeParametersBins.length == 1) {
+				xpoints.add(width);
+				ypoints.add((int) Math.round(height - (height * (activeParametersBins[0] / (double) max))));
+			}
+			int[] xarray = xpoints.stream().mapToInt(i -> i).toArray();
+			int[] yarray = ypoints.stream().mapToInt(i -> i).toArray();
+			g2.fillPolygon(xarray, yarray, xarray.length);
+			g2.setColor(Color.BLUE);
+			curx = 0;
+			xpoints.clear();
+			ypoints.clear();
+			xpoints.add(width);
+			xpoints.add(0);
+			ypoints.add(height);
+			ypoints.add(height);
+			for (int i = 0; i < activeParametersBins.length; ++i) {
+				xpoints.add((int) Math.round(curx));
+//				xpoints.add((int) Math.round(curx - singleWidth / 2));
+				ypoints.add((int) Math.round(height - (height * (filteredParametersBins[i] / (double) max))));
+//				xpoints.add((int) Math.round(curx + singleWidth / 2));
+//				ypoints.add((int) Math.round(height - (height * (filteredParametersBins[i] / (double) max))));
+				curx += singleWidth;
+			}
+			if (activeParametersBins.length == 1) {
+				xpoints.add(width);
+				ypoints.add((int) Math.round(height - (height * (activeParametersBins[0] / (double) max))));
+			}
+			xarray = xpoints.stream().mapToInt(i -> i).toArray();
+			yarray = ypoints.stream().mapToInt(i -> i).toArray();
+			g2.fillPolygon(xarray, yarray, xarray.length);
+		}
 	}
 
 	protected void comitFilteredData() {
@@ -398,6 +419,7 @@ public class FilterWindow extends JPanel {
 	private class MyRangeSlider extends RangeSlider {
 		private static final long serialVersionUID = -1145841853132161271L;
 		private static final int LABEL_COUNT = 3;
+		final Map<Integer, String> dict;
 		private static final int TICK_COUNT = 500;
 		private final MinMax minMax;
 		private final JLabel tooltip = new JLabel();
@@ -416,14 +438,13 @@ public class FilterWindow extends JPanel {
 			setUpperValue(TICK_COUNT);
 			setFocusable(false);
 			setPaintLabels(true);
-			final Dictionary<Integer, JComponent> dict = new Hashtable<Integer, JComponent>();
+			dict = new HashMap<Integer, String>();
+			// XXX: paint this manually
 			for (int i = 0; i < LABEL_COUNT; ++i) {
-				final JLabel label = new JLabel(
-						Float.toString((float) ((minMax.getRange()) * (i) / (LABEL_COUNT - 1) + minMax.min)));
 				// String.format("%.3f", (maxLbl - minLbl) * i + minLbl));
-				dict.put(i * TICK_COUNT / (LABEL_COUNT - 1), label);
+				dict.put(i, Float.toString((float) ((minMax.getRange()) * (i) / (LABEL_COUNT - 1) + minMax.min)));
 			}
-			setLabelTable(dict);
+
 			tooltipFrame = new JFrame();
 			tooltipFrame.setType(javax.swing.JFrame.Type.UTILITY);
 			tooltipFrame.setUndecorated(true);
@@ -443,8 +464,10 @@ public class FilterWindow extends JPanel {
 					tooltip.setText(getTooltipText());
 					final Point p = MouseInfo.getPointerInfo().getLocation();
 					tooltipFrame.pack();
-					tooltipFrame.setLocation((int) p.getX() - tooltipFrame.getWidth() / 2,
-							(int) (getLocationOnScreen().getY() + getHeight() / 2));
+					int x = (int) p.getX() - tooltipFrame.getWidth() / 2;
+					x = (int) Math.min(x, getLocationOnScreen().getX() + getWidth() - tooltipFrame.getWidth());
+					x = (int) Math.max(x, getLocationOnScreen().getX());
+					tooltipFrame.setLocation(x, (int) (getLocationOnScreen().getY() + getHeight() / 2));
 					tooltipFrame.setVisible(true);
 
 				}
@@ -458,15 +481,6 @@ public class FilterWindow extends JPanel {
 					tooltipFrame.setVisible(false);
 
 				}
-
-				@Override
-				public void mouseExited(MouseEvent e) {
-					if (e.isConsumed())
-						return;
-					e.consume();
-					tooltipFrame.setVisible(false);
-
-				}
 			});
 
 			addChangeListener(e -> {
@@ -474,14 +488,30 @@ public class FilterWindow extends JPanel {
 			});
 		}
 
+		@Override
+		public void paint(Graphics g) {
+			final Graphics2D g2 = (Graphics2D) g;
+			super.paint(g);
+			g2.setColor(Color.DARK_GRAY);
+			final int width = getWidth();
+			g2.drawString(dict.get(0), 0, 30);
+			for (int i = 1; i < LABEL_COUNT - 1; ++i) {
+				final int x = (int) Math.round(width * i / ((double) LABEL_COUNT - 1));
+				final int widthi = g2.getFontMetrics().stringWidth(dict.get(i));
+				g2.drawString(dict.get(i), (int) Math.round(x - widthi / (double) 2), 30);
+			}
+			final int widthLast = g2.getFontMetrics().stringWidth(dict.get(LABEL_COUNT - 1));
+			g2.drawString(dict.get(LABEL_COUNT - 1), getWidth() - widthLast, 30);
+		}
+
 		private String getTooltipText() {
 			if (getLowerValueD() == -Double.MAX_VALUE && getUpperValueD() == Double.MAX_VALUE)
-				return "All";
+				return " All ";
 			if (getLowerValueD() == -Double.MAX_VALUE)
-				return " < " + (float) getUpperValueD();
+				return " < " + (float) getUpperValueD() + " ";
 			if (getUpperValueD() == Double.MAX_VALUE)
-				return ((float) getLowerValueD() + " < ");
-			return (String.valueOf(((float) getLowerValueD()) + " <-> " + (float) getUpperValueD()));
+				return (" " + (float) getLowerValueD() + " < ");
+			return (" " + String.valueOf(((float) getLowerValueD()) + " <-> " + (float) getUpperValueD()) + " ");
 		}
 
 		public void handleChange() {
@@ -580,10 +610,8 @@ public class FilterWindow extends JPanel {
 					if (minMax.max != -Double.MAX_VALUE) {
 						final int bins = bucketsMap.get(clusteringName + " " + parameterName);
 
-						final CategoryTableXYDataset dataset = createDataset(allParameters, filteredParametersD, bins,
-								minMax);
-						final JFreeChart chart = charts.get(clusteringName + " " + parameterName);
-						chart.getXYPlot().setDataset(dataset);
+						final HistogramDataPainter chart = charts.get(clusteringName + " " + parameterName);
+						chart.setData(createDataset(allParameters, filteredParametersD, bins, minMax));
 					} else {
 						System.err.println("no values found");
 					}
@@ -594,8 +622,10 @@ public class FilterWindow extends JPanel {
 				tooltip.setText(getTooltipText());
 				final Point p = MouseInfo.getPointerInfo().getLocation();
 				tooltipFrame.pack();
-				tooltipFrame.setLocation((int) p.getX() - tooltipFrame.getWidth() / 2,
-						(int) (getLocationOnScreen().getY() + getHeight() / 2));
+				int x = (int) p.getX() - tooltipFrame.getWidth() / 2;
+				x = (int) Math.min(x, getLocationOnScreen().getX() + getWidth() - tooltipFrame.getWidth());
+				x = (int) Math.max(x, getLocationOnScreen().getX());
+				tooltipFrame.setLocation(x, (int) (getLocationOnScreen().getY() + getHeight() / 2));
 				tooltipFrame.setVisible(true);
 			}
 
