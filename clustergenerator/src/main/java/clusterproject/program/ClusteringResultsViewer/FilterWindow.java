@@ -145,8 +145,8 @@ public class FilterWindow extends JPanel {
 					bins = 1;
 				if (bins > MAX_BINS)
 					bins = MAX_BINS;
-				if (parameters.get(i).get(j).get(0) instanceof Double
-						|| parameters.get(i).get(j).get(0) instanceof Integer && bins < MIN_BINS) {
+				if ((parameters.get(i).get(j).get(0) instanceof Double
+						|| parameters.get(i).get(j).get(0) instanceof Integer) && bins < MIN_BINS && bins != 1) {
 					bins = MIN_BINS;
 				}
 				bucketsMap.put(clusteringName + " " + parameterName, bins);
@@ -304,10 +304,7 @@ public class FilterWindow extends JPanel {
 		for (int i = 0; i < bins; ++i) {
 			activeParametersBins[i] = 0;
 		}
-		final int[] filteredParametersBins = new int[bins];
-		for (int i = 0; i < bins; ++i) {
-			filteredParametersBins[i] = 0;
-		}
+		int[] filteredParametersBins = null;
 		final double start = minMax.getRange();
 		final double width = start / (bins - 1);
 
@@ -316,9 +313,13 @@ public class FilterWindow extends JPanel {
 				activeParametersBins[(int) Math.round((allParameters[i] - minMax.min) / width)] += 1;
 			}
 		} else {
+			filteredParametersBins = new int[bins];
+			for (int i = 0; i < bins; ++i) {
+				filteredParametersBins[i] = 0;
+			}
 			for (int i = 0; i < filteredParametersD.length; ++i) {
 				final int idx = (int) Math.round((filteredParametersD[i] - minMax.min) / width);
-				filteredParametersBins[idx] -= 1;
+				// filteredParametersBins[idx] -= 1;
 				activeParametersBins[idx] += 1;
 			}
 			for (int i = 0; i < allParameters.length; ++i) {
@@ -367,44 +368,60 @@ public class FilterWindow extends JPanel {
 			ypoints.add(height);
 			final double singleWidth = width / (double) (activeParametersBins.length - 1);
 			double curx = 0;
-			for (int i = 0; i < activeParametersBins.length; ++i) {
-				xpoints.add((int) Math.round(curx));
+			if (activeParametersBins.length == 1) {
+				g2.fillRect(0, (int) Math.round(height - (height * (activeParametersBins[0] / (double) max))), width,
+						height - (int) Math.round(height - (height * (activeParametersBins[0] / (double) max))));
+			} else {
+				for (int i = 0; i < activeParametersBins.length; ++i) {
+					xpoints.add((int) Math.round(curx));
 //				xpoints.add((int) Math.round(curx - singleWidth / 2));
-				ypoints.add((int) Math.round(height - (height * (activeParametersBins[i] / (double) max))));
+					ypoints.add((int) Math.round(height - (height * (activeParametersBins[i] / (double) max))));
 //				xpoints.add((int) Math.round(curx + singleWidth / 2));
 //				ypoints.add((int) Math.round(height - (height * (activeParametersBins[i] / (double) max))));
-				curx += singleWidth;
+					curx += singleWidth;
+				}
+				final int[] xarray = xpoints.stream().mapToInt(i -> i).toArray();
+				final int[] yarray = ypoints.stream().mapToInt(i -> i).toArray();
+				g2.fillPolygon(xarray, yarray, xarray.length);
 			}
-			if (activeParametersBins.length == 1) {
-				xpoints.add(width);
-				ypoints.add((int) Math.round(height - (height * (activeParametersBins[0] / (double) max))));
-			}
-			int[] xarray = xpoints.stream().mapToInt(i -> i).toArray();
-			int[] yarray = ypoints.stream().mapToInt(i -> i).toArray();
-			g2.fillPolygon(xarray, yarray, xarray.length);
 			g2.setColor(Color.BLUE);
-			curx = 0;
-			xpoints.clear();
-			ypoints.clear();
-			xpoints.add(width);
-			xpoints.add(0);
-			ypoints.add(height);
-			ypoints.add(height);
-			for (int i = 0; i < activeParametersBins.length; ++i) {
-				xpoints.add((int) Math.round(curx));
+
+			curx -= singleWidth;
+			if (filteredParametersBins != null && filteredParametersBins.length == 1) {
+				if (activeParametersBins.length == 1) {
+					g2.fillRect(0, (int) Math.round((height - (height * (filteredParametersBins[0] / (double) max)))),
+							width,
+							height - (int) Math.round((height - (height * (filteredParametersBins[0] / (double) max))))
+									- (int) Math.round((height * (activeParametersBins[0] / (double) max))));
+				}
+			} else {
+//				curx = 0;
+//				xpoints.clear();
+//				ypoints.clear();
+//				xpoints.add(width);
+//				xpoints.add(0);
+//				ypoints.add(height);
+//				ypoints.add(height);
+				xpoints.remove(0);
+				xpoints.remove(0);
+				ypoints.remove(0);
+				ypoints.remove(0);
+				if (filteredParametersBins != null) {
+					for (int i = filteredParametersBins.length - 1; i >= 0; --i) {
+						xpoints.add((int) Math.round(curx));
 //				xpoints.add((int) Math.round(curx - singleWidth / 2));
-				ypoints.add((int) Math.round(height - (height * (filteredParametersBins[i] / (double) max))));
+						ypoints.add((int) Math.round((height - (height * (filteredParametersBins[i] / (double) max)))));
 //				xpoints.add((int) Math.round(curx + singleWidth / 2));
 //				ypoints.add((int) Math.round(height - (height * (filteredParametersBins[i] / (double) max))));
-				curx += singleWidth;
+						curx -= singleWidth;
+					}
+
+					final int[] xarray = xpoints.stream().mapToInt(i -> i).toArray();
+					final int[] yarray = ypoints.stream().mapToInt(i -> i).toArray();
+					g2.fillPolygon(xarray, yarray, xarray.length);
+				}
 			}
-			if (activeParametersBins.length == 1) {
-				xpoints.add(width);
-				ypoints.add((int) Math.round(height - (height * (activeParametersBins[0] / (double) max))));
-			}
-			xarray = xpoints.stream().mapToInt(i -> i).toArray();
-			yarray = ypoints.stream().mapToInt(i -> i).toArray();
-			g2.fillPolygon(xarray, yarray, xarray.length);
+
 		}
 	}
 
