@@ -235,7 +235,7 @@ public class OpticsPlot extends JLayeredPane {
 			percentages = new ArrayList<Double>();
 			for (final ClusteringWithDistance clu : clusteringList)
 				percentages.add(Math.min(clu.distance / max, 1));
-			addMouseListener(new MouseAdapter() {
+			final MouseAdapter listener = new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					final int width = getWidth();
@@ -247,7 +247,28 @@ public class OpticsPlot extends JLayeredPane {
 					// else
 					highlight(plot.getInIndex(selected), !e.isControlDown(), e.getClickCount() == 1);
 				}
-			});
+
+				@Override
+				public void mouseMoved(MouseEvent e) {
+					final int width = getWidth();
+					final int length = clusteringList.size();
+					final double singleWidth = width / (double) length;
+					final int selected = (int) ((e.getX()) / singleWidth);
+					final int myid = plot.getInIndex(selected);
+					final Double dist = plot.getDistanceToTruth(myid);
+
+					if (!dist.equals(Double.NaN)) {
+						if (Math.abs(dist) < Double.MIN_NORMAL)
+							setToolTipText("<html>" + "Equal to Ground Truth" + "</html>");
+						else
+							setToolTipText("<html>" + "Distance to Ground Truth: "
+									+ Float.toString((float) (double) dist) + "<br> NMI: "
+									+ Float.toString((float) (double) plot.getNMIToTruth(myid)) + "</html>");
+					}
+				}
+			};
+			addMouseListener(listener);
+			addMouseMotionListener(listener);
 		}
 
 		@Override

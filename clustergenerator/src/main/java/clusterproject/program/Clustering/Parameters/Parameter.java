@@ -23,6 +23,10 @@ public class Parameter implements Serializable {
 		this.name = name;
 	}
 
+	public Object get(String name) {
+		return allParameters.get(name);
+	}
+
 	public void addParameter(String name, Object parameter) {
 		parameters.put(name, parameter);
 		allParameters.put(name, parameter);
@@ -61,7 +65,7 @@ public class Parameter implements Serializable {
 	}
 
 	// TODO: what to do with enum/string
-	public static Double getParameterValue(Object parameter) {
+	public static Double getParameterDoubleValue(Object parameter) {
 		if (parameter instanceof Double)
 			return (Double) parameter;
 		if (parameter instanceof Integer)

@@ -465,7 +465,9 @@ public class ClusteringViewer extends JFrame {
 						distanceMatrix[groundTruth][i]);
 			}
 			for (int i = 0; i < clusterings.size(); ++i) {
-				clusterings.get(i).getParameter().addAdditionalParameter("NMI", getNMIToTruth(i));
+				clusterings.get(i).getParameter().addAdditionalParameter("NMI", NMI.calc(//
+						viewers[groundTruth].getPointContainer(), //
+						viewers[i].getPointContainer()));
 			}
 		}
 		for (final ClusteringResult result : clusterings) {
@@ -825,10 +827,7 @@ public class ClusteringViewer extends JFrame {
 	public Double getNMIToTruth(int i) {
 		if (groundTruth < 0)
 			return Double.NaN;
-		return NMI.calc(//
-
-				viewers[groundTruth].getPointContainer(), //
-				viewers[i].getPointContainer());
+		return Parameter.getParameterDoubleValue(clusterings.get(i).getParameter().get("NMI"));
 	}
 
 	public void setHistogramData(List<ClusteringResult> newData, HistogramData histogramData) {

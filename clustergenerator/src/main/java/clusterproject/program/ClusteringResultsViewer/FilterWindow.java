@@ -124,7 +124,7 @@ public class FilterWindow extends JPanel {
 				final MinMax minMax = new MinMax();
 				final double[] allParameters = new double[parameters.get(i).get(j).size()];
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
-					final Double value = Parameter.getParameterValue(parameters.get(i).get(j).get(k));
+					final Double value = Parameter.getParameterDoubleValue(parameters.get(i).get(j).get(k));
 					if (value == Double.NaN) {
 						System.err.println("unexpected value type");
 						continue;
@@ -196,7 +196,7 @@ public class FilterWindow extends JPanel {
 				final double[] allParameters = new double[parameters.get(i).get(j).size()];
 				allParametersMap.put(clusteringName + " " + parameterName, allParameters);
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
-					final Double value = Parameter.getParameterValue(parameters.get(i).get(j).get(k));
+					final Double value = Parameter.getParameterDoubleValue(parameters.get(i).get(j).get(k));
 					if (value == Double.NaN) {
 						System.err.println("unexpected value type");
 						continue;
@@ -244,7 +244,7 @@ public class FilterWindow extends JPanel {
 				final MinMax minMax = allParametersRangeMap.get(clusteringName + " " + parameterName);
 				final double[] allParameters = allParametersMap.get(clusteringName + " " + parameterName);
 				for (int k = 0; k < parameters.get(i).get(j).size(); ++k) {
-					final Double value = Parameter.getParameterValue(parameters.get(i).get(j).get(k));
+					final Double value = Parameter.getParameterDoubleValue(parameters.get(i).get(j).get(k));
 					if (value == Double.NaN) {
 						System.err.println("unexpected value type");
 						continue;
@@ -566,7 +566,7 @@ public class FilterWindow extends JPanel {
 							add = false;
 							continue;
 						}
-						final Double value = Parameter.getParameterValue(params.get(param));
+						final Double value = Parameter.getParameterDoubleValue(params.get(param));
 						if (value == Double.NaN) {
 							System.err.println("unexpected value type");
 							continue;
@@ -616,7 +616,7 @@ public class FilterWindow extends JPanel {
 					if (parameters.get(i).get(j).size() != filteredParameters.get(i).get(j).size()) {
 						filteredParametersD = new double[filteredParameters.get(i).get(j).size()];
 						for (int k = 0; k < filteredParameters.get(i).get(j).size(); ++k) {
-							final Double value = Parameter.getParameterValue(filteredParameters.get(i).get(j).get(k));
+							final Double value = Parameter.getParameterDoubleValue(filteredParameters.get(i).get(j).get(k));
 							if (value == Double.NaN) {
 								System.err.println("unexpected value type");
 								continue;
@@ -699,7 +699,7 @@ public class FilterWindow extends JPanel {
 						add = false;
 						continue;
 					}
-					final Double value = Parameter.getParameterValue(params.get(param));
+					final Double value = Parameter.getParameterDoubleValue(params.get(param));
 					if (value == Double.NaN) {
 						System.err.println("unexpected value type");
 						continue;
