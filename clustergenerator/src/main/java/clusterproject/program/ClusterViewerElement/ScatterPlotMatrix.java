@@ -7,6 +7,7 @@ import java.awt.GridLayout;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -54,7 +55,7 @@ public class ScatterPlotMatrix extends JFrame {
 		final GridLayout layout = new GridLayout(dim, dim, 0, 0);
 		mainPane.setLayout(layout);
 		mainPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		final ScatterPlot[][] matr = new ScatterPlot[dim][dim];
+		final JComponent[][] matr = new JComponent[dim][dim];
 
 		final JPanel xTextPane = new JPanel();
 		xTextPane.setOpaque(false);
@@ -78,13 +79,25 @@ public class ScatterPlotMatrix extends JFrame {
 
 		for (int i = 0; i < dim; i++) {
 			for (int j = 0; j < dim; j++) {
-				final ScatterPlot scatterPlot = new ScatterPlot(pointContainer, false);
-				matr[i][j] = scatterPlot;
-				scatterPlot.setSelectedDimX(j);
-				scatterPlot.setSelectedDimY(i);
-				scatterPlot.setPointDiameter(POINT_SIZE);
-				scatterPlot.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-				mainPane.add(scatterPlot);
+				if (i == j) {
+					// TODO: use
+					// KernelDensity from smile for density plot
+					final ScatterPlot scatterPlot = new ScatterPlot(pointContainer, false);
+					matr[i][j] = scatterPlot;
+					scatterPlot.setSelectedDimX(j);
+					scatterPlot.setSelectedDimY(i);
+					scatterPlot.setPointDiameter(POINT_SIZE);
+					scatterPlot.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+					mainPane.add(scatterPlot);
+				} else {
+					final ScatterPlot scatterPlot = new ScatterPlot(pointContainer, false);
+					matr[i][j] = scatterPlot;
+					scatterPlot.setSelectedDimX(j);
+					scatterPlot.setSelectedDimY(i);
+					scatterPlot.setPointDiameter(POINT_SIZE);
+					scatterPlot.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+					mainPane.add(scatterPlot);
+				}
 			}
 			final JLabel lbl = new JLabel(headers.get(i));
 			lbl.setHorizontalAlignment(SwingConstants.CENTER);
@@ -100,8 +113,11 @@ public class ScatterPlotMatrix extends JFrame {
 
 		for (int i = 0; i < dim; i++) {
 			for (int j = 0; j < dim; j++) {
-				matr[i][j].setIntervalX(intervals[j]);
-				matr[i][j].setIntervalY(intervals[i]);
+				if (matr[i][j] instanceof ScatterPlot) {
+					final ScatterPlot plot = (ScatterPlot) matr[i][j];
+					plot.setIntervalX(intervals[j]);
+					plot.setIntervalY(intervals[i]);
+				}
 			}
 		}
 	}
