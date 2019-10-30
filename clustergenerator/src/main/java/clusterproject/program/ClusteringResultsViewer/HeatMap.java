@@ -137,14 +137,15 @@ public class HeatMap extends JLayeredPane {
 
 					if (filtered != null && (!filtered.contains(myIndex) || !filtered.contains(myIndex2))
 							&& myIndex != truth)
-						g2.setComposite(AlphaComposite.SrcOver.derive(Util.FILTER_ALPHA));
+						g2.setComposite(AlphaComposite.SrcOver.derive(1 - (1 - Util.FILTER_ALPHA) / 3));
 					else
 						g2.setComposite(AlphaComposite.SrcOver);
 
 					if (i == j && highlighted.contains(myIndex))
 						g2.setColor(Util.HIGHLIGHT_COLOR);
-
-					else
+					else if (highlighted.contains(myIndex) || highlighted.contains(heatMap.getInIndex(j))) {
+						g2.setColor(getColor(distances[i][j] / maxDistance, MIN_COLOR, MAX_COLOR).brighter());
+					} else
 						g2.setColor(getColor(distances[i][j] / maxDistance, MIN_COLOR, MAX_COLOR));
 					final int iStartx = (int) Math.round(startx);
 					final int iEndx = (int) Math.round(startx + singleWidth);

@@ -331,8 +331,11 @@ public class OpticsPlot extends JLayeredPane {
 					} else {
 						final int istartx = (int) Math.round(startx);
 						final int iendx = (int) Math.round(startx + singleWidth);
-						final int istarty = (int) (height * (1 - heightPercent) - 1);
+						int istarty = (int) (height * (1 - heightPercent) - 1);
+
 						final int iendy = height - 1;
+						if (istarty >= iendy)
+							istarty = iendy - 1;
 						g2.setColor(color);
 						if (istarty < iendy)
 							g2.fillPolygon(new int[] { istartx, iendx, iendx, istartx },

@@ -139,8 +139,11 @@ public class FilterWindow extends JPanel {
 				else if (parameters.get(i).get(j).get(0) instanceof Integer)
 					bins = (int) (minMax.getRange() + 1);// TODO check if this is good
 
-				else if (parameters.get(i).get(j).get(0) instanceof Boolean)
+				else if (parameters.get(i).get(j).get(0) instanceof Boolean) {
 					bins = 3;
+					minMax.add((double) 0);
+					minMax.add((double) 1);
+				}
 				if (bins < 1)
 					bins = 1;
 				if (bins > MAX_BINS)
@@ -149,6 +152,8 @@ public class FilterWindow extends JPanel {
 						|| parameters.get(i).get(j).get(0) instanceof Integer) && bins < MIN_BINS && bins != 1) {
 					bins = MIN_BINS;
 				}
+				if (Math.abs(minMax.getRange()) < Double.MIN_NORMAL)
+					bins = 1;
 				bucketsMap.put(clusteringName + " " + parameterName, bins);
 				allParametersRangeMap.put(clusteringName + " " + parameterName, minMax);
 			}
@@ -616,7 +621,8 @@ public class FilterWindow extends JPanel {
 					if (parameters.get(i).get(j).size() != filteredParameters.get(i).get(j).size()) {
 						filteredParametersD = new double[filteredParameters.get(i).get(j).size()];
 						for (int k = 0; k < filteredParameters.get(i).get(j).size(); ++k) {
-							final Double value = Parameter.getParameterDoubleValue(filteredParameters.get(i).get(j).get(k));
+							final Double value = Parameter
+									.getParameterDoubleValue(filteredParameters.get(i).get(j).get(k));
 							if (value == Double.NaN) {
 								System.err.println("unexpected value type");
 								continue;
