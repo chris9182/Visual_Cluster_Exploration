@@ -4,7 +4,11 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -80,15 +84,42 @@ public class ScatterPlotMatrix extends JFrame {
 		for (int i = 0; i < dim; i++) {
 			for (int j = 0; j < dim; j++) {
 				if (i == j) {
-					// TODO: use
-					// KernelDensity from smile for density plot
-					final ScatterPlot scatterPlot = new ScatterPlot(pointContainer, false);
-					matr[i][j] = scatterPlot;
-					scatterPlot.setSelectedDimX(j);
-					scatterPlot.setSelectedDimY(i);
-					scatterPlot.setPointDiameter(POINT_SIZE);
-					scatterPlot.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-					mainPane.add(scatterPlot);
+					final Map<double[], Integer> map = pointContainer.getLabelMap();
+					if (map == null) {
+						final double[] vals = new double[pointContainer.getPointCount()];
+						final List<double[]> points = pointContainer.getPoints();
+						for (int p = 0; p < points.size(); ++p)
+							vals[p] = points.get(p)[i];
+						final KernelDensityPlot densityPlot = new KernelDensityPlot(new double[][] { vals },
+								new int[] { 1 });
+						matr[i][j] = densityPlot;
+						densityPlot.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+						mainPane.add(densityPlot);
+					} else {
+						// TODO: use
+						// KernelDensity from smile for density plot
+						final Map<Integer, List<Double>> imap = new HashMap<Integer, List<Double>>();
+						for (final Entry<double[], Integer> e : map.entrySet()) {
+							List<Double> curList = imap.get(e.getValue());
+							if (curList == null) {
+								curList = new ArrayList<Double>();
+							}
+							curList.add(e.getKey()[i]);
+							imap.put(e.getValue(), curList);
+						}
+						final double[][] data = new double[imap.size()][];
+						final int[] colors = new int[imap.size()];
+						int ind = 0;
+						for (final Entry<Integer, List<Double>> e : imap.entrySet()) {
+							data[ind] = e.getValue().stream().mapToDouble(d -> d).toArray();
+							colors[ind] = e.getKey();
+							++ind;
+						}
+						final KernelDensityPlot densityPlot = new KernelDensityPlot(data, colors);
+						matr[i][j] = densityPlot;
+						densityPlot.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+						mainPane.add(densityPlot);
+					}
 				} else {
 					final ScatterPlot scatterPlot = new ScatterPlot(pointContainer, false);
 					matr[i][j] = scatterPlot;
@@ -135,6 +166,8 @@ public class ScatterPlotMatrix extends JFrame {
 		@Override
 		public void paintComponent(Graphics g) {
 			final Graphics2D gx = (Graphics2D) g;
+			// XXX: improve this
+//			int textWidth=gx.getFontMetrics().stringWidth(getText());
 			gx.rotate(Math.PI / 2, getWidth() / 2, getHeight() / 2);
 			super.paintComponent(g);
 

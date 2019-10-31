@@ -150,7 +150,7 @@ public class PointContainer {
 	}
 
 	public Map<double[], Integer> getLabelMap() {
-		if (!clusterInformation.hasClusters())
+		if (clusterInformation == null || !clusterInformation.hasClusters())
 			return null;
 		final Map<double[], Integer> assignments = new HashMap<double[], Integer>();
 		for (int i = 0; i < points.size(); ++i)
