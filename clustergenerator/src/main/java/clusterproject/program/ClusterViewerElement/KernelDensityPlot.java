@@ -72,8 +72,8 @@ public class KernelDensityPlot extends JPanel {
 		}
 		final double densityMax = mm.max;
 
-		int[] y = new int[width + 3];
-		int[] x = new int[width + 3];
+		final int[] y = new int[width + 3];
+		final int[] x = new int[width + 3];
 		for (int i = 0; i < width + 1; ++i) {
 			x[i] = i;
 			y[i] = (int) Math.round(height - (height * samples[i] / densityMax));
@@ -91,19 +91,19 @@ public class KernelDensityPlot extends JPanel {
 					samples[i] = densities.get(d).p(min + dist * i);
 				}
 
-				y = new int[width + 3];
-				x = new int[width + 3];
+				final int[] y2 = new int[width + 3];
+				final int[] x2 = new int[width + 3];
 				for (int i = 0; i < width + 1; ++i) {
-					x[i] = i;
-					y[i] = (int) Math.round(
+					x2[i] = i;
+					y2[i] = (int) Math.round(
 							height - ((height * samples[i] / densityMax) * (data[d].length / (double) pointCount)));
 				}
-				y[width + 1] = height;
-				y[width + 2] = height;
-				x[width + 1] = width;
-				x[width + 2] = 0;
+				y2[width + 1] = height;
+				y2[width + 2] = height;
+				x2[width + 1] = width;
+				x2[width + 2] = 0;
 				g2.setColor(Util.getColor(colors[d] + 2));
-				g2.fillPolygon(x, y, width + 3);
+				g2.fillPolygon(x2, y2, width + 3);
 			}
 	}
 
