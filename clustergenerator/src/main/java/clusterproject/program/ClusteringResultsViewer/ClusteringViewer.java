@@ -656,7 +656,6 @@ public class ClusteringViewer extends JFrame {
 
 		final HungarianAlgorithm hungarian = new HungarianAlgorithm(confusion);
 		final int[][] assignment = hungarian.findOptimalAssignment();
-		final List<Integer> newIDs = new ArrayList<Integer>();
 
 		final Map<Integer, Integer> idMap = new HashMap<Integer, Integer>();
 
@@ -669,7 +668,9 @@ public class ClusteringViewer extends JFrame {
 				idMap.put(assignment[idx][0], assignment[idx][1]);
 		}
 		viewers[other].getPointContainer().getClusterInformation().setIDMap(idMap);
-		for (int idx = 0; idx < currentIDs.size(); ++idx) {
+		final int size = currentIDs.size();
+		final List<Integer> newIDs = new ArrayList<Integer>(size);
+		for (int idx = 0; idx < size; ++idx) {
 			newIDs.add(idMap.get(currentIDs.get(idx)));
 		}
 		return newIDs;

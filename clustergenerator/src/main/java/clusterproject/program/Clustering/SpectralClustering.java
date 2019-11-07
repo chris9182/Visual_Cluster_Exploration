@@ -40,7 +40,7 @@ public class SpectralClustering extends AbstractClustering implements ISimpleClu
 	public List<ClusteringResult> cluster(double[][] data, List<String> headers) throws InterruptedException {
 		if (random == null)
 			random = new Random();
-		final List<ClusteringResult> results = new ArrayList<ClusteringResult>();
+		final List<ClusteringResult> results = new ArrayList<ClusteringResult>(getCount());
 		final int pointCount = data.length;
 		for (int i = 0; i < samples; ++i) {
 			if (Thread.interrupted())
@@ -53,7 +53,7 @@ public class SpectralClustering extends AbstractClustering implements ISimpleClu
 			final int[] labels = smSpectralClustering.getClusterLabel();
 			final double[][][] newData = new double[clusterCount][][];
 			for (int c = 0; c < clusterCount; ++c) {
-				final List<double[]> cluster = new ArrayList<double[]>();
+				final List<double[]> cluster = new ArrayList<double[]>(2 * pointCount / clusterCount);
 				for (int p = 0; p < pointCount; ++p) {
 					if (labels[p] == c)
 						cluster.add(data[p]);

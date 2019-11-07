@@ -4,7 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class MetaInformation {
-	private LinkedHashSet<Integer> highlighted = new LinkedHashSet<Integer>();
+	private LinkedHashSet<Integer> highlighted = new LinkedHashSet<Integer>(50);
 	private Set<Integer> filteredResults;
 	private int groundTruth = -1;
 

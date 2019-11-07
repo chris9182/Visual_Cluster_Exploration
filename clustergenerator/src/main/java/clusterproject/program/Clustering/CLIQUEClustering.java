@@ -43,7 +43,7 @@ public class CLIQUEClustering extends AbstractClustering implements IELKICluster
 
 	@Override
 	public List<NumberVectorClusteringResult> cluster(Database db) throws InterruptedException {
-		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
+		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>(getCount());
 		final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
 		prepareSettings();

@@ -8,15 +8,16 @@ public class ClusterInformation {
 	private List<Integer> originalClusterIDs;
 	private List<Integer> clusterIDs;
 	Map<Integer, Integer> idMap = null;
-	private PointContainer pointContainer;
+	private final PointContainer pointContainer;
 
 	public ClusterInformation(PointContainer pointContainer) {
 		this.pointContainer = pointContainer;
 	}
 
 	public void setUpClusters() {
-		clusterIDs = new ArrayList<Integer>();
-		originalClusterIDs = new ArrayList<Integer>();
+		final int size = pointContainer.getPointCount();
+		clusterIDs = new ArrayList<Integer>(size);
+		originalClusterIDs = new ArrayList<Integer>(size);
 	}
 
 	public void addClusterID(Integer id) {

@@ -10,7 +10,7 @@ import clusterproject.util.MinMax;
 
 public class PointContainer {
 	private int dim;
-	private List<double[]> points = new ArrayList<double[]>();
+	private List<double[]> points = new ArrayList<double[]>(300);
 	private List<String> headers;
 	private ClusterInformation clusterInformation;
 	private MetaInformation metaInformation = new MetaInformation();
@@ -152,7 +152,7 @@ public class PointContainer {
 	public Map<double[], Integer> getLabelMap() {
 		if (clusterInformation == null || !clusterInformation.hasClusters())
 			return null;
-		final Map<double[], Integer> assignments = new HashMap<double[], Integer>();
+		final Map<double[], Integer> assignments = new HashMap<double[], Integer>(points.size());
 		for (int i = 0; i < points.size(); ++i)
 			assignments.put(points.get(i), clusterInformation.getClusterIDs().get(i));
 		return assignments;
@@ -216,7 +216,7 @@ public class PointContainer {
 	}
 
 	public double[][][] toData() {
-		final Map<Integer, List<double[]>> buckets = new HashMap<Integer, List<double[]>>();
+		final Map<Integer, List<double[]>> buckets = new HashMap<Integer, List<double[]>>(32);
 		for (int i = 0; i < points.size(); ++i) {
 			List<double[]> newPoints = buckets.get(clusterInformation.getOriginalClusterIDs().get(i));
 			if (newPoints == null)
@@ -224,14 +224,14 @@ public class PointContainer {
 			newPoints.add(points.get(i));
 			buckets.put(clusterInformation.getOriginalClusterIDs().get(i), newPoints);
 		}
-		final List<double[][]> clusters = new ArrayList<double[][]>();
+		final double[][][] data = new double[buckets.size()][][];
+		int i = 0;
 		for (final List<double[]> cluster : buckets.values()) {
 			double[][] pointCluster = new double[cluster.size()][];
 			pointCluster = cluster.toArray(pointCluster);
-			clusters.add(pointCluster);
+			data[i++] = pointCluster;
 		}
-		final double[][][] data = new double[clusters.size()][][];
-		return clusters.toArray(data);
+		return data;
 	}
 
 }

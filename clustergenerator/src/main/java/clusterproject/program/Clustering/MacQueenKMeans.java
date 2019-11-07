@@ -46,7 +46,7 @@ public class MacQueenKMeans extends AbstractClustering implements IELKIClusterin
 
 	@Override
 	public List<NumberVectorClusteringResult> cluster(Database db) throws InterruptedException {
-		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>();
+		final List<NumberVectorClusteringResult> clusterings = new ArrayList<NumberVectorClusteringResult>(getCount());
 		final Relation<DoubleVector> rel = db.getRelation(TypeUtil.DOUBLE_VECTOR_FIELD);
 
 		prepareSettings();
