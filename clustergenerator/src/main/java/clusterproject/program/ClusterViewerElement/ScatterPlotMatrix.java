@@ -1,6 +1,7 @@
 package clusterproject.program.ClusterViewerElement;
 
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -166,11 +167,22 @@ public class ScatterPlotMatrix extends JFrame {
 		@Override
 		public void paintComponent(Graphics g) {
 			final Graphics2D gx = (Graphics2D) g;
-			// XXX: improve this
-//			int textWidth=gx.getFontMetrics().stringWidth(getText());
-			gx.rotate(Math.PI / 2, getWidth() / 2, getHeight() / 2);
-			super.paintComponent(g);
+			final FontMetrics metrics = gx.getFontMetrics();
+			String text = getText();
+			final int height = getHeight();
+			final boolean reduce = metrics.stringWidth(text) > height;
+			while (metrics.stringWidth(text) > height) {
+				text = text.substring(0, text.length() - 1);
+			}
+			if (reduce && text.length() > 4)
+				text = text.substring(0, text.length() - 3) + "...";
+			else if (reduce)
+				text = getText().substring(0, 1);
+			final int width = getWidth();
+			gx.rotate(Math.PI / 2, width / 2, height / 2);
 
+			gx.drawString(text, (int) (width / (double) 2 - metrics.stringWidth(text) / (double) 2),
+					(int) (-3 + height / (double) 2 + (metrics.getHeight()) / (double) 2));
 		}
 	}
 }
