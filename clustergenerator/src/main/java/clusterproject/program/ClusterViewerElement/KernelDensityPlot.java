@@ -37,8 +37,13 @@ public class KernelDensityPlot extends JPanel {
 		totalDensity = new KernelDensity(points.stream().mapToDouble(d -> d).toArray());
 		densities = new ArrayList<KernelDensity>();
 		mmList = new ArrayList<MinMax>();
+		final double bandwidth = totalDensity.bandwidth();
 		for (int i = 0; i < data.length; ++i) {
-			densities.add(new KernelDensity(data[i], totalDensity.bandwidth()));
+			if (data[i].length < 2 || bandwidth <= Double.MIN_NORMAL) {
+				densities.add(null);
+				continue;
+			}
+			densities.add(new KernelDensity(data[i], bandwidth));
 			final MinMax curmm = new MinMax();
 			for (int j = 0; j < data[i].length; ++j)
 				curmm.add(data[i][j]);
@@ -87,8 +92,11 @@ public class KernelDensityPlot extends JPanel {
 
 		if (colors.length > 1)
 			for (int d = 0; d < colors.length; ++d) {
+				final KernelDensity density = densities.get(d);
+				if (density == null)
+					continue;
 				for (int i = 0; i < width + 1; ++i) {
-					samples[i] = densities.get(d).p(min + dist * i);
+					samples[i] = density.p(min + dist * i);
 				}
 
 				final int[] y2 = new int[width + 3];
