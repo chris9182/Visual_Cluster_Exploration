@@ -28,14 +28,14 @@ public class KernelDensityPlot extends JPanel {
 		setBackground(MainWindow.BACKGROUND_COLOR);
 		this.data = data;
 		this.colors = colors;
-		final List<Double> points = new ArrayList<Double>();
+		final List<Double> points = new ArrayList<Double>(data.length > 0 ? data[0].length : 1);
 		for (int i = 0; i < data.length; ++i)
 			for (int j = 0; j < data[i].length; ++j)
 				points.add(data[i][j]);
 		pointCount = points.size();
 
 		totalDensity = new KernelDensity(points.stream().mapToDouble(d -> d).toArray());
-		densities = new ArrayList<KernelDensity>();
+		densities = new ArrayList<KernelDensity>(data.length);
 		mmList = new ArrayList<MinMax>();
 		final double bandwidth = totalDensity.bandwidth();
 		for (int i = 0; i < data.length; ++i) {

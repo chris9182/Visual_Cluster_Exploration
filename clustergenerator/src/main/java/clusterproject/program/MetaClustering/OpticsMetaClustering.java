@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
 
 public class OpticsMetaClustering<T> {
 	private final List<OpticsContainer<T>> clusterings;
-	private List<OpticsContainer<T>> seedlist;
+	private final int size;
+	private PriorityQueue<OpticsContainer<T>> seedlist;
 	private OpticsResult<T> clusterOrder;
 	private final double[][] distanceMatrix;
 	private final int minPTS;
@@ -20,13 +22,14 @@ public class OpticsMetaClustering<T> {
 		this.clusterings = new ArrayList<OpticsContainer<T>>();
 		for (int i = 0; i < sClusterings.size(); ++i)
 			this.clusterings.add(new OpticsContainer<T>(sClusterings.get(i), i));
+		size = clusterings.size();
 	}
 
 	public OpticsResult<T> runOptics() {
-		seedlist = new ArrayList<OpticsContainer<T>>();
+		seedlist = new PriorityQueue<OpticsContainer<T>>(OpticsResult.comparator);
 		clusterOrder = new OpticsResult<T>();
 		int minvalid = 0;
-		final int totalcount = clusterings.size();
+		final int totalcount = size;
 		for (int i = 0; i < totalcount; i++) {
 			OpticsContainer<T> current = null;
 			if (seedlist.isEmpty()) {
@@ -38,39 +41,32 @@ public class OpticsMetaClustering<T> {
 					}
 				}
 			} else {
-				current = seedlist.remove(0);
+				current = seedlist.remove();
 			}
 
 			if (current != null) {
 				clusterOrder.add(current);
 				current.flag = true;
 				final List<Double> distances = new ArrayList<Double>();
-				final List<OpticsContainer<T>> neighbours = query(eps, current, distances);
-				if (neighbours.size() + 1 >= minPTS) {
+				final List<OpticsContainer<T>> neighbors = query(eps, current, distances);
+				final int neighborSize = neighbors.size();
+				if (neighborSize + 1 >= minPTS) {
 					final double coredistance = coredist(distances, minPTS);
-					for (int j = 0; j < neighbours.size(); j++) {
-						final OpticsContainer<T> neighbour = neighbours.get(j);
-						if (!neighbour.flag) {
+					for (int j = 0; j < neighborSize; j++) {
+						final OpticsContainer<T> neighbor = neighbors.get(j);
+						if (!neighbor.flag) {
 							final double dist = Math.max(distances.get(j), coredistance);
-							if ((neighbour.distance) > dist)
-								neighbour.distance = dist;
-							if (!seedlist.contains(neighbour))
-								seedlist.add(neighbour);
+							if ((neighbor.distance) > dist) {
+								neighbor.distance = dist;
+								seedlist.remove(neighbor);
+								seedlist.add(neighbor);
+							} else if (!seedlist.contains(neighbor))
+								seedlist.add(neighbor);
 						}
 					}
 				}
 			}
-			if (seedlist.size() > 1) {
-				double minval = Float.MAX_VALUE;
-				int index = -1;
-				for (int y = 0; y < seedlist.size(); y++) {
-					if (seedlist.get(y).distance < minval) {
-						index = y;
-						minval = seedlist.get(y).distance;
-					}
-				}
-				Collections.swap(seedlist, 0, index);
-			}
+
 		}
 		return clusterOrder;
 	}
@@ -78,9 +74,9 @@ public class OpticsMetaClustering<T> {
 	private List<OpticsContainer<T>> query(double eps2, OpticsContainer<T> start, List<Double> distances) {
 		// TODO this can maybe be improved?
 		final List<OpticsContainer<T>> result = new ArrayList<OpticsContainer<T>>();
-		final int startID = clusterings.indexOf(start);
-		for (int i = 0; i < clusterings.size(); ++i) {
-			final double distance = distanceMatrix[i][startID];
+		final int startID = start.inIndex;
+		for (int i = 0; i < size; ++i) {
+			final double distance = distanceMatrix[startID][i];
 			if (distance <= eps2 && i != startID) {
 				result.add(clusterings.get(i));
 				distances.add(distance);

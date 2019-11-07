@@ -4,6 +4,7 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
@@ -302,6 +303,7 @@ public class FilterWindow extends JPanel {
 				((MyRangeSlider) selector).handleChange(true);
 				break;
 			}
+		// XXX: what about others?
 	}
 
 	public int[][] createDataset(double[] allParameters, double[] filteredParametersD, int bins, MinMax minMax) {
@@ -365,10 +367,11 @@ public class FilterWindow extends JPanel {
 			final int height = getHeight();
 			g2.setComposite(AlphaComposite.SrcOver.derive(.5f));
 			g2.setColor(Color.RED);
-			final List<Integer> xpoints = new ArrayList<Integer>();
+			// TODO: just use array?
+			final List<Integer> xpoints = new ArrayList<Integer>(2 * activeParametersBins.length + 2);
 			xpoints.add(width);
 			xpoints.add(0);
-			final List<Integer> ypoints = new ArrayList<Integer>();
+			final List<Integer> ypoints = new ArrayList<Integer>(2 * activeParametersBins.length + 2);
 			ypoints.add(height);
 			ypoints.add(height);
 			final double singleWidth = width / (double) (activeParametersBins.length - 1);
@@ -441,7 +444,7 @@ public class FilterWindow extends JPanel {
 	private class MyRangeSlider extends RangeSlider {
 		private static final long serialVersionUID = -1145841853132161271L;
 		private static final int LABEL_COUNT = 3;
-		final Map<Integer, String> dict;
+		private final Map<Integer, String> dict;
 		private static final int TICK_COUNT = 500;
 		private final MinMax minMax;
 		private final JLabel tooltip = new JLabel();
@@ -461,7 +464,6 @@ public class FilterWindow extends JPanel {
 			setFocusable(false);
 			setPaintLabels(true);
 			dict = new HashMap<Integer, String>();
-			// XXX: paint this manually
 			for (int i = 0; i < LABEL_COUNT; ++i) {
 				// String.format("%.3f", (maxLbl - minLbl) * i + minLbl));
 				dict.put(i, Float.toString((float) ((minMax.getRange()) * (i) / (LABEL_COUNT - 1) + minMax.min)));
@@ -491,7 +493,6 @@ public class FilterWindow extends JPanel {
 					x = (int) Math.max(x, getLocationOnScreen().getX());
 					tooltipFrame.setLocation(x, (int) (getLocationOnScreen().getY() + getHeight() / 2));
 					tooltipFrame.setVisible(true);
-
 				}
 
 				@Override
@@ -514,26 +515,29 @@ public class FilterWindow extends JPanel {
 		public void paint(Graphics g) {
 			final Graphics2D g2 = (Graphics2D) g;
 			super.paint(g);
+			final FontMetrics metrics = g2.getFontMetrics();
 			g2.setColor(Color.DARK_GRAY);
 			final int width = getWidth();
 			g2.drawString(dict.get(0), 0, 30);
 			for (int i = 1; i < LABEL_COUNT - 1; ++i) {
 				final int x = (int) Math.round(width * i / ((double) LABEL_COUNT - 1));
-				final int widthi = g2.getFontMetrics().stringWidth(dict.get(i));
+				final int widthi = metrics.stringWidth(dict.get(i));
 				g2.drawString(dict.get(i), (int) Math.round(x - widthi / (double) 2), 30);
 			}
-			final int widthLast = g2.getFontMetrics().stringWidth(dict.get(LABEL_COUNT - 1));
+			final int widthLast = metrics.stringWidth(dict.get(LABEL_COUNT - 1));
 			g2.drawString(dict.get(LABEL_COUNT - 1), getWidth() - widthLast, 30);
 		}
 
 		private String getTooltipText() {
-			if (getLowerValueD() == -Double.MAX_VALUE && getUpperValueD() == Double.MAX_VALUE)
+			final double upperVal = getUpperValueD();
+			final double lowerVal = getLowerValueD();
+			if (lowerVal == -Double.MAX_VALUE && upperVal == Double.MAX_VALUE)
 				return " All ";
-			if (getLowerValueD() == -Double.MAX_VALUE)
-				return " < " + (float) getUpperValueD() + " ";
-			if (getUpperValueD() == Double.MAX_VALUE)
-				return (" " + (float) getLowerValueD() + " < ");
-			return (" " + String.valueOf(((float) getLowerValueD()) + " <-> " + (float) getUpperValueD()) + " ");
+			if (lowerVal == -Double.MAX_VALUE)
+				return " < " + (float) upperVal + " ";
+			if (upperVal == Double.MAX_VALUE)
+				return (" " + (float) lowerVal + " < ");
+			return (" " + String.valueOf(((float) lowerVal) + " <-> " + (float) upperVal) + " ");
 		}
 
 		public void handleChange() {
@@ -667,15 +671,17 @@ public class FilterWindow extends JPanel {
 		}
 
 		public double getUpperValueD() {
-			if (getUpperValue() == TICK_COUNT)
+			final double upperVal = getUpperValue();
+			if (upperVal == TICK_COUNT)
 				return Double.MAX_VALUE;
-			return (minMax.getRange()) * ((double) getUpperValue() / TICK_COUNT) + minMax.min;
+			return (minMax.getRange()) * (upperVal / TICK_COUNT) + minMax.min;
 		}
 
 		public double getLowerValueD() {
-			if (getValue() == 0)
+			final double lowerVal = getValue();
+			if (lowerVal == 0)
 				return -Double.MAX_VALUE;
-			return (minMax.getRange()) * ((double) getValue() / TICK_COUNT) + minMax.min;
+			return (minMax.getRange()) * (lowerVal / TICK_COUNT) + minMax.min;
 		}
 
 	}

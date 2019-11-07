@@ -65,7 +65,7 @@ public class Parameter implements Serializable {
 	}
 
 	// TODO: what to do with enum/string
-	public static Double getParameterDoubleValue(Object parameter) {
+	public static Double getParameterDoubleValue(final Object parameter) {
 		if (parameter instanceof Double)
 			return (Double) parameter;
 		if (parameter instanceof Integer)

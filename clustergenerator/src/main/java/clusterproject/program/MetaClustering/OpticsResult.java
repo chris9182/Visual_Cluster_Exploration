@@ -1,11 +1,14 @@
 package clusterproject.program.MetaClustering;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
 public class OpticsResult<T> implements Iterable<OpticsContainer<T>> {
 	private static final int NOISE_TAG = -2;
+	public static final Comparator<OpticsContainer<?>> comparator = (o1, o2) -> Double.compare(o1.distance,
+			o2.distance);
 	private final List<OpticsContainer<T>> data = new ArrayList<OpticsContainer<T>>();
 
 	public boolean isEmpty() {
