@@ -172,7 +172,7 @@ public class ScatterPlotMatrix extends JFrame {
 			final int height = getHeight();
 			final boolean reduce = metrics.stringWidth(text) > height;
 			while (metrics.stringWidth(text) > height) {
-				text = text.substring(0, text.length() - 1);
+				text = text.substring(0, text.length() - 1).trim();
 			}
 			if (reduce && text.length() > 4)
 				text = text.substring(0, text.length() - 3) + "...";
