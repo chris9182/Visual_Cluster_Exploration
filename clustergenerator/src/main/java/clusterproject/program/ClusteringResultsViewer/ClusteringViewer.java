@@ -40,9 +40,6 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.jzy3d.colors.Color;
-import org.jzy3d.plot3d.primitives.Scatter;
-
 import com.google.common.util.concurrent.AtomicDouble;
 
 import clusterproject.data.ClusteringResult;
@@ -77,6 +74,7 @@ public class ClusteringViewer extends JFrame {
 	public static final FileNameExtensionFilter csvfilter = new FileNameExtensionFilter(
 			"single Clustering Result (csv)", "csv");
 
+	private final double[][] distanceMatrix;
 	private final List<ClusteringResult> clusterings;
 	private final OpticsResult<ClusteringResult> clusteredList;
 	private final ScatterPlot[] viewers;
@@ -87,13 +85,10 @@ public class ClusteringViewer extends JFrame {
 	private final JLayeredPane mainPanel;
 	private final SpringLayout layout;
 	private final IDistanceMeasure metaDistance;
-	private final double[][] distanceMatrix;
 	private final OpticsPlot oPlot;
 	private HeatMap heatMap;
 	private ScatterPlot mdsPlot;
-	private Scatter scatter;
-	private final LinkedHashSet<Integer> highlighted = new LinkedHashSet<>();
-	private final AtomicBoolean dohighlight = new AtomicBoolean(true);
+//	private Scatter scatter;
 
 	private final JButton scatterMatrixButton;
 	private final FilterWindow filterWindow;
@@ -103,9 +98,11 @@ public class ClusteringViewer extends JFrame {
 	private JButton diffButton;
 	private JButton resetButton;
 
-	private Set<Integer> filteredIndexes;
 	private int selectedViewer = 0;
 	private int groundTruth = -1;
+	private Set<Integer> filteredIndexes;
+	private final LinkedHashSet<Integer> highlighted = new LinkedHashSet<>();
+	private final AtomicBoolean dohighlight = new AtomicBoolean(true);
 
 	public ClusteringViewer(List<ClusteringResult> clusterings, IDistanceMeasure metaDistance, int minPTS, double eps) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
@@ -572,18 +569,19 @@ public class ClusteringViewer extends JFrame {
 	}
 
 	public void updateMDSPlot(OpticsResult<?> clusteringList) {
-		if (scatter != null) {
-			final Color[] colors = new Color[clusteringList.size()];
-			// XXX cleanup
-			for (int i = 0; i < clusteringList.size(); ++i) {
-				final java.awt.Color color = Util.getColor(clusteringList.get(i).tag + 2);
-				final Color drawColor = clusteringList.get(i).tag == -2 ? Color.GRAY
-						: new Color(color.getRed(), color.getGreen(), color.getBlue(), .5f);
-				colors[clusteringList.get(i).inIndex] = clusteringList.get(i).inIndex == groundTruth ? Color.BLACK
-						: drawColor;
-			}
-			scatter.setColors(colors);
-		}
+		// XXX: remove
+//		if (scatter != null) {
+//			final Color[] colors = new Color[clusteringList.size()];
+//			// XXX cleanup
+//			for (int i = 0; i < clusteringList.size(); ++i) {
+//				final java.awt.Color color = Util.getColor(clusteringList.get(i).tag + 2);
+//				final Color drawColor = clusteringList.get(i).tag == -2 ? Color.GRAY
+//						: new Color(color.getRed(), color.getGreen(), color.getBlue(), .5f);
+//				colors[clusteringList.get(i).inIndex] = clusteringList.get(i).inIndex == groundTruth ? Color.BLACK
+//						: drawColor;
+//			}
+//			scatter.setColors(colors);
+//		}
 		if (mdsPlot == null)
 			return;
 		final Integer[] clusterIDs = new Integer[clusteringList.size()];

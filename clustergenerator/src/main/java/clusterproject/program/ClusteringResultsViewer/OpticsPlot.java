@@ -42,9 +42,8 @@ public class OpticsPlot extends JLayeredPane {
 	private double threshhold = -Double.MIN_NORMAL;
 	private double max = 0;
 	private final ClusteringViewer clusteringViewer;
-	private final int NOISE_TAG = -2;
 	private final JButton setHistogramDataButton;
-	Map<Integer, Integer> indexMap;
+	private final Map<Integer, Integer> indexMap;
 
 	public OpticsPlot(ClusteringViewer clusteringViewer, OpticsResult<?> clusteredList) {
 		this.clusteringViewer = clusteringViewer;
@@ -158,7 +157,7 @@ public class OpticsPlot extends JLayeredPane {
 		if (newthreshhold == threshhold)
 			return;
 		threshhold = newthreshhold;
-		calculateClusters(threshhold);
+		clusteringList.calculateClusters(threshhold);
 		clusteringViewer.updateMDSPlot(clusteringList);
 		if (HistogramData.Colored.equals(clusteringViewer.getHistogramData())) {
 			adaptHistogramData();
@@ -172,38 +171,6 @@ public class OpticsPlot extends JLayeredPane {
 		final double height = (getHeight()) * (1 - threshhold / max);
 		g.drawLine(0, (int) height, getWidth(), (int) height);
 
-	}
-
-	private void calculateClusters(double threshhold) {
-		final OpticsResult<?> clusterOrder = clusteringList;
-		final int datalength = clusterOrder.size();
-
-		final int[] clusterer = new int[clusterOrder.size()];
-		int curindex = 0;
-		clusterer[0] = 1;
-		for (int i = 1; i < datalength; ++i) {
-			if (clusterOrder.get(i).distance > threshhold) {
-				clusterer[++curindex] = 0;
-			}
-			++clusterer[curindex];
-		}
-		tag(clusterOrder, clusterer);
-	}
-
-	private void tag(OpticsResult<?> clusterOrder, int[] clusterer) {
-		int noise = 0;
-		int index = 0;
-		final int length = clusterer.length;
-		for (int i = 0; i < length; ++i) {
-			if (clusterer[i] == 1) {
-				noise++;
-				clusterOrder.get(index++).tag = NOISE_TAG;
-			} else {
-				final int count = clusterer[i];
-				for (int j = 0; j < count; ++j)
-					clusterOrder.get(index++).tag = i - noise;
-			}
-		}
 	}
 
 	public void highlight(int selection, boolean replace, boolean singleClick) {
