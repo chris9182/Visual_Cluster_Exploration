@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
 public class SpectralOptions extends JPanel {
+	private static final long serialVersionUID = -3668796468048106223L;
 	private final JFormattedTextField lowerKField;
 	private final JFormattedTextField upperKField;
 	private final JFormattedTextField samplesEachField;

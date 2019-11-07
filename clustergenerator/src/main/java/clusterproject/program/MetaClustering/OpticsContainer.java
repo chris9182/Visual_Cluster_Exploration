@@ -1,25 +1,23 @@
 package clusterproject.program.MetaClustering;
 
-import clusterproject.data.ClusteringResult;
-
-public class ClusteringWithDistance {
+public class OpticsContainer<T> {
 	public int inIndex;
 	public double distance = Double.MAX_VALUE;
 	public boolean flag;
 	public int tag;
-	private final ClusteringResult clustering;
+	private final T clustering;
 	// public static IDistanceMeasure measure;
 	//
 	// static {
 	// measure = new ClusteringError();
 	// }
 
-	public ClusteringWithDistance(ClusteringResult clustering, int inIndex) {
+	public OpticsContainer(T clustering, int inIndex) {
 		this.clustering = clustering;
 		this.inIndex = inIndex;
 	}
 
-	public ClusteringResult getClustering() {
+	public T getObject() {
 		return clustering;
 	}
 

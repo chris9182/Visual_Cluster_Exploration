@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 import clusterproject.data.ClusteringResult;
 import clusterproject.data.NumberVectorClusteringResult;
-import clusterproject.program.MetaClustering.ClusteringWithDistance;
+import clusterproject.program.MetaClustering.OpticsResult;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
 import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
 
@@ -150,11 +150,11 @@ public class Util {
 		return sClusterings;
 	}
 
-	public static double[][] getSortedDistances(List<ClusteringWithDistance> list, double[][] distanceMatrix) {
+	public static double[][] getSortedDistances(OpticsResult<?> clusteredList, double[][] distanceMatrix) {
 		final double[][] sorted = new double[distanceMatrix.length][distanceMatrix.length];
 		for (int i = 0; i < distanceMatrix.length; ++i)
 			for (int j = 0; j < distanceMatrix.length; ++j) {
-				sorted[i][j] = distanceMatrix[list.get(i).inIndex][list.get(j).inIndex];
+				sorted[i][j] = distanceMatrix[clusteredList.get(i).inIndex][clusteredList.get(j).inIndex];
 			}
 		return sorted;
 	}
@@ -178,6 +178,7 @@ public class Util {
 		return intersection(array1, array2);
 	}
 
+	@SuppressWarnings({ "unlikely-arg-type", "rawtypes", "unchecked" })
 	public static int countContained(Object[] pointArr, ClusteringResult clustering) {
 		int contained = 0;
 		final Set<Object[]> objects = new HashSet<Object[]>((List) Arrays.asList(pointArr));
@@ -188,6 +189,7 @@ public class Util {
 		return contained;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes", "unlikely-arg-type" })
 	public static double[][][] getReduceTo(Object[] pointArr, double[][][] data) {
 		final Set<Object[]> objects = new HashSet<Object[]>((List) Arrays.asList(pointArr));
 		final double[][][] newData = new double[data.length][][];

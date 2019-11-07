@@ -55,11 +55,12 @@ import clusterproject.program.Clustering.Parameters.Parameter;
 import clusterproject.program.ClusteringResultsViewer.FilterWindow.HistogramData;
 import clusterproject.program.Consensus.CoAssociationMatrixAverageLinkLifetime;
 import clusterproject.program.Consensus.ConsensusFunction;
-import clusterproject.program.MetaClustering.ClusteringWithDistance;
 import clusterproject.program.MetaClustering.DistanceCalculation;
 import clusterproject.program.MetaClustering.HungarianAlgorithm;
 import clusterproject.program.MetaClustering.IDistanceMeasure;
+import clusterproject.program.MetaClustering.OpticsContainer;
 import clusterproject.program.MetaClustering.OpticsMetaClustering;
+import clusterproject.program.MetaClustering.OpticsResult;
 import clusterproject.util.NMI;
 import clusterproject.util.Util;
 import smile.mds.MDS;
@@ -77,7 +78,7 @@ public class ClusteringViewer extends JFrame {
 			"single Clustering Result (csv)", "csv");
 
 	private final List<ClusteringResult> clusterings;
-	private final List<ClusteringWithDistance> clusteredList;
+	private final OpticsResult<ClusteringResult> clusteredList;
 	private final ScatterPlot[] viewers;
 	private ScatterPlot visibleViewer;
 	private JPanel viewerPanel;
@@ -335,7 +336,8 @@ public class ClusteringViewer extends JFrame {
 			e.printStackTrace();
 		}
 
-		final OpticsMetaClustering optics = new OpticsMetaClustering(clusterings, distanceMatrix, minPTS, eps);
+		final OpticsMetaClustering<ClusteringResult> optics = new OpticsMetaClustering<ClusteringResult>(clusterings,
+				distanceMatrix, minPTS, eps);
 		clusteredList = optics.runOptics();
 		oPlot = new OpticsPlot(this, clusteredList);
 		layout.putConstraint(SpringLayout.NORTH, oPlot, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
@@ -383,7 +385,8 @@ public class ClusteringViewer extends JFrame {
 		}
 
 		if (clusterings.size() <= MAX_HEATMAP_SIZE) {
-			heatMap = new HeatMap(Util.getSortedDistances(clusteredList, distanceMatrix), this, clusteredList);
+			heatMap = new ClusterDistanceHeatMap(Util.getSortedDistances(clusteredList, distanceMatrix), this,
+					clusteredList);
 			layout.putConstraint(SpringLayout.NORTH, heatMap, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
 			layout.putConstraint(SpringLayout.EAST, heatMap, -VIEWER_SPACE - RIGHT_PANEL_WIDTH / 2,
 					SpringLayout.HORIZONTAL_CENTER, mainPanel);
@@ -406,6 +409,7 @@ public class ClusteringViewer extends JFrame {
 		scrollPaneFilter.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPaneFilter.setBorder(null);
 		scrollPaneFilter.setOpaque(false);
+		scrollPaneFilter.getVerticalScrollBar().setUnitIncrement(6);
 		layout.putConstraint(SpringLayout.NORTH, scrollPaneFilter, VIEWER_SPACE, SpringLayout.SOUTH,
 				clustereringSelector);
 		layout.putConstraint(SpringLayout.SOUTH, scrollPaneFilter, -VIEWER_SPACE, SpringLayout.SOUTH, mainPanel);
@@ -419,7 +423,7 @@ public class ClusteringViewer extends JFrame {
 				return;
 			final Iterator<Integer> hIter = highlighted.iterator();
 			final int id1 = hIter.next();
-			final PointContainer c1 = viewers[id1].getPointContainer();
+//			final PointContainer c1 = viewers[id1].getPointContainer();
 			final int id2 = hIter.next();
 			final PointContainer c2 = viewers[id2].getPointContainer();
 			c2.getClusterInformation().setClusterIDs(getNewColors(id1, id2));
@@ -567,22 +571,23 @@ public class ClusteringViewer extends JFrame {
 
 	}
 
-	public void updateMDSPlot(List<ClusteringWithDistance> list) {
+	public void updateMDSPlot(OpticsResult<?> clusteringList) {
 		if (scatter != null) {
-			final Color[] colors = new Color[list.size()];
+			final Color[] colors = new Color[clusteringList.size()];
 			// XXX cleanup
-			for (int i = 0; i < list.size(); ++i) {
-				final java.awt.Color color = Util.getColor(list.get(i).tag + 2);
-				final Color drawColor = list.get(i).tag == -2 ? Color.GRAY
+			for (int i = 0; i < clusteringList.size(); ++i) {
+				final java.awt.Color color = Util.getColor(clusteringList.get(i).tag + 2);
+				final Color drawColor = clusteringList.get(i).tag == -2 ? Color.GRAY
 						: new Color(color.getRed(), color.getGreen(), color.getBlue(), .5f);
-				colors[list.get(i).inIndex] = list.get(i).inIndex == groundTruth ? Color.BLACK : drawColor;
+				colors[clusteringList.get(i).inIndex] = clusteringList.get(i).inIndex == groundTruth ? Color.BLACK
+						: drawColor;
 			}
 			scatter.setColors(colors);
 		}
 		if (mdsPlot == null)
 			return;
-		final Integer[] clusterIDs = new Integer[list.size()];
-		for (final ClusteringWithDistance clustering : list)
+		final Integer[] clusterIDs = new Integer[clusteringList.size()];
+		for (final OpticsContainer<?> clustering : clusteringList)
 			clusterIDs[clustering.inIndex] = clustering.tag;
 		mdsPlot.getPointContainer().setUpClusters();
 		mdsPlot.getPointContainer().getClusterInformation()
@@ -695,14 +700,14 @@ public class ClusteringViewer extends JFrame {
 	private void clusterHighlight(int closest, boolean replace) {
 
 		int clusterid = -3;
-		for (final ClusteringWithDistance clustering : clusteredList) {
+		for (final OpticsContainer<?> clustering : clusteredList) {
 			if (clustering.inIndex == closest) {
 				clusterid = clustering.tag;
 				break;
 			}
 		}
 		final List<Integer> indices = new ArrayList<Integer>();
-		for (final ClusteringWithDistance clustering : clusteredList) {
+		for (final OpticsContainer<?> clustering : clusteredList) {
 			if (clustering.tag == clusterid) {
 				indices.add(clustering.inIndex);
 			}

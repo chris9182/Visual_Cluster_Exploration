@@ -61,7 +61,7 @@ public class SNNOptions extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, uminplbl, 0, SpringLayout.WEST, this);
 		add(uminplbl);
 
-		final NumberFormat doubleFieldFormatter = NumberFormat.getNumberInstance();
+//		final NumberFormat doubleFieldFormatter = NumberFormat.getNumberInstance();
 		// EPS
 		final JLabel epsLbl = new JLabel("epsilon");
 		layout.putConstraint(SpringLayout.NORTH, epsLbl, 5 * INNER_PAD, SpringLayout.SOUTH, upperMinPTSField);

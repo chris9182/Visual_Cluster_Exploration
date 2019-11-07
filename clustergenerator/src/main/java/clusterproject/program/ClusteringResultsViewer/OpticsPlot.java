@@ -25,7 +25,8 @@ import javax.swing.SwingUtilities;
 
 import clusterproject.data.ClusteringResult;
 import clusterproject.program.ClusteringResultsViewer.FilterWindow.HistogramData;
-import clusterproject.program.MetaClustering.ClusteringWithDistance;
+import clusterproject.program.MetaClustering.OpticsContainer;
+import clusterproject.program.MetaClustering.OpticsResult;
 import clusterproject.util.Util;
 
 public class OpticsPlot extends JLayeredPane {
@@ -35,7 +36,7 @@ public class OpticsPlot extends JLayeredPane {
 	private final static int BAR_OFFSET = 20;
 	private static final int LABLE_OFFSET = 5;
 
-	private final List<ClusteringWithDistance> clusteringList;
+	private final OpticsResult<?> clusteringList;
 	private final JPanel opticsBars;
 	private final SpringLayout layout;
 	private double threshhold = -Double.MIN_NORMAL;
@@ -45,14 +46,14 @@ public class OpticsPlot extends JLayeredPane {
 	private final JButton setHistogramDataButton;
 	Map<Integer, Integer> indexMap;
 
-	public OpticsPlot(ClusteringViewer clusteringViewer, List<ClusteringWithDistance> clusteringList) {
+	public OpticsPlot(ClusteringViewer clusteringViewer, OpticsResult<?> clusteredList) {
 		this.clusteringViewer = clusteringViewer;
-		this.clusteringList = clusteringList;
+		this.clusteringList = clusteredList;
 		layout = new SpringLayout();
 		setLayout(layout);
 		this.indexMap = new HashMap<Integer, Integer>();
 		int key = 0;
-		for (final ClusteringWithDistance clu : clusteringList)
+		for (final OpticsContainer<?> clu : clusteredList)
 			indexMap.put(key++, clu.inIndex);
 		setOpaque(false);
 		setHistogramDataButton = new JButton("Clusters to Histogram");
@@ -75,16 +76,16 @@ public class OpticsPlot extends JLayeredPane {
 		layout.putConstraint(SpringLayout.EAST, opticsBars, 0, SpringLayout.EAST, this);
 		layout.putConstraint(SpringLayout.SOUTH, opticsBars, 0, SpringLayout.SOUTH, this);
 		layout.putConstraint(SpringLayout.WEST, opticsBars, BAR_OFFSET, SpringLayout.WEST, this);
-		for (int i = 1; i < clusteringList.size(); ++i) {
-			if (clusteringList.get(i).distance > max && clusteringList.get(i).distance < Double.MAX_VALUE)
-				max = clusteringList.get(i).distance;
+		for (int i = 1; i < clusteredList.size(); ++i) {
+			if (clusteredList.get(i).distance > max && clusteredList.get(i).distance < Double.MAX_VALUE)
+				max = clusteredList.get(i).distance;
 		}
 		if (max == 0)
 			max = 1;
 		else
 			max *= 1.1;
 
-		opticsBars.add(new OpticsDataPainter(this, clusteringList));
+		opticsBars.add(new OpticsDataPainter(this, clusteredList));
 		add(opticsBars, new Integer(20));
 		final JPanel threshholdClicker = new JPanel() {
 			private static final long serialVersionUID = -343022910473819436L;
@@ -128,9 +129,11 @@ public class OpticsPlot extends JLayeredPane {
 
 	private void adaptHistogramData() {
 		final List<ClusteringResult> newData = new ArrayList<ClusteringResult>();
-		for (final ClusteringWithDistance c : clusteringList)
+		if (!clusteringList.isEmpty() && !(clusteringList.get(0).getObject() instanceof ClusteringResult))
+			return;
+		for (final OpticsContainer<?> c : clusteringList)
 			if (c.tag >= 0)
-				newData.add(c.getClustering());
+				newData.add((ClusteringResult) c.getObject());
 		// if (newData.size() == clusteringList.size())
 		// clusteringViewer.setHistogramData(newData, "All Clusterings");
 		// else
@@ -172,7 +175,7 @@ public class OpticsPlot extends JLayeredPane {
 	}
 
 	private void calculateClusters(double threshhold) {
-		final List<ClusteringWithDistance> clusterOrder = clusteringList;
+		final OpticsResult<?> clusterOrder = clusteringList;
 		final int datalength = clusterOrder.size();
 
 		final int[] clusterer = new int[clusterOrder.size()];
@@ -187,7 +190,7 @@ public class OpticsPlot extends JLayeredPane {
 		tag(clusterOrder, clusterer);
 	}
 
-	private void tag(List<ClusteringWithDistance> clusterOrder, int[] clusterer) {
+	private void tag(OpticsResult<?> clusterOrder, int[] clusterer) {
 		int noise = 0;
 		int index = 0;
 		final int length = clusterer.length;
@@ -226,20 +229,20 @@ public class OpticsPlot extends JLayeredPane {
 		private final static int INNER_SPACE = 2;
 		private final static int BORDER_MIN_SIZE = 2;
 		final OpticsPlot plot;
-		final List<ClusteringWithDistance> clusteringList;
+		final OpticsResult<?> clusteringList;
 		final List<Double> percentages;
 
-		public OpticsDataPainter(OpticsPlot plot, List<ClusteringWithDistance> clusteringList) {
+		public OpticsDataPainter(OpticsPlot plot, OpticsResult<?> clusteredList) {
 			this.plot = plot;
-			this.clusteringList = clusteringList;
+			this.clusteringList = clusteredList;
 			percentages = new ArrayList<Double>();
-			for (final ClusteringWithDistance clu : clusteringList)
+			for (final OpticsContainer<?> clu : clusteredList)
 				percentages.add(Math.min(clu.distance / max, 1));
 			final MouseAdapter listener = new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					final int width = getWidth();
-					final int length = clusteringList.size();
+					final int length = clusteredList.size();
 					final double singleWidth = width / (double) length;
 					final int selected = (int) ((e.getX()) / singleWidth);
 					// if(e.isShiftDown())
@@ -251,7 +254,7 @@ public class OpticsPlot extends JLayeredPane {
 				@Override
 				public void mouseMoved(MouseEvent e) {
 					final int width = getWidth();
-					final int length = clusteringList.size();
+					final int length = clusteredList.size();
 					final double singleWidth = width / (double) length;
 					final int selected = (int) ((e.getX()) / singleWidth);
 					final int myid = plot.getInIndex(selected);

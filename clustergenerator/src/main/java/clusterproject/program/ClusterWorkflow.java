@@ -386,6 +386,7 @@ public class ClusterWorkflow extends JFrame {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void loadCWFFile(File selectedFile) {
 		if (worker != null && worker.isAlive())
 			return;
@@ -406,6 +407,7 @@ public class ClusterWorkflow extends JFrame {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private void loadCRFFile(File selectedFile) {
 		try {
 			final FileInputStream fileIn = new FileInputStream(selectedFile);
