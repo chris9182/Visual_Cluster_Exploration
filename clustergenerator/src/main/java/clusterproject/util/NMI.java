@@ -12,7 +12,7 @@ public class NMI {
 	public static double calc(PointContainer pointContainerTarget, PointContainer pointContainerCluster) {
 		final List<Integer> targetLabels = pointContainerTarget.getClusterInformation().getOriginalClusterIDs();
 		final List<Integer> clusterLabels = new ArrayList<Integer>();
-		final Map<double[], Integer> m2 = pointContainerCluster.getLabelMap();
+		final Map<double[], Integer> m2 = pointContainerCluster.getOriginalLabelMap();
 		for (final double[] point : pointContainerTarget.getPoints())
 			clusterLabels.add(m2.get(point));
 		final int length1 = targetLabels.size();

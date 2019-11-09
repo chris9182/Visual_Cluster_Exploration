@@ -158,6 +158,15 @@ public class PointContainer {
 		return assignments;
 	}
 
+	public Map<double[], Integer> getOriginalLabelMap() {
+		if (clusterInformation == null || !clusterInformation.hasClusters())
+			return null;
+		final Map<double[], Integer> assignments = new HashMap<double[], Integer>(points.size());
+		for (int i = 0; i < points.size(); ++i)
+			assignments.put(points.get(i), clusterInformation.getOriginalClusterIDs().get(i));
+		return assignments;
+	}
+
 	public PointContainer getSample(int maxPoints) {
 		final PointContainer sampleContainer = new PointContainer(dim);
 		final int size = getPoints().size();

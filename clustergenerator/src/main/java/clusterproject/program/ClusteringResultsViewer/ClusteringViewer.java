@@ -50,8 +50,8 @@ import clusterproject.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.program.ClusterViewerElement.ScatterPlotMatrix;
 import clusterproject.program.Clustering.Parameters.Parameter;
 import clusterproject.program.ClusteringResultsViewer.FilterWindow.HistogramData;
-import clusterproject.program.Consensus.CoAssociationMatrixAverageLinkLifetime;
 import clusterproject.program.Consensus.ConsensusFunction;
+import clusterproject.program.Consensus.DICLENS;
 import clusterproject.program.MetaClustering.DistanceCalculation;
 import clusterproject.program.MetaClustering.HungarianAlgorithm;
 import clusterproject.program.MetaClustering.IDistanceMeasure;
@@ -88,7 +88,6 @@ public class ClusteringViewer extends JFrame {
 	private final OpticsPlot oPlot;
 	private HeatMap heatMap;
 	private ScatterPlot mdsPlot;
-//	private Scatter scatter;
 
 	private final JButton scatterMatrixButton;
 	private final FilterWindow filterWindow;
@@ -230,7 +229,9 @@ public class ClusteringViewer extends JFrame {
 		consensusButton.addActionListener(e -> {
 			// XXX improve and let user choose?
 			// final ConsensusFunction function = new CoAssociationMatrixAverageLink();
-			final ConsensusFunction function = new CoAssociationMatrixAverageLinkLifetime();
+//			final ConsensusFunction function = new CoAssociationMatrixAverageLinkLifetime();
+
+			final ConsensusFunction function = new DICLENS();
 			// final ConsensusFunction function = new CoAssociationMatrixThreshhold();
 			// final ConsensusFunction function = new CoAssociationMatrixWithCompletion();
 			final List<List<PointContainer>> pointContainers = getContainersByTag();
@@ -276,42 +277,6 @@ public class ClusteringViewer extends JFrame {
 			final double[][] coords = mds.getCoordinates();
 			final PointContainer mdsContainer = new PointContainer(coords[0].length);
 			mdsContainer.addPoints(coords);
-			// XXX remove this
-			// if (coords[0].length > 2) {
-			// final JFrame test = new JFrame();
-			// final int size = coords.length;
-			// final float x;
-			// final float y;
-			// final float z;
-			// float a;
-			//
-			// final Coord3d[] points = new Coord3d[size];
-			// final Color[] colors = new Color[size];
-			// a = 0.5f;
-			// for (int i = 0; i < size; i++) {
-			// points[i] = new Coord3d(coords[i][0], coords[i][1], coords[i][2]);
-			// colors[i] = new Color(.5f, .5f, .5f, a);
-			// }
-			//
-			// scatter = new Scatter(points, colors);
-			// test.setSize(800, 800);
-			// final Chart chart = AWTChartComponentFactory.chart(Quality.Advanced, "awt");
-			// scatter.setWidth(5);
-			//
-			// final AWTCameraMouseController mouseController = new
-			// AWTCameraMouseController() {
-			// };
-			// final AWTCameraKeyController keyController = new AWTCameraKeyController();
-			// test.addMouseListener(mouseController);
-			// test.addKeyListener(keyController);
-			// chart.addController(mouseController);
-			// chart.addController(keyController);
-			//
-			// chart.getScene().add(scatter);
-			//
-			// test.add((Component) chart.getCanvas());
-			// test.setVisible(true);
-			// }
 
 			mdsPlot = new ScatterPlot(mdsContainer, true);
 			mdsPlot.addAutoAdjust();
@@ -569,19 +534,6 @@ public class ClusteringViewer extends JFrame {
 	}
 
 	public void updateMDSPlot(OpticsResult<?> clusteringList) {
-		// XXX: remove
-//		if (scatter != null) {
-//			final Color[] colors = new Color[clusteringList.size()];
-//			// XXX cleanup
-//			for (int i = 0; i < clusteringList.size(); ++i) {
-//				final java.awt.Color color = Util.getColor(clusteringList.get(i).tag + 2);
-//				final Color drawColor = clusteringList.get(i).tag == -2 ? Color.GRAY
-//						: new Color(color.getRed(), color.getGreen(), color.getBlue(), .5f);
-//				colors[clusteringList.get(i).inIndex] = clusteringList.get(i).inIndex == groundTruth ? Color.BLACK
-//						: drawColor;
-//			}
-//			scatter.setColors(colors);
-//		}
 		if (mdsPlot == null)
 			return;
 		final Integer[] clusterIDs = new Integer[clusteringList.size()];
@@ -838,7 +790,6 @@ public class ClusteringViewer extends JFrame {
 				mdsPlot.repaint();
 			oPlot.repaint();
 		});
-
 	}
 
 	public Set<Integer> getFilteredIndexes() {
@@ -921,7 +872,7 @@ public class ClusteringViewer extends JFrame {
 		return weightsList;
 	}
 
-	// TODO: what if there is no mds?
+	// TODO: what if there is no mds? use other variable
 	public List<List<PointContainer>> getContainersByTag() {
 		final Map<Integer, List<PointContainer>> containerLists = new TreeMap<Integer, List<PointContainer>>();
 		final List<Integer> tags = mdsPlot.getPointContainer().getClusterInformation().getClusterIDs();

@@ -11,6 +11,8 @@ import la.matrix.Matrix;
 import la.matrix.SparseMatrix;
 import ml.recovery.MatrixCompletion;
 
+//buggy
+@Deprecated
 public class CoAssociationMatrixWithCompletion implements ConsensusFunction {
 	public static final double UPPERBOUND = 0.5;
 	public static final double LOWERBOUND = 0.5;

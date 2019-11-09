@@ -12,7 +12,7 @@ public class CoAssociationMatrix {
 			final List<double[]> points, int pointCount) {
 		final List<Map<double[], Integer>> assignments = new ArrayList<Map<double[], Integer>>();
 		for (final PointContainer result : results)
-			assignments.add(result.getLabelMap());
+			assignments.add(result.getOriginalLabelMap());
 		final int resultCount = results.size();
 		final double totalWeights = (weights != null) ? weights.stream().mapToDouble(f -> f.doubleValue()).sum()
 				: resultCount;
