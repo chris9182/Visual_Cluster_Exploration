@@ -227,32 +227,36 @@ public class ClusteringViewer extends JFrame {
 
 		consensusButton = new JButton("Consensus");
 		consensusButton.addActionListener(e -> {
-			// XXX improve and let user choose?
-			// final ConsensusFunction function = new CoAssociationMatrixAverageLink();
-//			final ConsensusFunction function = new CoAssociationMatrixAverageLinkLifetime();
+			// TODO: add progress
+			new Thread(() -> {
+				// XXX improve and let user choose?
+				// final ConsensusFunction function = new CoAssociationMatrixAverageLink();
+				// final ConsensusFunction function = new
+				// CoAssociationMatrixAverageLinkLifetime();
+				final ConsensusFunction function = new DICLENS();
+				// final ConsensusFunction function = new CoAssociationMatrixThreshhold();
+				// final ConsensusFunction function = new CoAssociationMatrixWithCompletion();
+				final List<List<PointContainer>> pointContainers = getContainersByTag();
+				final ClusteringResult[] resultArray = new ClusteringResult[pointContainers.size()];
+				pointContainers.parallelStream().forEach(t -> {
+					final int index = pointContainers.indexOf(t);
+					final List<Double> weights = null;
+					final PointContainer consensus = function.calculateConsensus(t, weights);
+					final double[][][] data = consensus.toData();
+					final Parameter param = new Parameter("Consensus");
+					param.addParameter("Result ID", index);
+					param.addAdditionalParameter("Number of Clusters incl.", t.size());
+					resultArray[index] = (new ClusteringResult(data, param, clusterings.get(0).getHeaders()));
+				});
+				final List<ClusteringResult> results = new ArrayList<ClusteringResult>(Arrays.asList(resultArray));
+				if (groundTruth >= 0)
+					results.add(0, clusterings.get(groundTruth));
+				final ClusteringViewer newWindow = new ClusteringViewer(results, metaDistance, minPTS, eps);
+				newWindow.setSize(new Dimension(1000, 800));
+				newWindow.setLocationRelativeTo(null);
+				newWindow.setVisible(true);
+			}).start();
 
-			final ConsensusFunction function = new DICLENS();
-			// final ConsensusFunction function = new CoAssociationMatrixThreshhold();
-			// final ConsensusFunction function = new CoAssociationMatrixWithCompletion();
-			final List<List<PointContainer>> pointContainers = getContainersByTag();
-			final ClusteringResult[] resultArray = new ClusteringResult[pointContainers.size()];
-			pointContainers.parallelStream().forEach(t -> {
-				final int index = pointContainers.indexOf(t);
-				final List<Double> weights = null;
-				final PointContainer consensus = function.calculateConsensus(t, weights);
-				final double[][][] data = consensus.toData();
-				final Parameter param = new Parameter("Consensus");
-				param.addParameter("Result ID", index);
-				param.addAdditionalParameter("Number of Clusters incl.", t.size());
-				resultArray[index] = (new ClusteringResult(data, param, this.clusterings.get(0).getHeaders()));
-			});
-			final List<ClusteringResult> results = new ArrayList<ClusteringResult>(Arrays.asList(resultArray));
-			if (groundTruth >= 0)
-				results.add(0, clusterings.get(groundTruth));
-			final ClusteringViewer newWindow = new ClusteringViewer(results, metaDistance, minPTS, eps);
-			newWindow.setSize(new Dimension(1000, 800));
-			newWindow.setLocationRelativeTo(null);
-			newWindow.setVisible(true);
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, consensusButton, 0, SpringLayout.VERTICAL_CENTER,
 				saveButton);

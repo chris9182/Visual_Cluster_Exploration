@@ -1,6 +1,7 @@
 package clusterproject.data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +62,15 @@ public class ClusterInformation {
 
 	public Map<Integer, Integer> getIDMap() {
 		return idMap;
+	}
+
+	public void copyIn(ClusterInformation clusterInformation) {
+		originalClusterIDs.addAll(clusterInformation.getOriginalClusterIDs());
+		clusterIDs.addAll(clusterInformation.getClusterIDs());
+		if (clusterInformation.getIDMap() != null) {
+			idMap = new HashMap<Integer, Integer>();
+			idMap.putAll(clusterInformation.getIDMap());
+		}
 	}
 
 }

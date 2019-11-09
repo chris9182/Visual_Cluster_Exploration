@@ -14,6 +14,13 @@ public class DICLENS implements ConsensusFunction {
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights) {
 		if (results == null || results.isEmpty())
 			return null;
+		if (results.size() == 1) {
+			final PointContainer consensus = new PointContainer(results.get(0).getDim());
+			consensus.addPoints(results.get(0).getPoints());
+			consensus.setUpClusters();
+			consensus.getClusterInformation().copyIn(results.get(0).getClusterInformation());
+			return consensus;
+		}
 		final int[][] assignments = new int[results.size()][];
 		assignments[0] = results.get(0).getClusterInformation().getOriginalClusterIDs().stream().mapToInt(e -> e)
 				.toArray();
