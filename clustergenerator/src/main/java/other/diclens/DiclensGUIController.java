@@ -57,6 +57,7 @@ public class DiclensGUIController {
 	public static int[] runAlgorithm(int[][] clusters) {
 		final DiclensMST mst = new DiclensMST(ExtractClusterings.fromArray(clusters));
 		mst.run();
+		mst.setNumberOfComponentsTo(mst.suggestedPoint());
 		return mst.finalClusteringAsArray();
 
 	}

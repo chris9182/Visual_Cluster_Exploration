@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import clusterproject.data.PointContainer;
+import clusterproject.util.Util;
 import other.diclens.DiclensGUIController;
 
 public class DICLENS implements ConsensusFunction {
@@ -26,12 +28,15 @@ public class DICLENS implements ConsensusFunction {
 				.toArray();
 		final List<double[]> points = results.get(0).getPoints();
 		final int pointCount = assignments[0].length;
-		for (int i = 1; i < results.size(); ++i) {
+		IntStream.range(1, results.size()).parallel().forEach(i -> {
 			assignments[i] = new int[pointCount];
 			final Map<double[], Integer> labels = results.get(i).getOriginalLabelMap();
 			for (int j = 0; j < pointCount; ++j)
 				assignments[i][j] = labels.get(points.get(j));
-		}
+		});
+		// fix indices to start with 1 and be consecutive
+		IntStream.range(0, results.size()).parallel()
+				.forEach(i -> assignments[i] = Util.makeConsecutiveStartingWith(1, assignments[i]));
 		// from:
 		// https://www.cs.umb.edu/~smimarog/diclens/
 		final int[] assignment = DiclensGUIController.runAlgorithm(assignments);

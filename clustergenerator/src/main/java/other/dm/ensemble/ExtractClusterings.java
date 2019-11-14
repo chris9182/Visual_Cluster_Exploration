@@ -93,7 +93,8 @@ public class ExtractClusterings {
 
 	private static <T> Map<T, BitSet> arrayToBitSets(final T[] items) {
 		final Map<T, BitSet> partition = new HashMap<T, BitSet>();
-		for (int objectCount = items.length, i = 0; i < objectCount; ++i) {
+		final int objectCount = items.length;
+		for (int i = 0; i < objectCount; ++i) {
 			BitSet cluster = partition.get(items[i]);
 			if (cluster == null) {
 				cluster = new BitSet(objectCount);

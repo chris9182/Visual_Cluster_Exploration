@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,6 +81,11 @@ public class ImporterWindow extends JFrame {
 		labelIndexField.setValue(-1);
 		labelIndexField.setHorizontalAlignment(SwingConstants.RIGHT);
 		labelIndexField.addActionListener(e -> {
+			try {
+				labelIndexField.commitEdit();
+			} catch (final ParseException e1) {
+				// ntd
+			}
 			selectedFile = fileChooser.getSelectedFile();
 			if (selectedFile == null)
 				return;

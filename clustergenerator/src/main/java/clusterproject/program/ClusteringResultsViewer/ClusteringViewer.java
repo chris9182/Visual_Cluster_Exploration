@@ -231,8 +231,7 @@ public class ClusteringViewer extends JFrame {
 			new Thread(() -> {
 				// XXX improve and let user choose?
 				// final ConsensusFunction function = new CoAssociationMatrixAverageLink();
-				// final ConsensusFunction function = new
-				// CoAssociationMatrixAverageLinkLifetime();
+//				final ConsensusFunction function = new CoAssociationMatrixAverageLinkLifetime();
 				final ConsensusFunction function = new DICLENS();
 				// final ConsensusFunction function = new CoAssociationMatrixThreshhold();
 				// final ConsensusFunction function = new CoAssociationMatrixWithCompletion();
@@ -455,6 +454,19 @@ public class ClusteringViewer extends JFrame {
 			result.getParameter().addAdditionalParameter(Util.CLUSTER_COUNT, length);
 		}
 
+		for (final ClusteringResult result : clusterings) {
+			int maxSize = 0;
+			int totalSize = 0;
+			for (final double[][] cluster : result.getData()) {
+				if (maxSize < cluster.length)
+					maxSize = cluster.length;
+				totalSize += cluster.length;
+
+				result.getParameter().addAdditionalParameter("Max Cluster Size %", maxSize / (double) totalSize);
+			}
+
+		}
+
 		// for (final ClusteringResult result : clusterings) {
 		// int length = 0;
 		// int size = 0;
@@ -464,7 +476,7 @@ public class ClusteringViewer extends JFrame {
 		// size += cluster.length;
 		// }
 		// }
-		// final double mean = size / length;
+		// final double mean = size / (double)length;
 		// double sd = 0;
 		// for (final double[][] cluster : result.getData()) {
 		// if (cluster.length > 0)

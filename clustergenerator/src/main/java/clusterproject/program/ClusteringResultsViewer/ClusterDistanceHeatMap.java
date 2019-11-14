@@ -86,7 +86,7 @@ public class ClusterDistanceHeatMap extends HeatMap {
 
 					if (filtered != null && (!filtered.contains(myIndex) || !filtered.contains(myIndex2))
 							&& myIndex != truth)
-						g2.setComposite(AlphaComposite.SrcOver.derive(1 - (1 - Util.FILTER_ALPHA) / 3));
+						g2.setComposite(AlphaComposite.SrcOver.derive(Util.FILTER_ALPHA));
 					else
 						g2.setComposite(AlphaComposite.SrcOver);
 

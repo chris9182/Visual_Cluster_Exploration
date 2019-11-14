@@ -10,10 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.google.common.base.Function;
+import com.google.common.util.concurrent.AtomicDouble;
 
 import edu.uci.ics.jung.algorithms.cluster.WeakComponentClusterer;
 import edu.uci.ics.jung.algorithms.shortestpath.MinimumSpanningForest2;
@@ -114,25 +116,45 @@ public class DiclensMST {
 			this.components = this.componentsOf(this.metaClusterForest);
 			this.numOfComponents = this.components.size();
 			if (this.numOfComponents <= this.upperLimitForEvaluation) {
+//				this.voteForMajority();
+//				double icsAverage = 0.0;
+//				for (int k = 0; k < this.finalClusters.length; ++k) {
+//					icsAverage += ICSEvaluator.evaluate(this.unsortedClusters, this.finalClusters[k]);
+//				}
+//				icsAverage /= this.finalClusters.length;
+//				double ecsAverage = 0.0;
+//				for (int l = 0; l < this.finalClusters.length; ++l) {
+//					for (int m = l + 1; m < this.finalClusters.length; ++m) {
+//						ecsAverage += this.ecs.evaluate(this.finalClusters[l], this.finalClusters[m]);
+//					}
+//				}
+//				ecsAverage /= this.finalClusters.length * (this.finalClusters.length - 1) / 2.0;
+//				this.icsAverages[this.numOfComponents - 1] = icsAverage;
+//				this.ecsAverages[this.numOfComponents - 1] = ecsAverage;
+//				final Pair<Cluster> endpoints = this.smst.getEndpoints(edge);
+//				this.metaClusterForest.addEdge(edge, endpoints);
+
 				this.voteForMajority();
-				double icsAverage = 0.0;
-				for (int k = 0; k < this.finalClusters.length; ++k) {
-					icsAverage += ICSEvaluator.evaluate(this.unsortedClusters, this.finalClusters[k]);
-				}
-				icsAverage /= this.finalClusters.length;
-				double ecsAverage = 0.0;
-				for (int l = 0; l < this.finalClusters.length; ++l) {
-					for (int m = l + 1; m < this.finalClusters.length; ++m) {
-						ecsAverage += this.ecs.evaluate(this.finalClusters[l], this.finalClusters[m]);
+				final AtomicDouble icsSum = new AtomicDouble(0);
+				final AtomicDouble ecsSum = new AtomicDouble(0);
+				IntStream.range(0, this.finalClusters.length).parallel().forEach(k -> {
+					final double ics = ICSEvaluator.evaluate(this.unsortedClusters, this.finalClusters[k]);
+					icsSum.addAndGet(ics);
+					for (int m = k + 1; m < this.finalClusters.length; ++m) {
+						final double ecs = this.ecs.evaluate(this.finalClusters[k], this.finalClusters[m]);
+						ecsSum.addAndGet(ecs);
 					}
-				}
-				ecsAverage /= this.finalClusters.length * (this.finalClusters.length - 1) / 2.0;
-				this.icsAverages[this.numOfComponents - 1] = icsAverage;
-				this.ecsAverages[this.numOfComponents - 1] = ecsAverage;
+				});
+				final double icsAverageD = icsSum.get() / this.finalClusters.length;
+				final double ecsAverageD = ecsSum.get()
+						/ (this.finalClusters.length * (this.finalClusters.length - 1) / 2.0);
+				this.icsAverages[this.numOfComponents - 1] = icsAverageD;
+				this.ecsAverages[this.numOfComponents - 1] = ecsAverageD;
 				final Pair<Cluster> endpoints = this.smst.getEndpoints(edge);
 				this.metaClusterForest.addEdge(edge, endpoints);
 			}
 		}
+
 		printFormatted(this.icsAverages, "orig ics");
 		printFormatted(this.ecsAverages, "orig ecs");
 		this.normalize(this.ecsAverages);

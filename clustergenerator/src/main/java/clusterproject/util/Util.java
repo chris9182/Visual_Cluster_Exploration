@@ -217,4 +217,18 @@ public class Util {
 
 	}
 
+	public static int[] makeConsecutiveStartingWith(int start, int[] assignment) {
+		final int[] result = new int[assignment.length];
+		final Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+		int key = start;
+		for (int i = 0; i < assignment.length; ++i) {
+			final Integer val = map.get(assignment[i]);
+			if (val == null)
+				map.put(assignment[i], key++);
+		}
+		for (int i = 0; i < assignment.length; ++i)
+			result[i] = map.get(assignment[i]);
+		return result;
+	}
+
 }
