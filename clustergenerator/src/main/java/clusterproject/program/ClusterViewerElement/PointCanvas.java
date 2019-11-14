@@ -14,7 +14,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.JPanel;
@@ -63,8 +62,12 @@ public class PointCanvas extends JPanel {
 
 		final List<double[]> points = drawingContainer.getPoints();
 
-		IntStream.range(0, yCoordinates.length).forEach(i -> yCoordinates[i] = clusterViewer.getPixelY(points.get(i)));
-		IntStream.range(0, xCoordinates.length).forEach(i -> xCoordinates[i] = clusterViewer.getPixelX(points.get(i)));
+		for (int i = 0; i < pointCount; ++i) {
+			yCoordinates[i] = clusterViewer.getPixelY(points.get(i));
+		}
+		for (int i = 0; i < pointCount; ++i) {
+			xCoordinates[i] = clusterViewer.getPixelX(points.get(i));
+		}
 
 		if (!drawingContainer.hasClusters()) {
 			for (int i = 0; i < pointCount; ++i) {
@@ -211,5 +214,4 @@ public class PointCanvas extends JPanel {
 		SwingUtilities.invokeLater(() -> repaint());
 
 	}
-
 }

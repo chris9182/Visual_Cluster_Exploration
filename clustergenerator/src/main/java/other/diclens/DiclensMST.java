@@ -18,7 +18,6 @@ import com.google.common.base.Function;
 import com.google.common.util.concurrent.AtomicDouble;
 
 import edu.uci.ics.jung.algorithms.cluster.WeakComponentClusterer;
-import edu.uci.ics.jung.algorithms.shortestpath.MinimumSpanningForest2;
 import edu.uci.ics.jung.graph.DelegateForest;
 import edu.uci.ics.jung.graph.DelegateTree;
 import edu.uci.ics.jung.graph.Forest;
@@ -94,25 +93,32 @@ public class DiclensMST {
 		this.ecsAverages = new double[this.upperLimitForEvaluation];
 		this.differences = new double[this.upperLimitForEvaluation];
 		this.graph = new UndirectedSparseGraph<Cluster, Edge>();
-		Cluster[] allClusters;
-		for (int length = (allClusters = this.allClusters).length, n = 0; n < length; ++n) {
-			final Cluster cluster = allClusters[n];
-			this.graph.addVertex(cluster);
+		final Cluster[] allClusters = this.allClusters;
+		final int length = allClusters.length;
+		for (int n = 0; n < length; ++n) {
+			this.graph.addVertex(allClusters[n]);
 		}
-		for (int i = 0; i < this.allClusters.length; ++i) {
-			for (int j = i + 1; j < this.allClusters.length; ++j) {
-				this.graph.addEdge(
-						new Edge(this.ecs.evaluate(this.allClusters[i].contents, this.allClusters[j].contents)),
-						this.allClusters[i], this.allClusters[j]);
+		final double[][] vals = new double[length][length];
+		IntStream.range(0, length).parallel().forEach(i -> {
+			for (int j = i + 1; j < length; ++j) {
+				vals[i][j] = (this.ecs.evaluate(this.allClusters[i].contents, this.allClusters[j].contents));
+			}
+		});
+
+		for (int i = 0; i < length; ++i) {
+			for (int j = i + 1; j < length; ++j) {
+				this.graph.addEdge(new Edge(vals[i][j]), this.allClusters[i], this.allClusters[j]);
 			}
 		}
-		final MinimumSpanningForest2<Cluster, Edge> prim = new MinimumSpanningForest2<Cluster, Edge>(this.graph,
+
+		final ParallelMSF<Cluster, Edge> prim = new ParallelMSF<Cluster, Edge>(this.graph,
 				new DelegateForest<Cluster, Edge>(), DelegateTree.getFactory(),
 				new SimilarityToDissimilarity(this.graph.getEdges()));
 		this.smst = prim.getForest();
 		Collections.sort(this.edges = new ArrayList<Edge>(this.smst.getEdges()), new SimilarityReverseComparator());
 		this.metaClusterForest = this.newEdgelessForest();
 		for (final Edge edge : this.edges) {
+			// XXX those class members need to be forwarded to methods for parallelism
 			this.components = this.componentsOf(this.metaClusterForest);
 			this.numOfComponents = this.components.size();
 			if (this.numOfComponents <= this.upperLimitForEvaluation) {
@@ -243,22 +249,20 @@ public class DiclensMST {
 
 	private void voteForMajority() {
 		final double[][] votes = new double[this.numOfComponents][this.objectCount];
-		int componentIx = 0;
-		for (final Set<Cluster> component : this.components) {
-			for (final Cluster cluster : component) {
+		final BitSet[] finalClusters = new BitSet[this.numOfComponents];
+
+		IntStream.range(0, this.numOfComponents).parallel().forEach(i -> {
+			for (final Cluster cluster : components.get(i)) {
 				for (int objIx = cluster.contents.nextSetBit(0); objIx > -1; objIx = cluster.contents
 						.nextSetBit(objIx + 1)) {
-					final double[] array = votes[componentIx];
+					final double[] array = votes[i];
 					final int n = objIx;
 					++array[n];
 				}
 			}
-			++componentIx;
-		}
-		final BitSet[] finalClusters = new BitSet[this.numOfComponents];
-		for (int i = 0; i < this.numOfComponents; ++i) {
 			finalClusters[i] = new BitSet();
-		}
+		});
+
 		for (int columnIx = 0; columnIx < this.objectCount; ++columnIx) {
 			double maxVote = -1.0;
 			int maxVotedCluster = 0;
@@ -270,23 +274,16 @@ public class DiclensMST {
 			}
 			finalClusters[maxVotedCluster].set(columnIx);
 		}
-		final boolean[] clusterIsNotEmpty = new boolean[finalClusters.length];
-		int notEmptyClustersCount = 0;
-		for (int j = 0; j < finalClusters.length; ++j) {
-			if (finalClusters[j].cardinality() != 0) {
-				clusterIsNotEmpty[j] = true;
-				++notEmptyClustersCount;
+
+		// non empty clusters
+		final List<BitSet> trimmedClusters = new ArrayList<BitSet>();
+		for (int k = 0; k < this.numOfComponents; ++k) {
+			if (finalClusters[k].cardinality() != 0) {
+				trimmedClusters.add(finalClusters[k]);
 			}
 		}
-		final BitSet[] trimmedClusters = new BitSet[notEmptyClustersCount];
-		int count = 0;
-		for (int k = 0; k < finalClusters.length; ++k) {
-			if (clusterIsNotEmpty[k]) {
-				trimmedClusters[count] = finalClusters[k];
-				++count;
-			}
-		}
-		this.finalClusters = trimmedClusters;
+		this.finalClusters = new BitSet[trimmedClusters.size()];
+		this.finalClusters = trimmedClusters.toArray(this.finalClusters);
 	}
 
 	void printICSValues() {

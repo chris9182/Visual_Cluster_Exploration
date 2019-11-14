@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
 
 import javax.swing.JButton;
@@ -39,8 +37,6 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import com.google.common.util.concurrent.AtomicDouble;
 
 import clusterproject.data.ClusteringResult;
 import clusterproject.data.PointContainer;
@@ -496,20 +492,15 @@ public class ClusteringViewer extends JFrame {
 		final Point upper = new Point((int) (down.getX() > current.getX() ? down.getX() : current.getX()),
 				(int) (down.getY() > current.getY() ? down.getY() : current.getY()));
 
-		final ReentrantLock lock = new ReentrantLock();
 		final List<Integer> ids = new ArrayList<Integer>();
 		final List<double[]> points = mdsPlot.getPointContainer().getPoints();
-		final IntStream stream = IntStream.range(0, points.size());
-		stream.parallel().forEach(i -> {
+		for (int i = 0; i < points.size(); ++i) {
 			final double posX = mdsPlot.getPixelX(points.get(i));
 			final double posY = mdsPlot.getPixelY(points.get(i));
-
 			if (posX >= lower.getX() && posX <= upper.getX() && posY >= lower.getY() && posY <= upper.getY()) {
-				lock.lock();
 				ids.add(i);
-				lock.unlock();
 			}
-		});
+		}
 		if (ids.size() > 0) {
 			highlight(ids, replace);
 		}
@@ -764,23 +755,19 @@ public class ClusteringViewer extends JFrame {
 	}
 
 	public int getClosestPoint(Point point) {
-		final AtomicDouble distance = new AtomicDouble(Double.MAX_VALUE);
-		final AtomicInteger closest = new AtomicInteger(-1);
-		final ReentrantLock lock = new ReentrantLock();
+		double distance = Double.MAX_VALUE;
+		int closest = -1;
 		final List<double[]> points = mdsPlot.getPointContainer().getPoints();
-		final IntStream stream = IntStream.range(0, points.size());
-		stream.parallel().forEach(i -> {
+		for (int i = 0; i < points.size(); ++i) {
 			final double offsetx = (mdsPlot.getPixelX(points.get(i)) - point.getX());
 			final double offsety = (mdsPlot.getPixelY(points.get(i)) - point.getY());
 			final double curDistance = offsetx * offsetx + offsety * offsety;
-			lock.lock();
-			if (curDistance < distance.get()) {
-				distance.lazySet(curDistance);
-				closest.set(i);
+			if (curDistance < distance) {
+				distance = curDistance;
+				closest = i;
 			}
-			lock.unlock();
-		});
-		return closest.get();
+		}
+		return closest;
 	}
 
 	public IDistanceMeasure getDistanceMeasure() {

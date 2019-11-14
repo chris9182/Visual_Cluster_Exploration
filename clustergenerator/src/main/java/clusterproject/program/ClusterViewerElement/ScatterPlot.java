@@ -33,7 +33,6 @@ public class ScatterPlot extends JLayeredPane {
 
 	public ScatterPlot(PointContainer pointContainer, boolean showAxies) {
 		this.pointContainer = pointContainer;
-
 		if (!showAxies) {
 			axisWidth = AXIS_WIDTH_NONE;
 			axisPadding = AXIS_PADDING_NONE;
@@ -129,14 +128,14 @@ public class ScatterPlot extends JLayeredPane {
 		final double py = position[selectedDimY];
 		if (Double.isNaN(py))
 			return py;
-		return yAxis.getPixel(py) + axisPadding;
+		return yAxis.getPixelY(py) + axisPadding;
 	}
 
 	public double getPixelX(double[] position) {
 		final double px = position[selectedDimX];
 		if (Double.isNaN(px))
 			return px;
-		return xAxis.getPixel(px) + axisWidth;
+		return xAxis.getPixelX(px) + axisWidth;
 	}
 
 	public void autoAdjust() {

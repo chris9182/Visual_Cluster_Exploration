@@ -200,4 +200,16 @@ public class ViewerAxis extends JPanel {
 		}
 	}
 
+	// ONLY VALID FOR Y AXIS
+	// consider refactoring into child classes
+	public double getPixelY(double coordinate) {
+		return (-(coordinate - interval.min) / (interval.getRange()) + 1) * getHeight();
+	}
+
+	// ONLY VALID FOR X AXIS
+	// consider refactoring into child classes
+	public double getPixelX(double coordinate) {
+		return (coordinate - interval.min) / (interval.getRange()) * getWidth();
+	}
+
 }
