@@ -49,7 +49,10 @@ public class Normalize implements INormalizer {
 		for (int i = 0; i < data.length; i++) {
 			newdata[i] = new double[data[i].length];
 			for (int j = 0; j < data[i].length; j++) {
-				newdata[i][j] = (data[i][j] - min[j]) / (max[j] - min[j]);
+				if (max[j] - min[j] == 0)
+					newdata[i][j] = 0;
+				else
+					newdata[i][j] = (data[i][j] - min[j]) / (max[j] - min[j]);
 			}
 		}
 
