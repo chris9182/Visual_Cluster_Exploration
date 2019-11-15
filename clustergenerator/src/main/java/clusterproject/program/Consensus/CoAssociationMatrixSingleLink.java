@@ -7,7 +7,7 @@ import java.util.Set;
 
 import clusterproject.data.PointContainer;
 
-public class CoAssociationMatrixThreshhold implements ConsensusFunction {
+public class CoAssociationMatrixSingleLink implements ConsensusFunction {
 
 	private final static double threshhold = 0.5;
 
@@ -72,6 +72,17 @@ public class CoAssociationMatrixThreshhold implements ConsensusFunction {
 		}
 		newContainer.setHeaders(results.get(0).getHeaders());
 		return newContainer;
+	}
+
+	@Override
+	public boolean supportsClusterNumber() {
+		return false;
+	}
+
+	@Override
+	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights, int clusterNumber) {
+		throw new UnsupportedOperationException(
+				"calculation with cluster number is not supported by this consensus function");
 	}
 
 }

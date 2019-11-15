@@ -165,4 +165,15 @@ public class CoAssociationMatrixAverageLinkLifetime implements ConsensusFunction
 		return dist;
 	}
 
+	@Override
+	public boolean supportsClusterNumber() {
+		return false;
+	}
+
+	@Override
+	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights, int clusterNumber) {
+		throw new UnsupportedOperationException(
+				"calculation with cluster number is not supported by this consensus function");
+	}
+
 }

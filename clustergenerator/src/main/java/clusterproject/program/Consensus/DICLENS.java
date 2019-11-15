@@ -13,7 +13,7 @@ import other.diclens.DiclensGUIController;
 public class DICLENS implements ConsensusFunction {
 
 	@Override
-	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights) {
+	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights, int clusterNumber) {
 		if (results == null || results.isEmpty())
 			return null;
 		if (results.size() == 1) {
@@ -39,13 +39,26 @@ public class DICLENS implements ConsensusFunction {
 				.forEach(i -> assignments[i] = Util.makeConsecutiveStartingWith(1, assignments[i]));
 		// from:
 		// https://www.cs.umb.edu/~smimarog/diclens/
-		final int[] assignment = DiclensGUIController.runAlgorithm(assignments);
+		final int[] assignment = clusterNumber < 1 ? //
+				DiclensGUIController.runAlgorithm(assignments) : //
+				DiclensGUIController.runAlgorithm(assignments, clusterNumber);
+
 		final PointContainer consensus = new PointContainer(results.get(0).getDim());
 		consensus.addPoints(results.get(0).getPoints());
 		consensus.setUpClusters();
 		consensus.getClusterInformation()
 				.setOriginalClusterID(Arrays.stream(assignment).boxed().collect(Collectors.toList()));
 		return consensus;
+	}
+
+	@Override
+	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights) {
+		return calculateConsensus(results, weights, -1);
+	}
+
+	@Override
+	public boolean supportsClusterNumber() {
+		return true;
 	}
 
 }

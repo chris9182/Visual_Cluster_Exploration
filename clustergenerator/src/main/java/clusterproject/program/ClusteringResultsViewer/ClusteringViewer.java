@@ -31,6 +31,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -231,12 +232,23 @@ public class ClusteringViewer extends JFrame {
 				final ConsensusFunction function = new DICLENS();
 				// final ConsensusFunction function = new CoAssociationMatrixThreshhold();
 				// final ConsensusFunction function = new CoAssociationMatrixWithCompletion();
+
 				final List<List<PointContainer>> pointContainers = getContainersByTag();
 				final ClusteringResult[] resultArray = new ClusteringResult[pointContainers.size()];
 				pointContainers.parallelStream().forEach(t -> {
 					final int index = pointContainers.indexOf(t);
 					final List<Double> weights = null;
-					final PointContainer consensus = function.calculateConsensus(t, weights);
+					PointContainer consensus;
+					if (function.supportsClusterNumber()) {
+						try {
+							final int clusterNumber = Integer.parseInt(JOptionPane.showInputDialog(
+									"Please input the number of clusters in the result or <= 0 for automatic number, if supported."));
+							consensus = function.calculateConsensus(t, weights, clusterNumber);
+						} catch (final NumberFormatException ex) {
+							consensus = function.calculateConsensus(t, weights);
+						}
+					} else
+						consensus = function.calculateConsensus(t, weights);
 					final double[][][] data = consensus.toData();
 					final Parameter param = new Parameter("Consensus");
 					param.addParameter("Result ID", index);

@@ -62,4 +62,16 @@ public class CoAssociationMatrixWithCompletion implements ConsensusFunction {
 		return CoAssociationMatrixAverageLink.link(results, pointCount, points, coAssociationMatrix,
 				CoAssociationMatrixAverageLink.threshhold);
 	}
+
+//XXX ??????
+	@Override
+	public boolean supportsClusterNumber() {
+		return false;
+	}
+
+	@Override
+	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights, int clusterNumber) {
+		throw new UnsupportedOperationException(
+				"calculation with cluster number is not supported by this consensus function");
+	}
 }
