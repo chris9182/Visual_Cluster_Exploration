@@ -27,6 +27,7 @@ import clusterproject.program.DimensionalityReduction.TSNEReducer;
 import clusterproject.program.Generator.ELKIGenerator;
 import clusterproject.program.Generator.IGenerator;
 import clusterproject.program.Generator.SinglePointGenerator;
+import clusterproject.program.Normalizers.DimensionRemover;
 import clusterproject.program.Normalizers.INormalizer;
 import clusterproject.program.Normalizers.Normalize;
 import clusterproject.program.Normalizers.Standardize;
@@ -332,6 +333,7 @@ public class MainWindow extends JFrame {
 	private void initNormalizers() {
 		normalizers.add(new Normalize());
 		normalizers.add(new Standardize());
+		normalizers.add(new DimensionRemover());
 
 	}
 

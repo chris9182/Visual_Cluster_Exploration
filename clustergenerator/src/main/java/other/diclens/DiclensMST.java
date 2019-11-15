@@ -126,7 +126,6 @@ public class DiclensMST {
 
 			// This is the slow method
 			this.components = this.componentsOf(this.metaClusterForest);
-			System.err.println("compof end");
 			this.numOfComponents = this.components.size();
 			if (this.numOfComponents <= this.upperLimitForEvaluation) {
 //				this.voteForMajority();
