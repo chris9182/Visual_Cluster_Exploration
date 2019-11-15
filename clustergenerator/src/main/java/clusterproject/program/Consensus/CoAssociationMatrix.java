@@ -59,6 +59,12 @@ public class CoAssociationMatrix {
 				}
 			});
 		}
+		IntStream.range(0, pointCount).parallel().forEach(i -> {
+			coAssociationMatrix[i][i] = 1;
+			for (int j = 0; j < i + 1; ++j) {
+				coAssociationMatrix[i][j] = coAssociationMatrix[j][i];
+			}
+		});
 		return coAssociationMatrix;
 	}
 }

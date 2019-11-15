@@ -150,16 +150,7 @@ public class CoAssociationMatrixAverageLinkLifetime implements ConsensusFunction
 		double dist = 0;
 		for (final Integer i : s1)
 			for (final Integer j : s2) {
-				int x;
-				int y;
-				if (i < j) {
-					x = i;
-					y = j;
-				} else {
-					x = j;
-					y = i;
-				}
-				dist += coAssociationMatrix[x][y];
+				dist += coAssociationMatrix[i][j];
 			}
 		dist /= s1.size() * s2.size();
 		return dist;

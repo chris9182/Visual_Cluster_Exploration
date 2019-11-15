@@ -118,6 +118,8 @@ public class DiclensMST {
 				new SimilarityToDissimilarity(this.graph.getEdges()));
 		this.smst = prim.getForest();
 		Collections.sort(this.edges = new ArrayList<Edge>(this.smst.getEdges()), new SimilarityReverseComparator());
+//		this.edges = new ArrayList<Edge>(this.smst.getEdges().parallelStream().sorted(new SimilarityReverseComparator())
+//				.collect(Collectors.toList()));
 		this.metaClusterForest = this.newEdgelessForest();
 		for (final Edge edge : this.edges) {
 			// XXX those class members need to be forwarded to methods for parallelism
