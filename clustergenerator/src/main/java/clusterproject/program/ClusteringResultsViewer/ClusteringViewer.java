@@ -102,6 +102,24 @@ public class ClusteringViewer extends JFrame {
 
 	public ClusteringViewer(List<ClusteringResult> clusterings, IDistanceMeasure metaDistance, int minPTS, double eps) {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
+		this.metaDistance = metaDistance;
+		this.clusterings = clusterings;
+		mainPanel = new JLayeredPane();
+		layout = new SpringLayout();
+		mainPanel.setLayout(layout);
+
+		if (clusterings.size() < 1) {
+			viewers = null;
+			scatterMatrixButton = null;
+			oPlot = null;
+			filterWindow = null;
+			distanceMatrix = null;
+			clustereringSelector = null;
+			clusteredList = null;
+			add(new JLabel(" No Data "));
+			return;
+		}
+
 		for (int i = 0; i < clusterings.size(); ++i) {
 			if (clusterings.get(i).getParameter().getName().equals(Util.GROUND_TRUTH)) {
 				groundTruth = 0;
@@ -113,15 +131,9 @@ public class ClusteringViewer extends JFrame {
 			}
 
 		}
+		add(mainPanel);
 		viewers = new ScatterPlot[clusterings.size()];
 		highlighted.add(-1);
-
-		this.metaDistance = metaDistance;
-		this.clusterings = clusterings;
-		mainPanel = new JLayeredPane();
-		layout = new SpringLayout();
-		mainPanel.setLayout(layout);
-		add(mainPanel);
 
 		final IntStream viewerPrepareStream = IntStream.range(0, clusterings.size());
 		viewerPrepareStream.parallel().forEach(i -> {
@@ -256,6 +268,11 @@ public class ClusteringViewer extends JFrame {
 						consensus = function.calculateConsensus(t, weights, clusterNumber);
 					} else
 						consensus = function.calculateConsensus(t, weights);
+					if (consensus == null) {
+						System.err.println("Consensus Function did not return a result for index " + index
+								+ ", this may be the case if all input clusterings are the same ");
+						return;
+					}
 					final double[][][] data = consensus.toData();
 					final Parameter param = new Parameter("Consensus");
 					param.addParameter("Result ID", index);
@@ -263,6 +280,8 @@ public class ClusteringViewer extends JFrame {
 					resultArray[index] = (new ClusteringResult(data, param, clusterings.get(0).getHeaders()));
 				});
 				final List<ClusteringResult> results = new ArrayList<ClusteringResult>(Arrays.asList(resultArray));
+				while (results.remove(null))
+					;
 				if (groundTruth >= 0)
 					results.add(0, clusterings.get(groundTruth));
 				final ClusteringViewer newWindow = new ClusteringViewer(results, metaDistance, minPTS, eps);
@@ -576,6 +595,8 @@ public class ClusteringViewer extends JFrame {
 	}
 
 	public void showViewer(int i, boolean repaint) {
+		if (i >= clusterings.size())
+			return;
 		clustereringSelector.setSelectedIndex(i);
 		final ScatterPlot newViewer = viewers[i];
 		if (visibleViewer != null) {

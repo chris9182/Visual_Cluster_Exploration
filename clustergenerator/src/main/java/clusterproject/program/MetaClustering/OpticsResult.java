@@ -52,7 +52,8 @@ public class OpticsResult<T> implements Iterable<OpticsContainer<T>> {
 	public void calculateClusters(double threshhold) {
 		final OpticsResult<?> clusterOrder = this;
 		final int datalength = clusterOrder.size();
-
+		if (datalength < 1)
+			return;
 		final int[] clusterer = new int[clusterOrder.size()];
 		int curindex = 0;
 		clusterer[0] = 1;

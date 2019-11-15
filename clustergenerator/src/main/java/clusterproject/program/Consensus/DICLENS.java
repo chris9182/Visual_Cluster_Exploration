@@ -39,9 +39,15 @@ public class DICLENS implements ConsensusFunction {
 				.forEach(i -> assignments[i] = Util.makeConsecutiveStartingWith(1, assignments[i]));
 		// from:
 		// https://www.cs.umb.edu/~smimarog/diclens/
-		final int[] assignment = clusterNumber < 1 ? //
-				DiclensGUIController.runAlgorithm(assignments) : //
-				DiclensGUIController.runAlgorithm(assignments, clusterNumber);
+
+		int[] assignment;
+		try {
+			assignment = clusterNumber < 1 ? //
+					DiclensGUIController.runAlgorithm(assignments) : //
+					DiclensGUIController.runAlgorithm(assignments, clusterNumber);
+		} catch (final AssertionError e) {
+			return null;
+		}
 
 		final PointContainer consensus = new PointContainer(results.get(0).getDim());
 		consensus.addPoints(results.get(0).getPoints());
