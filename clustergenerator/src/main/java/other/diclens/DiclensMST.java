@@ -123,7 +123,10 @@ public class DiclensMST {
 		this.metaClusterForest = this.newEdgelessForest();
 		for (final Edge edge : this.edges) {
 			// XXX those class members need to be forwarded to methods for parallelism
+
+			// This is the slow method
 			this.components = this.componentsOf(this.metaClusterForest);
+			System.err.println("compof end");
 			this.numOfComponents = this.components.size();
 			if (this.numOfComponents <= this.upperLimitForEvaluation) {
 //				this.voteForMajority();
@@ -143,7 +146,6 @@ public class DiclensMST {
 //				this.ecsAverages[this.numOfComponents - 1] = ecsAverage;
 //				final Pair<Cluster> endpoints = this.smst.getEndpoints(edge);
 //				this.metaClusterForest.addEdge(edge, endpoints);
-
 				this.voteForMajority();
 				final AtomicDouble icsSum = new AtomicDouble(0);
 				final AtomicDouble ecsSum = new AtomicDouble(0);
