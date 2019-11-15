@@ -534,7 +534,6 @@ public class ClusterWorkflow extends JFrame {
 			}
 
 			final List<ClusteringResult> sClusterings = new ArrayList<ClusteringResult>();
-
 			if (clusterings != null && clusterings.size() > 0)
 				sClusterings.addAll(Util.convertClusterings(clusterings, pointContainer.getHeaders()));
 

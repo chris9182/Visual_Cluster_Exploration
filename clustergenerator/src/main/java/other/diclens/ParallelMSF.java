@@ -97,7 +97,8 @@ public class ParallelMSF<V, E> {
 			}
 		});
 		for (int i = 0; i < subTrees.length; ++i)
-			TreeUtils.addSubTree(forest, (Tree<V, E>) subTrees[i], null, null);
+			if (subTrees[i] instanceof Tree)
+				TreeUtils.addSubTree(forest, (Tree<V, E>) subTrees[i], null, null);
 
 	}
 

@@ -200,7 +200,9 @@ public class ImporterWindow extends JFrame {
 			final int size = records.get(0).size();
 			if (labelIndex == -2)
 				labelIndex = size - 1;
+
 			final boolean hasLabels = labelIndex > -1;
+			System.err.println(hasLabels ? size - 1 : size);
 			pointContainer.setDim(hasLabels ? size - 1 : size);
 			final CSVRecord firstRecord = records.get(0);
 			boolean hasHeaders = false;

@@ -10,12 +10,42 @@ import java.util.stream.IntStream;
 import clusterproject.data.PointContainer;
 import clusterproject.util.Container;
 
-public class CoAssociationMatrixAverageLink implements ConsensusFunction {
-
-	public final static double threshhold = 0.5;
+public class CoAssociationMatrixAverageLinkStop implements ConsensusFunction {
 
 	@Override
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights) {
+		return new CoAssociationMatrixAverageLinkLifetime().calculateConsensus(results, weights);
+	}
+
+	private static double calcAvgLink(Set<Integer> s1, Set<Integer> s2, double[][] coAssociationMatrix) {
+		double dist = 0;
+		for (final Integer i : s1)
+			for (final Integer j : s2) {
+				int x;
+				int y;
+				if (i < j) {
+					x = i;
+					y = j;
+				} else {
+					x = j;
+					y = i;
+				}
+				dist += coAssociationMatrix[x][y];
+			}
+		dist /= s1.size() * s2.size();
+		return dist;
+	}
+
+	@Override
+	public boolean supportsClusterNumber() {
+		return true;
+	}
+
+	@Override
+	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights, int clusterNumber) {
+		if (clusterNumber < 1)
+			return new CoAssociationMatrixAverageLinkLifetime().calculateConsensus(results, weights);
+
 		if (results == null || results.isEmpty())
 			return null;
 		final Set<double[]> allpoints = new HashSet<double[]>();
@@ -26,11 +56,11 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 
 		final double[][] coAssociationMatrix = CoAssociationMatrix.buildMatrix(results, weights, points, pointCount);
 
-		return link(results, pointCount, points, coAssociationMatrix, threshhold);
+		return link(results, pointCount, points, coAssociationMatrix, clusterNumber);
 	}
 
 	public static PointContainer link(List<PointContainer> results, int pointCount, List<double[]> points,
-			double[][] coAssociationMatrix, double threshhold) {
+			double[][] coAssociationMatrix, int clusterNumber) {
 		final List<Set<Integer>> consensus = new ArrayList<Set<Integer>>();
 
 		for (int i = 0; i < pointCount; ++i) {
@@ -39,9 +69,8 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 			consensus.add(set);
 		}
 
-		boolean cont = true;
 		final ReentrantLock lock = new ReentrantLock();
-		while (cont) {
+		while (consensus.size() > clusterNumber) {
 			final Container<Double> maxAvgLink = new Container<Double>(-Double.MAX_VALUE);
 			final Container<Integer> idx1 = new Container<Integer>(-1);
 			final Container<Integer> idx2 = new Container<Integer>(-1);
@@ -71,13 +100,9 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 				}
 
 			});
+			consensus.get(idx1.getValue()).addAll(consensus.get(idx2.getValue()));
+			consensus.remove((int) idx2.getValue());
 
-			if (maxAvgLink.getValue() < threshhold)
-				cont = false;
-			else {
-				consensus.get(idx1.getValue()).addAll(consensus.get(idx2.getValue()));
-				consensus.remove((int) idx2.getValue());
-			}
 		}
 
 		final PointContainer newContainer = new PointContainer(results.get(0).getDim());
@@ -94,36 +119,6 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 		}
 		newContainer.setHeaders(results.get(0).getHeaders());
 		return newContainer;
-	}
-
-	private static double calcAvgLink(Set<Integer> s1, Set<Integer> s2, double[][] coAssociationMatrix) {
-		double dist = 0;
-		for (final Integer i : s1)
-			for (final Integer j : s2) {
-				int x;
-				int y;
-				if (i < j) {
-					x = i;
-					y = j;
-				} else {
-					x = j;
-					y = i;
-				}
-				dist += coAssociationMatrix[x][y];
-			}
-		dist /= s1.size() * s2.size();
-		return dist;
-	}
-
-	@Override
-	public boolean supportsClusterNumber() {
-		return false;
-	}
-
-	@Override
-	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights, int clusterNumber) {
-		throw new UnsupportedOperationException(
-				"calculation with cluster number is not supported by this consensus function");
 	}
 
 }

@@ -92,7 +92,6 @@ public class MacQueenKMeans extends AbstractClustering implements IELKIClusterin
 				final Parameter param = new Parameter(getName());
 				param.addParameter("k", calcK);
 				clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
-
 				addProgress(1);
 			}
 

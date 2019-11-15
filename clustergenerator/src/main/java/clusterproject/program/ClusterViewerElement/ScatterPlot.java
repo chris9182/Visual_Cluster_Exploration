@@ -173,7 +173,8 @@ public class ScatterPlot extends JLayeredPane {
 	}
 
 	public void update(boolean repaint) {
-		if (pointContainer.getDim() <= selectedDimX || pointContainer.getDim() <= selectedDimY)
+		if (pointContainer.getDim() <= selectedDimX || pointContainer.getDim() <= selectedDimY //
+				|| selectedDimX < 0 || selectedDimY < 0)
 			if (pointContainer.getDim() > 1) {
 				selectedDimX = 1;
 				selectedDimY = 0;

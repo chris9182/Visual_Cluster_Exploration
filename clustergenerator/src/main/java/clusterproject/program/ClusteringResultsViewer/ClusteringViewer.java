@@ -230,23 +230,30 @@ public class ClusteringViewer extends JFrame {
 				// final ConsensusFunction function = new CoAssociationMatrixAverageLink();
 //				final ConsensusFunction function = new CoAssociationMatrixAverageLinkLifetime();
 				final ConsensusFunction function = new DICLENS();
+
+				// this is also promissing
+//				final ConsensusFunction function = new CoAssociationMatrixAverageLinkStop();
+
 				// final ConsensusFunction function = new CoAssociationMatrixThreshhold();
 				// final ConsensusFunction function = new CoAssociationMatrixWithCompletion();
 
 				final List<List<PointContainer>> pointContainers = getContainersByTag();
 				final ClusteringResult[] resultArray = new ClusteringResult[pointContainers.size()];
+				int clusters = -1;
+				try {
+					clusters = Integer.parseInt(JOptionPane.showInputDialog(
+							"Please input the number of clusters in the result or <= 0 for automatic number, if supported."));
+				} catch (final NumberFormatException ex) {
+					// ntd
+				}
+				final int clusterNumber = clusters;
+
 				pointContainers.parallelStream().forEach(t -> {
 					final int index = pointContainers.indexOf(t);
 					final List<Double> weights = null;
 					PointContainer consensus;
-					if (function.supportsClusterNumber()) {
-						try {
-							final int clusterNumber = Integer.parseInt(JOptionPane.showInputDialog(
-									"Please input the number of clusters in the result or <= 0 for automatic number, if supported."));
-							consensus = function.calculateConsensus(t, weights, clusterNumber);
-						} catch (final NumberFormatException ex) {
-							consensus = function.calculateConsensus(t, weights);
-						}
+					if (function.supportsClusterNumber() && clusterNumber > 0) {
+						consensus = function.calculateConsensus(t, weights, clusterNumber);
 					} else
 						consensus = function.calculateConsensus(t, weights);
 					final double[][][] data = consensus.toData();

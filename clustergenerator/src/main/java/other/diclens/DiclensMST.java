@@ -53,6 +53,7 @@ public class DiclensMST {
 	int upperLimitForEvaluation;
 	private int suggestedPoint;
 	private Cluster[] allClusters;
+	private int[] clusterNumber;
 
 	static {
 		DiclensMST.logout = false;
@@ -91,6 +92,7 @@ public class DiclensMST {
 	public void run() {
 		this.icsAverages = new double[this.upperLimitForEvaluation];
 		this.ecsAverages = new double[this.upperLimitForEvaluation];
+		this.clusterNumber = new int[this.upperLimitForEvaluation];
 		this.differences = new double[this.upperLimitForEvaluation];
 		this.graph = new UndirectedSparseGraph<Cluster, Edge>();
 		final Cluster[] allClusters = this.allClusters;
@@ -156,6 +158,7 @@ public class DiclensMST {
 						/ (this.finalClusters.length * (this.finalClusters.length - 1) / 2.0);
 				this.icsAverages[this.numOfComponents - 1] = icsAverageD;
 				this.ecsAverages[this.numOfComponents - 1] = ecsAverageD;
+				this.clusterNumber[this.numOfComponents - 1] = finalClusters.length;
 				final Pair<Cluster> endpoints = this.smst.getEndpoints(edge);
 				this.metaClusterForest.addEdge(edge, endpoints);
 			}
@@ -450,5 +453,37 @@ public class DiclensMST {
 		public String toString() {
 			return "Cluster[" + this.partitionIx + "," + this.clusterIx + "] -> " + this.contents;
 		}
+	}
+
+	public void forceClusterNumber(int clusterNumber) {
+		try {
+			final int number = suggestedPointForClusterNumber(clusterNumber);
+			this.metaClusterForest = this.generateComponents(number);
+			this.components = this.componentsOf(this.metaClusterForest);
+			this.numOfComponents = this.components.size();
+			this.voteForMajority();
+		} catch (final AssertionError e) {
+			setNumberOfComponentsTo(suggestedPoint());
+		}
+
+	}
+
+	int suggestedPointForClusterNumber(int number) {
+		if (this.suggestedPoint == 0) {
+			double maxDiff = -2.147483648E9;
+			println();
+			for (int i = 1; i < this.upperLimitForEvaluation; ++i) {
+				if (this.differences[i] > maxDiff && clusterNumber[i] == number) {
+					this.suggestedPoint = i;
+					maxDiff = this.differences[i];
+				}
+				print(String.valueOf(this.differences[i]) + ", ");
+			}
+			println();
+			if (this.suggestedPoint == 0) {
+				throw new AssertionError("Could not suggest number of clusters!!");
+			}
+		}
+		return this.suggestedPoint + 1;
 	}
 }
