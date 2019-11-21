@@ -47,8 +47,8 @@ import clusterproject.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.program.ClusterViewerElement.ScatterPlotMatrix;
 import clusterproject.program.Clustering.Parameters.Parameter;
 import clusterproject.program.ClusteringResultsViewer.FilterWindow.HistogramData;
+import clusterproject.program.Consensus.CoAssociationMatrixAverageLinkStop;
 import clusterproject.program.Consensus.ConsensusFunction;
-import clusterproject.program.Consensus.DICLENS;
 import clusterproject.program.MetaClustering.DistanceCalculation;
 import clusterproject.program.MetaClustering.HungarianAlgorithm;
 import clusterproject.program.MetaClustering.IDistanceMeasure;
@@ -121,7 +121,7 @@ public class ClusteringViewer extends JFrame {
 		}
 
 		for (int i = 0; i < clusterings.size(); ++i) {
-			if (clusterings.get(i).getParameter().getName().equals(Util.GROUND_TRUTH)) {
+			if (clusterings.get(i).getParameter().getName().equals(Parameter.GROUND_TRUTH)) {
 				groundTruth = 0;
 				if (i != 0) {
 					final ClusteringResult result = clusterings.remove(i);
@@ -241,10 +241,10 @@ public class ClusteringViewer extends JFrame {
 				// XXX improve and let user choose?
 				// final ConsensusFunction function = new CoAssociationMatrixAverageLink();
 //				final ConsensusFunction function = new CoAssociationMatrixAverageLinkLifetime();
-				final ConsensusFunction function = new DICLENS();
+//				final ConsensusFunction function = new DICLENS();
 
 				// this is also promissing
-//				final ConsensusFunction function = new CoAssociationMatrixAverageLinkStop();
+				final ConsensusFunction function = new CoAssociationMatrixAverageLinkStop();
 
 				// final ConsensusFunction function = new CoAssociationMatrixThreshhold();
 				// final ConsensusFunction function = new CoAssociationMatrixWithCompletion();
@@ -471,7 +471,7 @@ public class ClusteringViewer extends JFrame {
 		// XXX add aditional filter params
 		if (groundTruth >= 0) {
 			for (int i = 0; i < clusterings.size(); ++i) {
-				clusterings.get(i).getParameter().addAdditionalParameter(Util.GROUND_TRUTH,
+				clusterings.get(i).getParameter().addAdditionalParameter(Parameter.GROUND_TRUTH,
 						distanceMatrix[groundTruth][i]);
 			}
 			for (int i = 0; i < clusterings.size(); ++i) {
@@ -485,7 +485,7 @@ public class ClusteringViewer extends JFrame {
 			for (final double[][] cluster : result.getData())
 				if (cluster.length > 0)
 					++length;
-			result.getParameter().addAdditionalParameter(Util.CLUSTER_COUNT, length);
+			result.getParameter().addAdditionalParameter(Parameter.CLUSTER_COUNT, length);
 		}
 
 		for (final ClusteringResult result : clusterings) {

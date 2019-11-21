@@ -528,7 +528,7 @@ public class ClusterWorkflow extends JFrame {
 					clustersArr[i] = clusterArr;
 					++i;
 				}
-				final Parameter param = new Parameter(Util.GROUND_TRUTH);
+				final Parameter param = new Parameter(Parameter.GROUND_TRUTH);
 				clusterings.add(0, new NumberVectorClusteringResult(clustersArr, param));
 
 			}
@@ -567,7 +567,7 @@ public class ClusterWorkflow extends JFrame {
 				progressBar.setString("Removing Triv. Solutions");
 				final List<ClusteringResult> remove = new ArrayList<ClusteringResult>();
 				for (final ClusteringResult result : sClusterings) {
-					if (result.getParameter().getName().equals(Util.GROUND_TRUTH))
+					if (result.getParameter().getName().equals(Parameter.GROUND_TRUTH))
 						continue;
 					int length = 0;
 					for (final double[][] cluster : result.getData())

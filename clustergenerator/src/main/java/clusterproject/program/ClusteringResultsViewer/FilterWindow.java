@@ -38,7 +38,6 @@ import clusterproject.program.Clustering.Parameters.Parameter;
 import clusterproject.program.Slider.RangeSlider;
 import clusterproject.program.Slider.RangeSliderUI;
 import clusterproject.util.MinMax;
-import clusterproject.util.Util;
 import smile.math.Math;
 
 public class FilterWindow extends JPanel {
@@ -86,7 +85,7 @@ public class FilterWindow extends JPanel {
 		clusteringBaseResults = new ArrayList<ClusteringResult>(clusteringResults);
 		final List<ClusteringResult> removeTruth = new ArrayList<ClusteringResult>();
 		for (final ClusteringResult result : clusteringBaseResults) {
-			if (result.getParameter().getName().equals(Util.GROUND_TRUTH))
+			if (result.getParameter().getName().equals(Parameter.GROUND_TRUTH))
 				removeTruth.add(result);
 		}
 		clusteringBaseResults.removeAll(removeTruth);
@@ -168,7 +167,7 @@ public class FilterWindow extends JPanel {
 		this.clusteringResults = new ArrayList<ClusteringResult>(clusteringResults);
 		final List<ClusteringResult> removeTruth = new ArrayList<ClusteringResult>();
 		for (final ClusteringResult result : this.clusteringResults) {
-			if (result.getParameter().getName().equals(Util.GROUND_TRUTH))
+			if (result.getParameter().getName().equals(Parameter.GROUND_TRUTH))
 				removeTruth.add(result);
 		}
 		this.clusteringResults.removeAll(removeTruth);

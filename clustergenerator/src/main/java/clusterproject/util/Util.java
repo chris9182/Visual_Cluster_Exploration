@@ -18,19 +18,12 @@ import de.lmu.ifi.dbs.elki.data.NumberVector;
 import de.lmu.ifi.dbs.elki.utilities.datastructures.arraylike.ArrayLikeUtil;
 
 public class Util {
-	public static final String GROUND_TRUTH = "Ground Truth";
-	public static final String CLUSTER_COUNT = "# Clusters";
 	public static final String CLUSTER_SIZE_VARIATION_COEF = "Cluster Size Var. Coef.";
 	public static final Color HIGHLIGHT_COLOR = Color.ORANGE;
 	public static final float FILTER_ALPHA = 0.3f;
 	private static final int COLOR_CACHE_SIZE = 1000;
 
 	public static Map<Integer, Color> colorCache = new HashMap<Integer, Color>();
-	public static Set<String> META_PARAMS = new HashSet<String>();
-	static {
-		META_PARAMS.add(GROUND_TRUTH);
-		META_PARAMS.add(CLUSTER_COUNT);
-	}
 
 	public static void drawRotatedString(Graphics2D g2d, double x, double y, int angle, String text) {
 		g2d.translate((float) x, (float) y);

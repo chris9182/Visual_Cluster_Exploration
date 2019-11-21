@@ -2,22 +2,28 @@ package clusterproject.program.Clustering.Parameters;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-
-import clusterproject.util.Util;
+import java.util.Set;
 
 public class Parameter implements Serializable {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = -2644835073796978627L;
+	public static final String GROUND_TRUTH = "Ground Truth";
+	public static final String CLUSTER_COUNT = "# Clusters";
+	public static final String NOISE_INDEX = "Noise Index";
+	public static Set<String> META_PARAMS = new HashSet<String>();
+	static {
+		META_PARAMS.add(GROUND_TRUTH);
+		META_PARAMS.add(CLUSTER_COUNT);
+	}
 
 	private final String name;
 
 	private final Map<String, Object> parameters = new HashMap<String, Object>();
 	private final Map<String, Object> additionalParameters = new HashMap<String, Object>();
 	private final Map<String, Object> allParameters = new HashMap<String, Object>();
+	private final Map<String, Object> hiddenParameters = new HashMap<String, Object>();
 
 	public Parameter(String name) {
 		this.name = name;
@@ -37,6 +43,14 @@ public class Parameter implements Serializable {
 		allParameters.put(name, parameter);
 	}
 
+	public void addHiddenParameter(String name, Object parameter) {
+		hiddenParameters.put(name, parameter);
+	}
+
+	public Object getHiddenParameter(String name) {
+		return hiddenParameters.get(name);
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -44,7 +58,7 @@ public class Parameter implements Serializable {
 	public String getInfoString() {
 		String returnval = getName() + (parameters.size() > 0 ? ": " : "");
 		for (final String param : parameters.keySet()) {
-			if (Util.META_PARAMS.contains(param))
+			if (META_PARAMS.contains(param))
 				continue;
 			returnval += param + ": " + parameters.get(param) + " ";
 

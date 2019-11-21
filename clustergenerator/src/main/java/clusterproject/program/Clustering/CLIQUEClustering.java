@@ -62,6 +62,7 @@ public class CLIQUEClustering extends AbstractClustering implements IELKICluster
 			final CLIQUE<NumberVector> clique = ClassGenericsUtil.parameterizeOrAbort(CLIQUE.class, params);
 			final Clustering<SubspaceModel> result = clique.run(rel);
 			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
+			// TODO: noise index?
 			result.getAllClusters().forEach(cluster -> {
 				final List<NumberVector> pointList = new ArrayList<NumberVector>();
 

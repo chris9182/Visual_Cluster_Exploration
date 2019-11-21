@@ -67,6 +67,7 @@ public class SNN extends AbstractClustering implements IELKIClustering {
 					params);
 			final Clustering<Model> result = dbscan.run(db);
 			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
+			// TODO: noise index?
 			result.getAllClusters().forEach(cluster -> {
 				final List<NumberVector> pointList = new ArrayList<NumberVector>();
 

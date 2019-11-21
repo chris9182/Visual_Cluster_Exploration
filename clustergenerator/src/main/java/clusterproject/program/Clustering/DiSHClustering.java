@@ -61,6 +61,7 @@ public class DiSHClustering extends AbstractClustering implements IELKIClusterin
 			final Clustering<SubspaceModel> result = dbscan.run(db);
 			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
 
+			// TODO: noise index?
 			result.getAllClusters().forEach(cluster -> {// what about the hierarchy?
 				// XXX debug
 				// import scala.collection.mutable.BitSet;

@@ -10,6 +10,7 @@ import clusterproject.data.NumberVectorClusteringResult;
 import clusterproject.program.Clustering.Panel.DBScanOptions;
 import clusterproject.program.Clustering.Parameters.Parameter;
 import de.lmu.ifi.dbs.elki.algorithm.clustering.DBSCAN;
+import de.lmu.ifi.dbs.elki.data.Cluster;
 import de.lmu.ifi.dbs.elki.data.Clustering;
 import de.lmu.ifi.dbs.elki.data.DoubleVector;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
@@ -61,8 +62,13 @@ public class DBScan extends AbstractClustering implements IELKIClustering {
 			final DBSCAN<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(DBSCAN.class, params);
 			final Clustering<Model> result = dbscan.run(db);
 			final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
+			int noiseIndex = -1;
+			final List<Cluster<Model>> clusters = result.getAllClusters();
+			for (int c = 0; c < clusters.size(); ++c) {
+				final Cluster<Model> cluster = clusters.get(c);
+				if (cluster.isNoise())
+					noiseIndex = result.getAllClusters().indexOf(cluster);
 
-			result.getAllClusters().forEach(cluster -> {
 				final List<NumberVector> pointList = new ArrayList<NumberVector>();
 
 				for (final DBIDIter it = cluster.getIDs().iter(); it.valid(); it.advance()) {
@@ -72,12 +78,15 @@ public class DBScan extends AbstractClustering implements IELKIClustering {
 				NumberVector[] clusterArr = new NumberVector[pointList.size()];
 				clusterArr = pointList.toArray(clusterArr);
 				clusterList.add(clusterArr);
-			});
+			}
+
 			NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 			clustersArr = clusterList.toArray(clustersArr);
 			final Parameter param = new Parameter(getName());
 			param.addParameter("minPTS", calcMinPTS);
 			param.addParameter("Epsilon", calcEps);
+			if (noiseIndex >= 0)
+				param.addHiddenParameter(Parameter.NOISE_INDEX, noiseIndex);
 			clusterings.add(new NumberVectorClusteringResult(clustersArr, param));
 
 			addProgress(1);
