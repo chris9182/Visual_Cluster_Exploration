@@ -16,7 +16,7 @@ public class NumberVectorClusteringResult {
 		return clusterPoints;
 	}
 
-	public Parameter getDescription() {
+	public Parameter getParameters() {
 		return parameter;
 	}
 }

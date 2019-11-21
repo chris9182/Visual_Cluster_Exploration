@@ -67,7 +67,7 @@ public class DBScan extends AbstractClustering implements IELKIClustering {
 			for (int c = 0; c < clusters.size(); ++c) {
 				final Cluster<Model> cluster = clusters.get(c);
 				if (cluster.isNoise())
-					noiseIndex = result.getAllClusters().indexOf(cluster);
+					noiseIndex = c;
 
 				final List<NumberVector> pointList = new ArrayList<NumberVector>();
 
@@ -79,7 +79,6 @@ public class DBScan extends AbstractClustering implements IELKIClustering {
 				clusterArr = pointList.toArray(clusterArr);
 				clusterList.add(clusterArr);
 			}
-
 			NumberVector[][] clustersArr = new NumberVector[clusterList.size()][];
 			clustersArr = clusterList.toArray(clustersArr);
 			final Parameter param = new Parameter(getName());

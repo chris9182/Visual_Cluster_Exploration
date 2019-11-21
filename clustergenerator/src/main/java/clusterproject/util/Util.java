@@ -118,7 +118,7 @@ public class Util {
 			data[i] = cluster;
 			i++;
 		}
-		sClusterings.add(new ClusteringResult(data, first.getDescription(), headers));
+		sClusterings.add(new ClusteringResult(data, first.getParameters(), headers));
 
 		for (int k = 1; k < clusterings.size(); ++k) {
 			data = new double[clusterings.get(k).getData().length][][];
@@ -137,7 +137,7 @@ public class Util {
 				data[i] = cluster;
 				i++;
 			}
-			sClusterings.add(new ClusteringResult(data, clusterings.get(k).getDescription(), headers));
+			sClusterings.add(new ClusteringResult(data, clusterings.get(k).getParameters(), headers));
 		}
 
 		return sClusterings;
@@ -210,10 +210,11 @@ public class Util {
 
 	}
 
-	public static int[] makeConsecutiveStartingWith(int start, int[] assignment) {
+	public static int[] makeConsecutiveStartingWith(int start, int[] assignment, int setZero) {
 		final int[] result = new int[assignment.length];
 		final Map<Integer, Integer> map = new HashMap<Integer, Integer>();
 		int key = start;
+		map.put(setZero, 0);
 		for (int i = 0; i < assignment.length; ++i) {
 			final Integer val = map.get(assignment[i]);
 			if (val == null)

@@ -35,8 +35,12 @@ public class DICLENS implements ConsensusFunction {
 				assignments[i][j] = labels.get(points.get(j));
 		});
 		// fix indices to start with 1 and be consecutive
-		IntStream.range(0, results.size()).parallel()
-				.forEach(i -> assignments[i] = Util.makeConsecutiveStartingWith(1, assignments[i]));
+
+		IntStream.range(0, results.size()).parallel().forEach(i -> {
+			final int noise = results.get(i).getClusterInformation().getNoiseIndex();
+			assignments[i] = Util.makeConsecutiveStartingWith(1, assignments[i], noise);
+		});
+
 		// from:
 		// https://www.cs.umb.edu/~smimarog/diclens/
 

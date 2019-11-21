@@ -84,6 +84,7 @@ public class PointCanvas extends JPanel {
 			}
 		} else {
 			final List<Integer> clusterIDs = drawingContainer.getClusterInformation().getClusterIDs();
+			final int noiseIndex = drawingContainer.getClusterInformation().getCurrentNoiseIndex();
 			final Stream<Integer> stream = clusterIDs.stream().distinct();
 			final Map<Integer, Color> colorMap = new HashMap<Integer, Color>();
 			final Set<Integer> filtered = drawingContainer.getMetaInformation().getFilteredIndexes();
@@ -92,7 +93,10 @@ public class PointCanvas extends JPanel {
 			final Iterator<Integer> iter = stream.iterator();
 			while (iter.hasNext()) {
 				final int i = iter.next();
-				colorMap.put(i, Util.getColor(i + 2));
+				if (i != noiseIndex)
+					colorMap.put(i, Util.getColor(i + 2));
+				else
+					colorMap.put(i, Util.getColor(0));
 			}
 
 			for (int i = 0; i < pointCount; ++i) {

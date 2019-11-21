@@ -10,6 +10,7 @@ public class ClusterInformation {
 	private List<Integer> clusterIDs;
 	Map<Integer, Integer> idMap = null;
 	private final PointContainer pointContainer;
+	private int noiseIndex = -1;
 
 	public ClusterInformation(PointContainer pointContainer) {
 		this.pointContainer = pointContainer;
@@ -71,6 +72,20 @@ public class ClusterInformation {
 			idMap = new HashMap<Integer, Integer>();
 			idMap.putAll(clusterInformation.getIDMap());
 		}
+	}
+
+	public int getNoiseIndex() {
+		return noiseIndex;
+	}
+
+	public int getCurrentNoiseIndex() {
+		if (idMap != null && idMap.containsKey(noiseIndex))
+			return idMap.get(noiseIndex);
+		return noiseIndex;
+	}
+
+	public void setNoiseIndex(int index) {
+		this.noiseIndex = index;
 	}
 
 }

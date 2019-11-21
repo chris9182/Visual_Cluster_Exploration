@@ -25,11 +25,15 @@ public class ClusteringResult implements Serializable {
 	public PointContainer toPointContainer() {
 		final PointContainer container = new PointContainer(0);
 		container.setUpClusters();
-		for (int i = 0; i < clusterPoints.length; ++i)
+		final Object noise = parameter.getHiddenParameter(Parameter.NOISE_INDEX);
+		if (noise != null)
+			container.getClusterInformation().setNoiseIndex((Integer) noise);
+		for (int i = 0; i < clusterPoints.length; ++i) {
 			for (int j = 0; j < clusterPoints[i].length; ++j) {
 				container.addPoint(clusterPoints[i][j]);
 				container.getClusterInformation().addClusterID(i);
 			}
+		}
 
 		container.rebuild();
 		return container;
