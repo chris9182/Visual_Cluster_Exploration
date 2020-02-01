@@ -36,6 +36,7 @@ public class CoAssociationMatrixWithCompletion implements ConsensusFunction {
 				coAssociationMatrix[i][j] = coAssociationMatrix[j][i];
 			}
 
+		//XXX needs LAML
 		final SparseMatrix smat = new SparseMatrix(pointCount, pointCount);
 		final MatrixCompletion completion = new MatrixCompletion();
 		final Matrix m = new DenseMatrix(coAssociationMatrix);
