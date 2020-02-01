@@ -10,7 +10,7 @@ import clusterproject.data.ClusteringResult;
 import clusterproject.program.Clustering.Panel.SpectralOptions;
 import clusterproject.program.Clustering.Parameters.Parameter;
 
-public class SpectralClustering extends AbstractClustering implements ISimpleClusterer {
+public class SpectralClustering extends AbstractClustering implements ICustomClusterer {
 	private static final long serialVersionUID = 8138072550886562661L;
 	private transient SpectralOptions optionsPanel = new SpectralOptions();
 	private int minK;

@@ -43,7 +43,7 @@ import clusterproject.program.Clustering.DBScan;
 import clusterproject.program.Clustering.DiSHClustering;
 import clusterproject.program.Clustering.IClusterer;
 import clusterproject.program.Clustering.IELKIClustering;
-import clusterproject.program.Clustering.ISimpleClusterer;
+import clusterproject.program.Clustering.ICustomClusterer;
 import clusterproject.program.Clustering.LloydKMeadians;
 import clusterproject.program.Clustering.LloydKMeans;
 import clusterproject.program.Clustering.MacQueenKMeans;
@@ -551,10 +551,10 @@ public class ClusterWorkflow extends JFrame {
 
 			progressBar.setString("Calculating Clusterings");
 			for (final IClusterer clusterer : workflow) {
-				if (clusterer instanceof ISimpleClusterer)
+				if (clusterer instanceof ICustomClusterer)
 					try {
 						{
-							final ISimpleClusterer simpleClusterer = (ISimpleClusterer) clusterer;
+							final ICustomClusterer simpleClusterer = (ICustomClusterer) clusterer;
 							sClusterings.addAll(simpleClusterer.cluster(customData, headersList));
 						}
 					} catch (final InterruptedException e) {

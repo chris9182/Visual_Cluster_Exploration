@@ -4,6 +4,6 @@ import java.util.List;
 
 import clusterproject.data.ClusteringResult;
 
-public interface ISimpleClusterer extends IClusterer {
+public interface ICustomClusterer extends IClusterer {
 	List<ClusteringResult> cluster(double[][] data, List<String> headers) throws InterruptedException;
 }
