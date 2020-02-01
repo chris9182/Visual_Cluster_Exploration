@@ -14,6 +14,7 @@ public class DICLENS implements ConsensusFunction {
 
 	@Override
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights, int clusterNumber) {
+		// XXX weights not supported
 		if (results == null || results.isEmpty())
 			return null;
 		if (results.size() == 1) {

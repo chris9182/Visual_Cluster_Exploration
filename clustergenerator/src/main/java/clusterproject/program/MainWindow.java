@@ -111,8 +111,7 @@ public class MainWindow extends JFrame {
 			boolean done = false;
 			if (activeGenerator != null) {
 				done = activeGenerator.generate(pointContainer);
-				if (done)
-					pointContainer.removeClusterInfo();
+				pointContainer.checkRemoveClusterInfo();
 			}
 			if (activeReducer != null)
 				done = activeReducer.reduce(pointContainer);

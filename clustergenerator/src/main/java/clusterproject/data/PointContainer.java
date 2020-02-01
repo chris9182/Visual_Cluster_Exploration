@@ -243,4 +243,12 @@ public class PointContainer {
 		return data;
 	}
 
+	public void checkRemoveClusterInfo() {
+		if (clusterInformation == null)
+			return;
+		if (clusterInformation.getClusterIDs().size() != getPointCount())
+			removeClusterInfo();
+
+	}
+
 }
