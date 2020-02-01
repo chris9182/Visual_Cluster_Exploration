@@ -4,7 +4,7 @@ import javax.swing.JPanel;
 
 import clusterproject.data.PointContainer;
 
-public interface IDimensionalityReduction {
+public interface IReducer {
 	JPanel getOptionsPanel();
 
 	String getName();

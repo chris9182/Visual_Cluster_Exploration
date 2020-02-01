@@ -14,7 +14,7 @@ import clusterproject.data.PointContainer;
 import clusterproject.program.MainWindow;
 import clusterproject.program.DimensionalityReduction.Panel.TSNEOptions;
 
-public class TSNEReducer implements IDimensionalityReduction {
+public class TSNEReducer implements IReducer {
 
 	TSNEOptions tSNEOptions;
 

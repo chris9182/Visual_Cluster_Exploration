@@ -1,4 +1,4 @@
-package clusterproject.program.Normalizers;
+package clusterproject.program.DimensionalityReduction;
 
 import java.awt.Dimension;
 import java.util.List;
@@ -9,7 +9,7 @@ import clusterproject.data.PointContainer;
 import clusterproject.program.MainWindow;
 import clusterproject.program.Normalizers.Panel.DimensionRemoverOptions;
 
-public class DimensionRemover implements INormalizer {
+public class DimensionRemover implements IReducer {
 
 	DimensionRemoverOptions options = new DimensionRemoverOptions();
 
@@ -24,7 +24,7 @@ public class DimensionRemover implements INormalizer {
 	}
 
 	@Override
-	public boolean normalize(PointContainer container) {
+	public boolean reduce(PointContainer container) {
 		final double[][] newdata = new double[container.getPoints().size()][];
 		final int removeDim = options.getDim();
 		final int newDim = container.getDim() - 1;

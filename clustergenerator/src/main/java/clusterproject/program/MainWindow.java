@@ -21,13 +21,13 @@ import clusterproject.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.program.ClusterViewerElement.ScatterPlotMatrix;
 import clusterproject.program.ComboBox.BlockComboListener;
 import clusterproject.program.ComboBox.ComboBoxRenderer;
-import clusterproject.program.DimensionalityReduction.IDimensionalityReduction;
+import clusterproject.program.DimensionalityReduction.DimensionRemover;
+import clusterproject.program.DimensionalityReduction.IReducer;
 import clusterproject.program.DimensionalityReduction.PCAReducer;
 import clusterproject.program.DimensionalityReduction.TSNEReducer;
 import clusterproject.program.Generator.ELKIGenerator;
 import clusterproject.program.Generator.IGenerator;
 import clusterproject.program.Generator.SinglePointGenerator;
-import clusterproject.program.Normalizers.DimensionRemover;
 import clusterproject.program.Normalizers.INormalizer;
 import clusterproject.program.Normalizers.Normalize;
 import clusterproject.program.Normalizers.Standardize;
@@ -47,10 +47,10 @@ public class MainWindow extends JFrame {
 	private final JLayeredPane mainPanel;
 	private final SpringLayout mainLayout;
 	private final List<IGenerator> generators;
-	private final List<IDimensionalityReduction> reducers;
+	private final List<IReducer> reducers;
 	private final List<INormalizer> normalizers;
 	private IGenerator activeGenerator = null;
-	private IDimensionalityReduction activeReducer = null;
+	private IReducer activeReducer = null;
 	private INormalizer activeNormalizer = null;
 	final JComboBox<String> selector;
 	private final PointContainer pointContainer;
@@ -127,7 +127,7 @@ public class MainWindow extends JFrame {
 
 		mainPanel = new JLayeredPane();
 		generators = new ArrayList<IGenerator>();
-		reducers = new ArrayList<IDimensionalityReduction>();
+		reducers = new ArrayList<IReducer>();
 		normalizers = new ArrayList<INormalizer>();
 		add(mainPanel);
 		mainLayout = new SpringLayout();
@@ -144,7 +144,7 @@ public class MainWindow extends JFrame {
 			generatorNames.add(generator.getName());
 
 		final List<String> reducerNames = new ArrayList<String>();
-		for (final IDimensionalityReduction reducer : reducers)
+		for (final IReducer reducer : reducers)
 			reducerNames.add(reducer.getName());
 
 		final List<String> normalizerNames = new ArrayList<String>();
@@ -267,8 +267,8 @@ public class MainWindow extends JFrame {
 	}
 
 	private void setActiveDimReduction(String name) {
-		IDimensionalityReduction newReducer = null;
-		for (final IDimensionalityReduction reducer : reducers)
+		IReducer newReducer = null;
+		for (final IReducer reducer : reducers)
 			if (reducer.getName().equals(name))
 				newReducer = reducer;
 		if (newReducer == null)
@@ -327,12 +327,12 @@ public class MainWindow extends JFrame {
 	private void initReducers() {
 		reducers.add(new PCAReducer());
 		reducers.add(new TSNEReducer());
+		reducers.add(new DimensionRemover());
 	}
 
 	private void initNormalizers() {
 		normalizers.add(new Normalize());
 		normalizers.add(new Standardize());
-		normalizers.add(new DimensionRemover());
 
 	}
 

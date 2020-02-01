@@ -10,7 +10,7 @@ import clusterproject.program.MainWindow;
 import clusterproject.program.DimensionalityReduction.Panel.PCAOptions;
 import smile.projection.PCA;
 
-public class PCAReducer implements IDimensionalityReduction {
+public class PCAReducer implements IReducer {
 
 	PCAOptions pCAOptions;
 
