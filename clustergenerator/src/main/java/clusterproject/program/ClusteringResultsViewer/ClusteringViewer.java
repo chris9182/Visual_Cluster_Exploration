@@ -47,8 +47,12 @@ import clusterproject.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.program.ClusterViewerElement.ScatterPlotMatrix;
 import clusterproject.program.Clustering.Parameters.Parameter;
 import clusterproject.program.ClusteringResultsViewer.FilterWindow.HistogramData;
+import clusterproject.program.Consensus.CoAssociationMatrixAverageLink;
+import clusterproject.program.Consensus.CoAssociationMatrixAverageLinkLifetime;
 import clusterproject.program.Consensus.CoAssociationMatrixAverageLinkStop;
-import clusterproject.program.Consensus.ConsensusFunction;
+import clusterproject.program.Consensus.CoAssociationMatrixSingleLink;
+import clusterproject.program.Consensus.DICLENS;
+import clusterproject.program.Consensus.IConsensusFunction;
 import clusterproject.program.MetaClustering.DistanceCalculation;
 import clusterproject.program.MetaClustering.HungarianAlgorithm;
 import clusterproject.program.MetaClustering.IDistanceMeasure;
@@ -71,14 +75,21 @@ public class ClusteringViewer extends JFrame {
 	public static final FileNameExtensionFilter csvfilter = new FileNameExtensionFilter(
 			"single Clustering Result (csv)", "csv");
 
+	public static final List<IConsensusFunction> consFunctions = new ArrayList<IConsensusFunction>();
+	static {
+		initConsensusFunctions();
+	}
+
 	private final double[][] distanceMatrix;
 	private final List<ClusteringResult> clusterings;
+
 	private final OpticsResult<ClusteringResult> clusteredList;
 	private final ScatterPlot[] viewers;
 	private ScatterPlot visibleViewer;
 	private JPanel viewerPanel;
 
 	private final JComboBox<String> clustereringSelector;
+	private final JComboBox<String> consFuncSelector;
 	private final JLayeredPane mainPanel;
 	private final SpringLayout layout;
 	private final IDistanceMeasure metaDistance;
@@ -104,6 +115,13 @@ public class ClusteringViewer extends JFrame {
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
 		this.metaDistance = metaDistance;
 		this.clusterings = clusterings;
+
+		final String[] names = new String[consFunctions.size()];
+		for (int i = 0; i < names.length; ++i)
+			names[i] = consFunctions.get(i).getName();
+		consFuncSelector = new JComboBox<>(names);
+		consFuncSelector.setSelectedItem(new CoAssociationMatrixAverageLinkStop().getName());
+
 		mainPanel = new JLayeredPane();
 		layout = new SpringLayout();
 		mainPanel.setLayout(layout);
@@ -238,26 +256,21 @@ public class ClusteringViewer extends JFrame {
 		consensusButton.addActionListener(e -> {
 			// TODO: add progress
 			new Thread(() -> {
-				// XXX improve and let user choose?
-				// final ConsensusFunction function = new CoAssociationMatrixAverageLink();
-//				final ConsensusFunction function = new CoAssociationMatrixAverageLinkLifetime();
-//				final ConsensusFunction function = new DICLENS();
-
-				// this is also promissing
-				final ConsensusFunction function = new CoAssociationMatrixAverageLinkStop();
-
-				// final ConsensusFunction function = new CoAssociationMatrixThreshhold();
-				// final ConsensusFunction function = new CoAssociationMatrixWithCompletion();
-
+				final IConsensusFunction function = getConsensusFunction();
+				System.err.println(function);
 				final List<List<PointContainer>> pointContainers = getContainersByTag();
 				final ClusteringResult[] resultArray = new ClusteringResult[pointContainers.size()];
 				int clusters = -1;
-				try {
-					clusters = Integer.parseInt(JOptionPane.showInputDialog(
-							"Please input the number of clusters in the result or <= 0 for automatic number, if supported."));
-				} catch (final NumberFormatException ex) {
-					// ntd
-				}
+				if (function.supportsClusterNumber())
+					try {
+						String dialogval = JOptionPane.showInputDialog(
+								"Please input the number of clusters in the result or <= 0 for automatic number, if supported.");
+						if (dialogval == null)
+							return;
+						clusters = Integer.parseInt(dialogval);
+					} catch (final NumberFormatException ex) {
+						// ntd
+					}
 				final int clusterNumber = clusters;
 
 				pointContainers.parallelStream().forEach(t -> {
@@ -291,9 +304,16 @@ public class ClusteringViewer extends JFrame {
 			}).start();
 
 		});
-		layout.putConstraint(SpringLayout.VERTICAL_CENTER, consensusButton, 0, SpringLayout.VERTICAL_CENTER,
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, consFuncSelector, 0, SpringLayout.VERTICAL_CENTER,
 				saveButton);
-		layout.putConstraint(SpringLayout.WEST, consensusButton, MainWindow.INNER_SPACE, SpringLayout.EAST, saveButton);
+		layout.putConstraint(SpringLayout.WEST, consFuncSelector, MainWindow.INNER_SPACE, SpringLayout.EAST,
+				saveButton);
+		mainPanel.add(consFuncSelector, new Integer(1));
+
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, consensusButton, 0, SpringLayout.VERTICAL_CENTER,
+				consFuncSelector);
+		layout.putConstraint(SpringLayout.WEST, consensusButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
+				consFuncSelector);
 		mainPanel.add(consensusButton, new Integer(1));
 
 		final JLabel distLabel = new JLabel("Measure: " + metaDistance.getName());
@@ -934,6 +954,21 @@ public class ClusteringViewer extends JFrame {
 
 	public ScatterPlot getVisibleViewer() {
 		return visibleViewer;
+	}
+
+	private IConsensusFunction getConsensusFunction() {
+		for (final IConsensusFunction funct : consFunctions)
+			if (funct.getName().equals(consFuncSelector.getSelectedItem()))
+				return funct;
+		return null;
+	}
+
+	private static void initConsensusFunctions() {
+		consFunctions.add(new CoAssociationMatrixSingleLink());
+		consFunctions.add(new CoAssociationMatrixAverageLink());
+		consFunctions.add(new CoAssociationMatrixAverageLinkLifetime());
+		consFunctions.add(new CoAssociationMatrixAverageLinkStop());
+		consFunctions.add(new DICLENS());
 	}
 
 }

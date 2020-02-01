@@ -10,7 +10,9 @@ import java.util.stream.IntStream;
 import clusterproject.data.PointContainer;
 import clusterproject.util.Container;
 
-public class CoAssociationMatrixAverageLinkStop implements ConsensusFunction {
+public class CoAssociationMatrixAverageLinkStop implements IConsensusFunction {
+
+	private static final String name = "CA-Average Link choice";
 
 	@Override
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights) {
@@ -110,6 +112,11 @@ public class CoAssociationMatrixAverageLinkStop implements ConsensusFunction {
 		}
 		newContainer.setHeaders(results.get(0).getHeaders());
 		return newContainer;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 }

@@ -11,7 +11,9 @@ import clusterproject.data.PointContainer;
 import clusterproject.util.Container;
 
 //XXX improve performance?
-public class CoAssociationMatrixAverageLinkLifetime implements ConsensusFunction {
+public class CoAssociationMatrixAverageLinkLifetime implements IConsensusFunction {
+
+	private static final String name = "CA-Average Link Lifetime";
 
 	@Override
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights) {
@@ -167,4 +169,8 @@ public class CoAssociationMatrixAverageLinkLifetime implements ConsensusFunction
 				"calculation with cluster number is not supported by this consensus function");
 	}
 
+	@Override
+	public String getName() {
+		return name;
+	}
 }

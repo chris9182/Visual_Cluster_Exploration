@@ -10,9 +10,10 @@ import java.util.stream.IntStream;
 import clusterproject.data.PointContainer;
 import clusterproject.util.Container;
 
-public class CoAssociationMatrixAverageLink implements ConsensusFunction {
+public class CoAssociationMatrixAverageLink implements IConsensusFunction {
 
 	public final static double threshhold = 0.5;
+	private static final String name = "CA-Average Link thr:0.5";
 
 	@Override
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights) {
@@ -115,6 +116,11 @@ public class CoAssociationMatrixAverageLink implements ConsensusFunction {
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights, int clusterNumber) {
 		throw new UnsupportedOperationException(
 				"calculation with cluster number is not supported by this consensus function");
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 }

@@ -11,11 +11,12 @@ import la.matrix.Matrix;
 import la.matrix.SparseMatrix;
 import ml.recovery.MatrixCompletion;
 
-//buggy
+//CURRENTLY NOT WORKING
 @Deprecated
-public class CoAssociationMatrixWithCompletion implements ConsensusFunction {
+public class CoAssociationMatrixWithCompletion implements IConsensusFunction {
 	public static final double UPPERBOUND = 0.5;
 	public static final double LOWERBOUND = 0.5;
+	private static final String name = "CA-Average Link with Completion";
 
 	@Override
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights) {
@@ -36,7 +37,7 @@ public class CoAssociationMatrixWithCompletion implements ConsensusFunction {
 				coAssociationMatrix[i][j] = coAssociationMatrix[j][i];
 			}
 
-		//XXX needs LAML
+		// XXX needs LAML
 		final SparseMatrix smat = new SparseMatrix(pointCount, pointCount);
 		final MatrixCompletion completion = new MatrixCompletion();
 		final Matrix m = new DenseMatrix(coAssociationMatrix);
@@ -74,5 +75,10 @@ public class CoAssociationMatrixWithCompletion implements ConsensusFunction {
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights, int clusterNumber) {
 		throw new UnsupportedOperationException(
 				"calculation with cluster number is not supported by this consensus function");
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 }

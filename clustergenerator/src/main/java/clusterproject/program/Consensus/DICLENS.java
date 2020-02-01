@@ -10,7 +10,8 @@ import clusterproject.data.PointContainer;
 import clusterproject.util.Util;
 import other.diclens.DiclensGUIController;
 
-public class DICLENS implements ConsensusFunction {
+public class DICLENS implements IConsensusFunction {
+	private static final String name = "DICLENS";
 
 	@Override
 	public PointContainer calculateConsensus(List<PointContainer> results, List<Double> weights, int clusterNumber) {
@@ -70,6 +71,11 @@ public class DICLENS implements ConsensusFunction {
 	@Override
 	public boolean supportsClusterNumber() {
 		return true;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 }

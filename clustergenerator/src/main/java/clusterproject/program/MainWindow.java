@@ -44,11 +44,16 @@ public class MainWindow extends JFrame {
 	public static final int GENERATOR_BUTTON_HEIGHT = 200;
 	public static final Color BACKGROUND_COLOR = Color.white;
 
+	private final static List<IGenerator> generators = new ArrayList<IGenerator>();
+	private final static List<IReducer> reducers = new ArrayList<IReducer>();
+	private final static List<INormalizer> normalizers = new ArrayList<INormalizer>();
+	static {
+		initGenerators();
+		initReducers();
+		initNormalizers();
+	}
 	private final JLayeredPane mainPanel;
 	private final SpringLayout mainLayout;
-	private final List<IGenerator> generators;
-	private final List<IReducer> reducers;
-	private final List<INormalizer> normalizers;
 	private IGenerator activeGenerator = null;
 	private IReducer activeReducer = null;
 	private INormalizer activeNormalizer = null;
@@ -126,18 +131,12 @@ public class MainWindow extends JFrame {
 		});
 
 		mainPanel = new JLayeredPane();
-		generators = new ArrayList<IGenerator>();
-		reducers = new ArrayList<IReducer>();
-		normalizers = new ArrayList<INormalizer>();
+
 		add(mainPanel);
 		mainLayout = new SpringLayout();
 		mainPanel.setLayout(mainLayout);
 
 		getContentPane().setBackground(BACKGROUND_COLOR);
-
-		initGenerators();
-		initReducers();
-		initNormalizers();
 
 		final List<String> generatorNames = new ArrayList<String>();
 		for (final IGenerator generator : generators)
@@ -318,24 +317,6 @@ public class MainWindow extends JFrame {
 
 	}
 
-	private void initGenerators() {
-		generators.add(new SinglePointGenerator());
-		generators.add(new ELKIGenerator());
-
-	}
-
-	private void initReducers() {
-		reducers.add(new PCAReducer());
-		reducers.add(new TSNEReducer());
-		reducers.add(new DimensionRemover());
-	}
-
-	private void initNormalizers() {
-		normalizers.add(new Normalize());
-		normalizers.add(new Standardize());
-
-	}
-
 	public void handleClick(double[] point) {
 		if (activeGenerator != null && activeGenerator.canClickGenerate()) {
 			final boolean done = activeGenerator.generate(point, pointContainer);
@@ -355,6 +336,24 @@ public class MainWindow extends JFrame {
 	public void update() {
 		clusterViewer.autoAdjust();
 		clusterViewer.update();
+	}
+
+	private static void initGenerators() {
+		generators.add(new SinglePointGenerator());
+		generators.add(new ELKIGenerator());
+
+	}
+
+	private static void initReducers() {
+		reducers.add(new PCAReducer());
+		reducers.add(new TSNEReducer());
+		reducers.add(new DimensionRemover());
+	}
+
+	private static void initNormalizers() {
+		normalizers.add(new Normalize());
+		normalizers.add(new Standardize());
+
 	}
 
 }

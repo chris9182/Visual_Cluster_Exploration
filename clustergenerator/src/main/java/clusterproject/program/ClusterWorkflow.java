@@ -81,6 +81,14 @@ public class ClusterWorkflow extends JFrame {
 			"Clustering Workflow Files (cwf)", "cwf");
 	public static final FileNameExtensionFilter crffilter = new FileNameExtensionFilter("Clustering Result Files (crf)",
 			"crf");
+	private final static List<IClusterer> clusterersELKI = new ArrayList<IClusterer>();
+	private final static List<IClusterer> clusterersOther = new ArrayList<IClusterer>();
+	private final static List<IDistanceMeasure> distances = new ArrayList<IDistanceMeasure>();
+
+	static {
+		initClusterers();
+		initDistances();
+	}
 
 	private final SpringLayout layout;
 
@@ -88,12 +96,9 @@ public class ClusterWorkflow extends JFrame {
 
 	private IClusterer selectedClusterer;
 
-	private final List<IClusterer> clusterersELKI;
-	private final List<IClusterer> clusterersOther;
 	private final JComboBox<String> clustererSelector;
 	private final List<IClusterer> workflow;
 
-	private final List<IDistanceMeasure> distances;
 	private final JComboBox<String> distanceSelector;
 	private final JFormattedTextField minPTSField;
 	private final JFormattedTextField epsField;
@@ -143,9 +148,7 @@ public class ClusterWorkflow extends JFrame {
 		add(mainPanel);
 
 		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
-		clusterersELKI = new ArrayList<IClusterer>();
-		clusterersOther = new ArrayList<IClusterer>();
-		distances = new ArrayList<IDistanceMeasure>();
+
 		workflow = new ArrayList<IClusterer>();
 		layout = new SpringLayout();
 		mainPanel.setLayout(layout);
@@ -154,8 +157,6 @@ public class ClusterWorkflow extends JFrame {
 		layout.putConstraint(SpringLayout.NORTH, addLabel, OUTER_SPACE, SpringLayout.NORTH, mainPanel);
 		layout.putConstraint(SpringLayout.WEST, addLabel, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 
-		initClusterers();
-		initDistances();
 		final String[] names = new String[clusterersELKI.size() + clusterersOther.size()];
 		for (int i = 0; i < names.length; ++i)
 			if (i < clusterersELKI.size())
@@ -736,7 +737,7 @@ public class ClusterWorkflow extends JFrame {
 		showWorkflow();
 	}
 
-	private void initDistances() {
+	private static void initDistances() {
 		// TODO make distances and similar into maps
 //		final List<IDistanceMeasure> distancesList = new ArrayList<IDistanceMeasure>();
 		distances.add(new VariationOfInformation());
@@ -744,7 +745,7 @@ public class ClusterWorkflow extends JFrame {
 		distances.add(new ClusteringError());
 	}
 
-	private void initClusterers() {
+	private static void initClusterers() {
 		clusterersELKI.add(new DBScan());
 		clusterersELKI.add(new DiSHClustering());
 		clusterersELKI.add(new SNN());
