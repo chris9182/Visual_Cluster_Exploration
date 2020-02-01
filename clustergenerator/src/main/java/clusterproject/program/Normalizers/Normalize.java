@@ -5,7 +5,7 @@ import java.awt.Dimension;
 import javax.swing.JPanel;
 
 import clusterproject.data.PointContainer;
-import clusterproject.program.MainWindow;
+import clusterproject.program.StartWindow;
 import clusterproject.program.Normalizers.Panel.NormalizeOptions;
 
 public class Normalize implements INormalizer {
@@ -61,7 +61,7 @@ public class Normalize implements INormalizer {
 		newContainer.copyInfoFrom(container);
 		newContainer.setHeaders(container.getHeaders());
 
-		final MainWindow newWindow = new MainWindow(newContainer);
+		final StartWindow newWindow = new StartWindow(newContainer);
 		newWindow.setSize(new Dimension(1000, 800));
 		newWindow.setLocationRelativeTo(null);
 		newWindow.setVisible(true);

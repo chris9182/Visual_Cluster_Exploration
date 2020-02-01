@@ -32,7 +32,7 @@ import clusterproject.program.Normalizers.INormalizer;
 import clusterproject.program.Normalizers.Normalize;
 import clusterproject.program.Normalizers.Standardize;
 
-public class MainWindow extends JFrame {
+public class StartWindow extends JFrame {
 
 	/**
 	 *
@@ -67,11 +67,11 @@ public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	public MainWindow() {
+	public StartWindow() {
 		this(new PointContainer(2));
 	}
 
-	public MainWindow(PointContainer container) {
+	public StartWindow(PointContainer container) {
 		pointContainer = container;
 		clusterViewer = new ScatterPlot(pointContainer, true);
 		clusterViewer.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.gray));
@@ -105,7 +105,7 @@ public class MainWindow extends JFrame {
 
 		importButton = new JButton("Import");
 		importButton.addActionListener(e -> {
-			final JFrame importerFrame = new ImporterWindow(pointContainer, MainWindow.this);
+			final JFrame importerFrame = new ImporterWindow(pointContainer, StartWindow.this);
 			importerFrame.setSize(new Dimension(450, 400));
 			importerFrame.setResizable(false);
 			importerFrame.setLocationRelativeTo(null);

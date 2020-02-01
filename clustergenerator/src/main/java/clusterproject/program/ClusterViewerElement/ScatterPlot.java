@@ -9,7 +9,7 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import clusterproject.data.PointContainer;
-import clusterproject.program.MainWindow;
+import clusterproject.program.StartWindow;
 import clusterproject.util.MinMax;
 
 public class ScatterPlot extends JLayeredPane {
@@ -74,7 +74,7 @@ public class ScatterPlot extends JLayeredPane {
 		final JButton autoAdjust = new JButton("");
 
 		autoAdjust.setToolTipText("Auto-Adjust Axies");
-		autoAdjust.setPreferredSize(new Dimension(MainWindow.ADJUST_BUTTON_DIM, MainWindow.ADJUST_BUTTON_DIM));
+		autoAdjust.setPreferredSize(new Dimension(StartWindow.ADJUST_BUTTON_DIM, StartWindow.ADJUST_BUTTON_DIM));
 		autoAdjust.addActionListener(e -> {
 			autoAdjust();
 			SwingUtilities.invokeLater(() -> repaint());

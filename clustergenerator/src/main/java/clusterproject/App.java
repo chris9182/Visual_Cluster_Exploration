@@ -4,7 +4,7 @@ import java.awt.Dimension;
 
 import javax.swing.JFrame;
 
-import clusterproject.program.MainWindow;
+import clusterproject.program.StartWindow;
 
 public class App {
 	public static void main(String[] args) {
@@ -12,7 +12,7 @@ public class App {
 		// org.apache.giraph.partition.GraphPartitionerFactory<WritableComparable,
 		// Writable, Writable>
 
-		final MainWindow window = new MainWindow();
+		final StartWindow window = new StartWindow();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setSize(new Dimension(1000, 800));
 		window.setLocationRelativeTo(null);

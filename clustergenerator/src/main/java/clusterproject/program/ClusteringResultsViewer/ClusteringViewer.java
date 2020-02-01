@@ -42,7 +42,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import clusterproject.data.ClusteringResult;
 import clusterproject.data.PointContainer;
 import clusterproject.program.ClusterWorkflow;
-import clusterproject.program.MainWindow;
+import clusterproject.program.StartWindow;
 import clusterproject.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.program.ClusterViewerElement.ScatterPlotMatrix;
 import clusterproject.program.Clustering.Parameters.Parameter;
@@ -112,7 +112,7 @@ public class ClusteringViewer extends JFrame {
 	private final AtomicBoolean dohighlight = new AtomicBoolean(true);
 
 	public ClusteringViewer(List<ClusteringResult> clusterings, IDistanceMeasure metaDistance, int minPTS, double eps) {
-		getContentPane().setBackground(MainWindow.BACKGROUND_COLOR);
+		getContentPane().setBackground(StartWindow.BACKGROUND_COLOR);
 		this.metaDistance = metaDistance;
 		this.clusterings = clusterings;
 
@@ -179,7 +179,7 @@ public class ClusteringViewer extends JFrame {
 
 		mainWindowButton = new JButton("Show in Main");
 		mainWindowButton.addActionListener(e -> {
-			final MainWindow newWindow = new MainWindow(visibleViewer.getPointContainer());
+			final StartWindow newWindow = new StartWindow(visibleViewer.getPointContainer());
 			newWindow.setSize(new Dimension(1000, 800));
 			newWindow.setLocationRelativeTo(null);
 			newWindow.setVisible(true);
@@ -187,7 +187,7 @@ public class ClusteringViewer extends JFrame {
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, mainWindowButton, 0, SpringLayout.VERTICAL_CENTER,
 				clustereringSelector);
-		layout.putConstraint(SpringLayout.WEST, mainWindowButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.WEST, mainWindowButton, StartWindow.INNER_SPACE, SpringLayout.EAST,
 				clustereringSelector);
 		mainPanel.add(mainWindowButton, new Integer(1));
 
@@ -201,7 +201,7 @@ public class ClusteringViewer extends JFrame {
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, scatterMatrixButton, 0, SpringLayout.VERTICAL_CENTER,
 				mainWindowButton);
-		layout.putConstraint(SpringLayout.WEST, scatterMatrixButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.WEST, scatterMatrixButton, StartWindow.INNER_SPACE, SpringLayout.EAST,
 				mainWindowButton);
 		mainPanel.add(scatterMatrixButton, new Integer(1));
 
@@ -248,7 +248,7 @@ public class ClusteringViewer extends JFrame {
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, saveButton, 0, SpringLayout.VERTICAL_CENTER,
 				scatterMatrixButton);
-		layout.putConstraint(SpringLayout.WEST, saveButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.WEST, saveButton, StartWindow.INNER_SPACE, SpringLayout.EAST,
 				scatterMatrixButton);
 		mainPanel.add(saveButton, new Integer(1));
 
@@ -306,13 +306,13 @@ public class ClusteringViewer extends JFrame {
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, consFuncSelector, 0, SpringLayout.VERTICAL_CENTER,
 				saveButton);
-		layout.putConstraint(SpringLayout.WEST, consFuncSelector, MainWindow.INNER_SPACE, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.WEST, consFuncSelector, StartWindow.INNER_SPACE, SpringLayout.EAST,
 				saveButton);
 		mainPanel.add(consFuncSelector, new Integer(1));
 
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, consensusButton, 0, SpringLayout.VERTICAL_CENTER,
 				consFuncSelector);
-		layout.putConstraint(SpringLayout.WEST, consensusButton, MainWindow.INNER_SPACE, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.WEST, consensusButton, StartWindow.INNER_SPACE, SpringLayout.EAST,
 				consFuncSelector);
 		mainPanel.add(consensusButton, new Integer(1));
 
