@@ -35,7 +35,7 @@ import clusterproject.program.Generator.SinglePointGenerator;
 import clusterproject.program.Normalizers.INormalizer;
 import clusterproject.program.Normalizers.Normalize;
 import clusterproject.program.Normalizers.Standardize;
-import other.fileFilter.FileFilter;
+import clusterproject.util.FileFilter;
 
 public class StartWindow extends JFrame {
 

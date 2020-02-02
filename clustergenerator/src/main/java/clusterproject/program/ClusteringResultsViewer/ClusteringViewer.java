@@ -57,9 +57,9 @@ import clusterproject.program.MetaClustering.IDistanceMeasure;
 import clusterproject.program.MetaClustering.OpticsContainer;
 import clusterproject.program.MetaClustering.OpticsMetaClustering;
 import clusterproject.program.MetaClustering.OpticsResult;
+import clusterproject.util.FileFilter;
 import clusterproject.util.NMI;
 import clusterproject.util.Util;
-import other.fileFilter.FileFilter;
 import smile.mds.MDS;
 
 public class ClusteringViewer extends JFrame {

@@ -54,6 +54,7 @@ import clusterproject.program.MetaClustering.ClusteringError;
 import clusterproject.program.MetaClustering.IDistanceMeasure;
 import clusterproject.program.MetaClustering.VariationOfInformation;
 import clusterproject.program.MetaClustering.VariationOfInformationBootstrapped;
+import clusterproject.util.FileFilter;
 import clusterproject.util.HackedObjectInputStream;
 import clusterproject.util.Util;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
@@ -64,7 +65,6 @@ import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
 import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.datasource.ArrayAdapterDatabaseConnection;
 import de.lmu.ifi.dbs.elki.datasource.DatabaseConnection;
-import other.fileFilter.FileFilter;
 
 public class ClusterWorkflow extends JFrame {
 	/**

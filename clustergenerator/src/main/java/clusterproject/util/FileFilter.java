@@ -1,4 +1,4 @@
-package other.fileFilter;
+package clusterproject.util;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
 
