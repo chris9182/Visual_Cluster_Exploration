@@ -584,7 +584,7 @@ public class ClusteringViewer extends JFrame {
 			for (int i = 0; i < data.length; i++) {
 				final int clusterID = i + 1;
 				for (int j = 0; j < data[i].length; ++j) {
-					writer.append(clusterID + "");
+					writer.append(Integer.toString(clusterID));
 					for (int k = 0; k < data[i][j].length; ++k)
 						writer.append(" , " + Double.toString(data[i][j][k]));
 					writer.append("\n");
