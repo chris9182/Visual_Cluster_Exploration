@@ -40,6 +40,7 @@ import clusterproject.data.NumberVectorClusteringResult;
 import clusterproject.data.PointContainer;
 import clusterproject.program.Clustering.DBScan;
 import clusterproject.program.Clustering.DiSHClustering;
+import clusterproject.program.Clustering.EMClustering;
 import clusterproject.program.Clustering.IClusterer;
 import clusterproject.program.Clustering.ICustomClusterer;
 import clusterproject.program.Clustering.IELKIClustering;
@@ -749,6 +750,7 @@ public class ClusterWorkflow extends JFrame {
 		clusterersELKI.add(new LloydKMeans());
 		clusterersELKI.add(new MacQueenKMeans());
 		clusterersELKI.add(new LloydKMeadians());
+		clusterersELKI.add(new EMClustering());
 
 		clusterersOther.add(new SpectralClustering());
 

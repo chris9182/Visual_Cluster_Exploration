@@ -58,14 +58,14 @@ public class MacQueenKMeans extends AbstractClustering implements IELKIClusterin
 				final ListParameterization params = new ListParameterization();
 				params.addParameter(KMeans.K_ID, calcK);
 				params.addParameter(KMeans.SEED_ID, random.nextInt());
-				final KMeansMacQueen<DoubleVector> dbscan = ClassGenericsUtil.parameterizeOrAbort(KMeansMacQueen.class,
+				final KMeansMacQueen<DoubleVector> kmeans = ClassGenericsUtil.parameterizeOrAbort(KMeansMacQueen.class,
 						params);
 
 //				final DBIDs ids = DBIDUtil.randomSample(rel.getDBIDs(), (double) 1,
 //						new RandomFactory(random.nextLong()));
 				// example for subsample need to update distance measures (meta)
 //				final Relation<DoubleVector> rel2 = new ProxyView<DoubleVector>(ids, rel);
-				final Clustering<KMeansModel> result = dbscan.run(db);// , rel2);
+				final Clustering<KMeansModel> result = kmeans.run(db);// , rel2);
 				// int size = 0;
 				// for (final Cluster<KMeansModel> cluster : result.getAllClusters()) {
 				// size += cluster.size();

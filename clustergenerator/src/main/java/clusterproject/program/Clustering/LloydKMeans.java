@@ -58,9 +58,9 @@ public class LloydKMeans extends AbstractClustering implements IELKIClustering {
 				final ListParameterization params = new ListParameterization();
 				params.addParameter(KMeans.K_ID, calcK);
 				params.addParameter(KMeans.SEED_ID, random.nextInt());
-				final ParallelLloydKMeans<DoubleVector> dbscan = ClassGenericsUtil
+				final ParallelLloydKMeans<DoubleVector> kmeans = ClassGenericsUtil
 						.parameterizeOrAbort(ParallelLloydKMeans.class, params);
-				final Clustering<KMeansModel> result = dbscan.run(db);
+				final Clustering<KMeansModel> result = kmeans.run(db);
 				final List<NumberVector[]> clusterList = new ArrayList<NumberVector[]>();
 				result.getAllClusters().forEach(cluster -> {
 					final List<NumberVector> pointList = new ArrayList<NumberVector>();
