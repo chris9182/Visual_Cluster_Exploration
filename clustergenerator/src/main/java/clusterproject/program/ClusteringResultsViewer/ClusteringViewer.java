@@ -53,7 +53,7 @@ import clusterproject.program.Consensus.DICLENS;
 import clusterproject.program.Consensus.IConsensusFunction;
 import clusterproject.program.MetaClustering.DistanceCalculation;
 import clusterproject.program.MetaClustering.HungarianAlgorithm;
-import clusterproject.program.MetaClustering.IDistanceMeasure;
+import clusterproject.program.MetaClustering.IMetaDistanceMeasure;
 import clusterproject.program.MetaClustering.OpticsContainer;
 import clusterproject.program.MetaClustering.OpticsMetaClustering;
 import clusterproject.program.MetaClustering.OpticsResult;
@@ -89,7 +89,7 @@ public class ClusteringViewer extends JFrame {
 	private final JComboBox<String> consFuncSelector;
 	private final JLayeredPane mainPanel;
 	private final SpringLayout layout;
-	private final IDistanceMeasure metaDistance;
+	private final IMetaDistanceMeasure metaDistance;
 	private final OpticsPlot oPlot;
 	private HeatMap heatMap;
 	private ScatterPlot mdsPlot;
@@ -108,7 +108,8 @@ public class ClusteringViewer extends JFrame {
 	private final LinkedHashSet<Integer> highlighted = new LinkedHashSet<>();
 	private final AtomicBoolean dohighlight = new AtomicBoolean(true);
 
-	public ClusteringViewer(List<ClusteringResult> clusterings, IDistanceMeasure metaDistance, int minPTS, double eps) {
+	public ClusteringViewer(List<ClusteringResult> clusterings, IMetaDistanceMeasure metaDistance, int minPTS,
+			double eps) {
 		getContentPane().setBackground(StartWindow.BACKGROUND_COLOR);
 		this.metaDistance = metaDistance;
 		this.clusterings = clusterings;
@@ -833,7 +834,7 @@ public class ClusteringViewer extends JFrame {
 		return closest;
 	}
 
-	public IDistanceMeasure getDistanceMeasure() {
+	public IMetaDistanceMeasure getDistanceMeasure() {
 		return metaDistance;
 	}
 

@@ -51,7 +51,7 @@ import clusterproject.program.Clustering.SpectralClustering;
 import clusterproject.program.Clustering.Parameters.Parameter;
 import clusterproject.program.ClusteringResultsViewer.ClusteringViewer;
 import clusterproject.program.MetaClustering.ClusteringError;
-import clusterproject.program.MetaClustering.IDistanceMeasure;
+import clusterproject.program.MetaClustering.IMetaDistanceMeasure;
 import clusterproject.program.MetaClustering.VariationOfInformation;
 import clusterproject.program.MetaClustering.VariationOfInformationBootstrapped;
 import clusterproject.util.FileFilter;
@@ -79,7 +79,7 @@ public class ClusterWorkflow extends JFrame {
 
 	private final static List<IClusterer> clusterersELKI = new ArrayList<IClusterer>();
 	private final static List<IClusterer> clusterersOther = new ArrayList<IClusterer>();
-	private final static List<IDistanceMeasure> distances = new ArrayList<IDistanceMeasure>();
+	private final static List<IMetaDistanceMeasure> distances = new ArrayList<IMetaDistanceMeasure>();
 
 	static {
 		initClusterers();
@@ -630,8 +630,8 @@ public class ClusterWorkflow extends JFrame {
 		cv.setVisible(true);
 	}
 
-	private IDistanceMeasure getDistanceMeasure() {
-		for (final IDistanceMeasure dist : distances)
+	private IMetaDistanceMeasure getDistanceMeasure() {
+		for (final IMetaDistanceMeasure dist : distances)
 			if (dist.getName().equals(distanceSelector.getSelectedItem()))
 				return dist;
 		return null;

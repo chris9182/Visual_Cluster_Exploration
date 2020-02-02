@@ -3,7 +3,7 @@ package clusterproject.program.MetaClustering;
 import clusterproject.data.ClusteringResult;
 import clusterproject.util.Util;
 
-public class ClusteringError implements IDistanceMeasure {
+public class ClusteringError implements IMetaDistanceMeasure {
 
 	@Override
 	public double distanceBetween(ClusteringResult clustering, ClusteringResult clustering2) {

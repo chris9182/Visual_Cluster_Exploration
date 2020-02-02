@@ -4,7 +4,7 @@ import clusterproject.data.ClusteringResult;
 import clusterproject.util.Util;
 
 //from https://en.wikipedia.org/wiki/Variation_of_information
-public class VariationOfInformationBootstrapped implements IDistanceMeasure {
+public class VariationOfInformationBootstrapped implements IMetaDistanceMeasure {
 
 	@Override
 	public double distanceBetween(ClusteringResult clustering, ClusteringResult clustering2) {
