@@ -5,12 +5,16 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.SpringLayout;
@@ -31,6 +35,7 @@ import clusterproject.program.Generator.SinglePointGenerator;
 import clusterproject.program.Normalizers.INormalizer;
 import clusterproject.program.Normalizers.Normalize;
 import clusterproject.program.Normalizers.Standardize;
+import other.fileFilter.FileFilter;
 
 public class StartWindow extends JFrame {
 
@@ -62,6 +67,7 @@ public class StartWindow extends JFrame {
 	final ScatterPlot clusterViewer;
 	private final JButton activationButton;
 	private final JButton importButton;
+	private final JButton exportButton;
 	private final JButton scatterMatrixButton;
 	private final JButton clusterButton;
 
@@ -111,6 +117,43 @@ public class StartWindow extends JFrame {
 			importerFrame.setLocationRelativeTo(null);
 			importerFrame.setVisible(true);
 		});
+
+		exportButton = new JButton("Export");
+		exportButton.addActionListener(e -> {
+			final JFileChooser fileChooser = new JFileChooser();
+			fileChooser.addChoosableFileFilter(FileFilter.csvfilter);
+			fileChooser.setApproveButtonText("Save");
+			fileChooser.setFileFilter(FileFilter.csvfilter);
+			final JFrame chooserFrame = new JFrame();
+			chooserFrame.add(fileChooser);
+			chooserFrame.setSize(new Dimension(400, 400));
+			chooserFrame.setLocationRelativeTo(null);
+			chooserFrame.setResizable(false);
+			chooserFrame.setVisible(true);
+			fileChooser.addActionListener(ev -> {
+				if (ev.getActionCommand().equals(JFileChooser.CANCEL_SELECTION)) {
+					chooserFrame.setVisible(false);
+					chooserFrame.dispose();
+					return;
+				}
+				final File selectedFile = fileChooser.getSelectedFile();
+				if (selectedFile == null)
+					return;
+
+				if (FileFilter.csvfilter.accept(selectedFile)) {
+					saveCSVFile(selectedFile);
+
+				} else if (!selectedFile.getName().contains(".")
+						&& fileChooser.getFileFilter().equals(FileFilter.csvfilter)) {
+					saveCSVFile(new File(selectedFile.getPath() + "." + FileFilter.csvfilter.getExtensions()[0]));
+				} else {
+					return;
+				}
+				chooserFrame.setVisible(false);
+				chooserFrame.dispose();
+			});
+		});
+
 		activationButton = new JButton();
 		activationButton.addActionListener(e -> {
 			boolean done = false;
@@ -174,7 +217,13 @@ public class StartWindow extends JFrame {
 
 		mainLayout.putConstraint(SpringLayout.SOUTH, importButton, -INNER_SPACE, SpringLayout.NORTH, clusterButton);
 		mainLayout.putConstraint(SpringLayout.EAST, importButton, -INNER_SPACE, SpringLayout.EAST, mainPanel);
-		mainLayout.putConstraint(SpringLayout.WEST, importButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
+		mainLayout.putConstraint(SpringLayout.WEST, importButton, -INNER_SPACE - OPTIONS_WIDTH / 2, SpringLayout.EAST,
+				mainPanel);
+
+		mainLayout.putConstraint(SpringLayout.SOUTH, exportButton, -INNER_SPACE, SpringLayout.NORTH, clusterButton);
+		mainLayout.putConstraint(SpringLayout.EAST, exportButton, -INNER_SPACE - OPTIONS_WIDTH / 2, SpringLayout.EAST,
+				mainPanel);
+		mainLayout.putConstraint(SpringLayout.WEST, exportButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
 				mainPanel);
 
 		mainLayout.putConstraint(SpringLayout.SOUTH, clusterButton, -INNER_SPACE, SpringLayout.SOUTH, mainPanel);
@@ -189,6 +238,7 @@ public class StartWindow extends JFrame {
 
 		mainPanel.add(selector, new Integer(100));
 		mainPanel.add(importButton, new Integer(101));
+		mainPanel.add(exportButton, new Integer(101));
 		mainPanel.add(scatterMatrixButton, new Integer(101));
 		mainPanel.add(clusterButton, new Integer(101));
 		mainPanel.add(activationButton, new Integer(101));
@@ -331,6 +381,26 @@ public class StartWindow extends JFrame {
 				// TODO:error
 			}
 		}
+	}
+
+	private void saveCSVFile(File selectedFile) {
+		try {
+			final FileWriter writer = new FileWriter(selectedFile);
+			final double[][][] data = pointContainer.toData();
+			for (int i = 0; i < data.length; i++) {
+				final int clusterID = i + 1;
+				for (int j = 0; j < data[i].length; ++j) {
+					writer.append(clusterID + "");
+					for (int k = 0; k < data[i][j].length; ++k)
+						writer.append(" , " + Double.toString(data[i][j][k]));
+					writer.append("\n");
+				}
+			}
+			writer.close();
+		} catch (final IOException e) {
+			return;
+		}
+
 	}
 
 	public void update() {

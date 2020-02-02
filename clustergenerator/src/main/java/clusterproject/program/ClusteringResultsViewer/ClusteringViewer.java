@@ -37,11 +37,9 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import clusterproject.data.ClusteringResult;
 import clusterproject.data.PointContainer;
-import clusterproject.program.ClusterWorkflow;
 import clusterproject.program.StartWindow;
 import clusterproject.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.program.ClusterViewerElement.ScatterPlotMatrix;
@@ -61,6 +59,7 @@ import clusterproject.program.MetaClustering.OpticsMetaClustering;
 import clusterproject.program.MetaClustering.OpticsResult;
 import clusterproject.util.NMI;
 import clusterproject.util.Util;
+import other.fileFilter.FileFilter;
 import smile.mds.MDS;
 
 public class ClusteringViewer extends JFrame {
@@ -72,8 +71,6 @@ public class ClusteringViewer extends JFrame {
 	private static final int MAX_HEATMAP_SIZE = 500;// 130;
 
 	private static final int MDS_MAX_DIM = 3;
-	public static final FileNameExtensionFilter csvfilter = new FileNameExtensionFilter(
-			"single Clustering Result (csv)", "csv");
 
 	public static final List<IConsensusFunction> consFunctions = new ArrayList<IConsensusFunction>();
 	static {
@@ -208,11 +205,11 @@ public class ClusteringViewer extends JFrame {
 		saveButton = new JButton("Save");
 		saveButton.addActionListener(e -> {
 			final JFileChooser fileChooser = new JFileChooser();
-			fileChooser.addChoosableFileFilter(ClusterWorkflow.crffilter);
+			fileChooser.addChoosableFileFilter(FileFilter.crffilter);
 			if (highlighted.size() == 1)
-				fileChooser.addChoosableFileFilter(csvfilter);
+				fileChooser.addChoosableFileFilter(FileFilter.csvfilter);
 			fileChooser.setApproveButtonText("Save");
-			fileChooser.setFileFilter(ClusterWorkflow.crffilter);
+			fileChooser.setFileFilter(FileFilter.crffilter);
 			final JFrame chooserFrame = new JFrame();
 			chooserFrame.add(fileChooser);
 			chooserFrame.setSize(new Dimension(400, 400));
@@ -230,15 +227,16 @@ public class ClusteringViewer extends JFrame {
 				if (selectedFile == null)
 					return;
 
-				if (ClusterWorkflow.crffilter.accept(selectedFile))
+				if (FileFilter.crffilter.accept(selectedFile))
 					saveCRFFile(selectedFile);
-				else if (csvfilter.accept(selectedFile)) {
+				else if (FileFilter.csvfilter.accept(selectedFile)) {
 					saveCSVFile(selectedFile);
 				} else if (!selectedFile.getName().contains(".")
-						&& fileChooser.getFileFilter().equals(ClusterWorkflow.crffilter)) {
-					saveCRFFile(new File(selectedFile.getPath() + "." + ClusterWorkflow.crffilter.getExtensions()[0]));
-				} else if (!selectedFile.getName().contains(".") && fileChooser.getFileFilter().equals(csvfilter)) {
-					saveCSVFile(new File(selectedFile.getPath() + "." + csvfilter.getExtensions()[0]));
+						&& fileChooser.getFileFilter().equals(FileFilter.crffilter)) {
+					saveCRFFile(new File(selectedFile.getPath() + "." + FileFilter.crffilter.getExtensions()[0]));
+				} else if (!selectedFile.getName().contains(".")
+						&& fileChooser.getFileFilter().equals(FileFilter.csvfilter)) {
+					saveCSVFile(new File(selectedFile.getPath() + "." + FileFilter.csvfilter.getExtensions()[0]));
 				} else {
 					return;
 				}
@@ -586,9 +584,10 @@ public class ClusteringViewer extends JFrame {
 			for (int i = 0; i < data.length; i++) {
 				final int clusterID = i + 1;
 				for (int j = 0; j < data[i].length; ++j) {
+					writer.append(clusterID + "");
 					for (int k = 0; k < data[i][j].length; ++k)
-						writer.append(Double.toString(data[i][j][k]) + " , ");
-					writer.append(clusterID + "\n");
+						writer.append(" , " + Double.toString(data[i][j][k]));
+					writer.append("\n");
 				}
 			}
 			writer.close();
