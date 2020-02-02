@@ -387,6 +387,11 @@ public class StartWindow extends JFrame {
 		try {
 			final FileWriter writer = new FileWriter(selectedFile);
 			final double[][][] data = pointContainer.toData();
+			writer.append("Class");
+			for (String header : pointContainer.getHeaders()) {
+				writer.append(" , " + header);
+			}
+			writer.append("\n");
 			for (int i = 0; i < data.length; i++) {
 				final int clusterID = i + 1;
 				for (int j = 0; j < data[i].length; ++j) {

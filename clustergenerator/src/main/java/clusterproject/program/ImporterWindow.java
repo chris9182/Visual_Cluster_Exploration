@@ -206,8 +206,6 @@ public class ImporterWindow extends JFrame {
 			final CSVRecord firstRecord = records.get(0);
 			boolean hasHeaders = false;
 			for (int i = 0; i < size; ++i) {
-				if (i == labelIndex)
-					continue;
 				final String entry = firstRecord.get(i);
 				try {
 					format.parse(entry).doubleValue();
@@ -279,6 +277,10 @@ public class ImporterWindow extends JFrame {
 			}
 		}
 		pointContainer.rebuild();
+		if (pointContainer.getClusterInformation() != null
+				&& pointContainer.getClusterInformation().getNumUniqueIDs() < 2)
+			pointContainer.removeClusterInfo();
+
 		update.update();
 		SwingUtilities.invokeLater(() -> update.repaint());
 

@@ -581,6 +581,10 @@ public class ClusteringViewer extends JFrame {
 			final FileWriter writer = new FileWriter(selectedFile);
 			final ClusteringResult result = clusterings.get(highlighted.iterator().next());
 			final double[][][] data = result.getData();
+			writer.append("Class");
+			for (String header : result.getHeaders()) {
+				writer.append(" , " + header);
+			}
 			for (int i = 0; i < data.length; i++) {
 				final int clusterID = i + 1;
 				for (int j = 0; j < data[i].length; ++j) {

@@ -2,6 +2,7 @@ package clusterproject.data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -72,6 +73,10 @@ public class ClusterInformation {
 			idMap = new HashMap<Integer, Integer>();
 			idMap.putAll(clusterInformation.getIDMap());
 		}
+	}
+
+	public int getNumUniqueIDs() {
+		return new HashSet<Integer>(originalClusterIDs).size();
 	}
 
 	public int getNoiseIndex() {
