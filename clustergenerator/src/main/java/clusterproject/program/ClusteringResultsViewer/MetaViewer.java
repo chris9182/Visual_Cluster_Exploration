@@ -62,7 +62,7 @@ import clusterproject.util.NMI;
 import clusterproject.util.Util;
 import smile.mds.MDS;
 
-public class ClusteringViewer extends JFrame {
+public class MetaViewer extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	private static final int OUTER_SPACE = 20;
@@ -108,7 +108,7 @@ public class ClusteringViewer extends JFrame {
 	private final LinkedHashSet<Integer> highlighted = new LinkedHashSet<>();
 	private final AtomicBoolean dohighlight = new AtomicBoolean(true);
 
-	public ClusteringViewer(List<ClusteringResult> clusterings, IMetaDistanceMeasure metaDistance, int minPTS,
+	public MetaViewer(List<ClusteringResult> clusterings, IMetaDistanceMeasure metaDistance, int minPTS,
 			double eps) {
 		getContentPane().setBackground(StartWindow.BACKGROUND_COLOR);
 		this.metaDistance = metaDistance;
@@ -296,7 +296,7 @@ public class ClusteringViewer extends JFrame {
 					;
 				if (groundTruth >= 0)
 					results.add(0, clusterings.get(groundTruth));
-				final ClusteringViewer newWindow = new ClusteringViewer(results, metaDistance, minPTS, eps);
+				final MetaViewer newWindow = new MetaViewer(results, metaDistance, minPTS, eps);
 				newWindow.setSize(new Dimension(1000, 800));
 				newWindow.setLocationRelativeTo(null);
 				newWindow.setVisible(true);

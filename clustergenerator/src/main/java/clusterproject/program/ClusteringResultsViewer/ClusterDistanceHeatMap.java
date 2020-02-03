@@ -19,7 +19,7 @@ import smile.math.Math;
 public class ClusterDistanceHeatMap extends HeatMap {
 	private static final long serialVersionUID = -3268593863313504815L;
 
-	public ClusterDistanceHeatMap(double[][] distances, ClusteringViewer clusteringViewer,
+	public ClusterDistanceHeatMap(double[][] distances, MetaViewer clusteringViewer,
 			OpticsResult<ClusteringResult> clusteredList) {
 		super(distances, clusteringViewer, clusteredList);
 

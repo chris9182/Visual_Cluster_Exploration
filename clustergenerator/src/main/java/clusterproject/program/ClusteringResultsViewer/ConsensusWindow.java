@@ -19,7 +19,7 @@ public class ConsensusWindow extends JFrame {
 	private final JLayeredPane mainPanel = new JLayeredPane();
 	private final SpringLayout mainLayout = new SpringLayout();
 
-	public ConsensusWindow(ClusteringViewer clusteringViewer) {
+	public ConsensusWindow(MetaViewer clusteringViewer) {
 		add(mainPanel);
 		getContentPane().setBackground(StartWindow.BACKGROUND_COLOR);
 		mainPanel.setLayout(mainLayout);

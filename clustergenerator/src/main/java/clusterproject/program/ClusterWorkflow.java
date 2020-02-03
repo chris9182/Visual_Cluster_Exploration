@@ -50,7 +50,7 @@ import clusterproject.program.Clustering.MacQueenKMeans;
 import clusterproject.program.Clustering.SNN;
 import clusterproject.program.Clustering.SpectralClustering;
 import clusterproject.program.Clustering.Parameters.Parameter;
-import clusterproject.program.ClusteringResultsViewer.ClusteringViewer;
+import clusterproject.program.ClusteringResultsViewer.MetaViewer;
 import clusterproject.program.MetaClustering.ClusteringError;
 import clusterproject.program.MetaClustering.IMetaDistanceMeasure;
 import clusterproject.program.MetaClustering.VariationOfInformation;
@@ -623,7 +623,7 @@ public class ClusterWorkflow extends JFrame {
 		if (number != null)
 			eps = number.doubleValue() < 0 ? Double.MAX_VALUE : number.doubleValue();
 
-		final ClusteringViewer cv = new ClusteringViewer(clusterings, getDistanceMeasure(), minPTS, eps);
+		final MetaViewer cv = new MetaViewer(clusterings, getDistanceMeasure(), minPTS, eps);
 		cv.setMinimumSize(new Dimension(800, 600));
 		cv.setExtendedState(Frame.MAXIMIZED_BOTH);
 		cv.setLocationRelativeTo(null);

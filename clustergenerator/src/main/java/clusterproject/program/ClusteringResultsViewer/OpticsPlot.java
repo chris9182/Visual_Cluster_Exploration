@@ -41,11 +41,11 @@ public class OpticsPlot extends JLayeredPane {
 	private final SpringLayout layout;
 	private double threshhold = -Double.MIN_NORMAL;
 	private double max = 0;
-	private final ClusteringViewer clusteringViewer;
+	private final MetaViewer clusteringViewer;
 	private final JButton setHistogramDataButton;
 	private final Map<Integer, Integer> indexMap;
 
-	public OpticsPlot(ClusteringViewer clusteringViewer, OpticsResult<?> clusteredList) {
+	public OpticsPlot(MetaViewer clusteringViewer, OpticsResult<?> clusteredList) {
 		this.clusteringViewer = clusteringViewer;
 		this.clusteringList = clusteredList;
 		layout = new SpringLayout();

@@ -58,7 +58,7 @@ public class FilterWindow extends JPanel {
 	private final Map<String, MinMax> allParametersRangeMap;
 
 	private final Map<String, Integer> bucketsMap;
-	private final ClusteringViewer clusteringViewer;
+	private final MetaViewer clusteringViewer;
 	private final JLabel headerLabel = new JLabel(HistogramData.All.toString());
 
 	private final Set<ClusteringResult> filteredSet = new HashSet<ClusteringResult>();
@@ -71,7 +71,7 @@ public class FilterWindow extends JPanel {
 	private boolean ignoreChange = false;
 	private HistogramData histogramData = HistogramData.All;
 
-	public FilterWindow(List<ClusteringResult> clusteringResults, ClusteringViewer clusteringViewer) {
+	public FilterWindow(List<ClusteringResult> clusteringResults, MetaViewer clusteringViewer) {
 		mainLayout = new SpringLayout();
 		charts = new HashMap<String, HistogramDataPainter>();
 		this.clusteringViewer = clusteringViewer;

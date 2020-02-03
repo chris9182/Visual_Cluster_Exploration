@@ -31,10 +31,10 @@ public class HeatMap extends JLayeredPane {
 	private final SpringLayout layout;
 	protected final JPanel heatMap;
 	protected final double maxDistance;
-	protected final ClusteringViewer clusteringViewer;
+	protected final MetaViewer clusteringViewer;
 	Map<Integer, Integer> indexMap;
 
-	public HeatMap(double[][] distances, ClusteringViewer clusteringViewer, OpticsResult<?> clusteredList) {
+	public HeatMap(double[][] distances, MetaViewer clusteringViewer, OpticsResult<?> clusteredList) {
 		this.clusteringViewer = clusteringViewer;
 		this.indexMap = new HashMap<Integer, Integer>();
 		int key = 0;

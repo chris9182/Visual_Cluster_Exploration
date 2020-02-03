@@ -15,7 +15,7 @@ import smile.math.Math;
 public class CoAssociationHeatMap extends HeatMap {
 	private static final long serialVersionUID = -3268593863313504815L;
 
-	public CoAssociationHeatMap(double[][] distances, ClusteringViewer clusteringViewer,
+	public CoAssociationHeatMap(double[][] distances, MetaViewer clusteringViewer,
 			OpticsResult<ClusteringResult> clusteringList) {
 		super(distances, clusteringViewer, clusteringList);
 
