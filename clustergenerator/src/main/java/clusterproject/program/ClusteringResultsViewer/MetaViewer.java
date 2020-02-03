@@ -8,7 +8,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ import clusterproject.program.MetaClustering.IMetaDistanceMeasure;
 import clusterproject.program.MetaClustering.OpticsContainer;
 import clusterproject.program.MetaClustering.OpticsMetaClustering;
 import clusterproject.program.MetaClustering.OpticsResult;
-import clusterproject.util.FileFilter;
+import clusterproject.util.FileUtils;
 import clusterproject.util.NMI;
 import clusterproject.util.Util;
 import smile.mds.MDS;
@@ -206,11 +205,11 @@ public class MetaViewer extends JFrame {
 		saveButton = new JButton("Save");
 		saveButton.addActionListener(e -> {
 			final JFileChooser fileChooser = new JFileChooser();
-			fileChooser.addChoosableFileFilter(FileFilter.crffilter);
+			fileChooser.addChoosableFileFilter(FileUtils.crffilter);
 			if (highlighted.size() == 1)
-				fileChooser.addChoosableFileFilter(FileFilter.csvfilter);
+				fileChooser.addChoosableFileFilter(FileUtils.csvfilter);
 			fileChooser.setApproveButtonText("Save");
-			fileChooser.setFileFilter(FileFilter.crffilter);
+			fileChooser.setFileFilter(FileUtils.crffilter);
 			final JFrame chooserFrame = new JFrame();
 			chooserFrame.setTitle("Save");
 			chooserFrame.add(fileChooser);
@@ -229,16 +228,16 @@ public class MetaViewer extends JFrame {
 				if (selectedFile == null)
 					return;
 
-				if (FileFilter.crffilter.accept(selectedFile))
+				if (FileUtils.crffilter.accept(selectedFile))
 					saveCRFFile(selectedFile);
-				else if (FileFilter.csvfilter.accept(selectedFile)) {
+				else if (FileUtils.csvfilter.accept(selectedFile)) {
 					saveCSVFile(selectedFile);
 				} else if (!selectedFile.getName().contains(".")
-						&& fileChooser.getFileFilter().equals(FileFilter.crffilter)) {
-					saveCRFFile(new File(selectedFile.getPath() + "." + FileFilter.crffilter.getExtensions()[0]));
+						&& fileChooser.getFileFilter().equals(FileUtils.crffilter)) {
+					saveCRFFile(new File(selectedFile.getPath() + "." + FileUtils.crffilter.getExtensions()[0]));
 				} else if (!selectedFile.getName().contains(".")
-						&& fileChooser.getFileFilter().equals(FileFilter.csvfilter)) {
-					saveCSVFile(new File(selectedFile.getPath() + "." + FileFilter.csvfilter.getExtensions()[0]));
+						&& fileChooser.getFileFilter().equals(FileUtils.csvfilter)) {
+					saveCSVFile(new File(selectedFile.getPath() + "." + FileUtils.csvfilter.getExtensions()[0]));
 				} else {
 					return;
 				}
@@ -578,28 +577,13 @@ public class MetaViewer extends JFrame {
 	}
 
 	private void saveCSVFile(File selectedFile) {
-		try {
-			final FileWriter writer = new FileWriter(selectedFile);
-			final ClusteringResult result = clusterings.get(highlighted.iterator().next());
-			final double[][][] data = result.getData();
-			writer.append("Class");
-			for (String header : result.getHeaders()) {
-				writer.append(" , " + header);
-			}
-			for (int i = 0; i < data.length; i++) {
-				final int clusterID = i + 1;
-				for (int j = 0; j < data[i].length; ++j) {
-					writer.append(Integer.toString(clusterID));
-					for (int k = 0; k < data[i][j].length; ++k)
-						writer.append(" , " + Double.toString(data[i][j][k]));
-					writer.append("\n");
-				}
-			}
-			writer.close();
-		} catch (final IOException e) {
+		final ClusteringResult result = clusterings.get(highlighted.iterator().next());
+		if (result.getPointCount() < 1 || result.getData()[0][0].length < 1)
 			return;
-		}
-
+		if (result.getData().length > 1)
+			FileUtils.saveCSVFileWithClass(selectedFile, result.getData(), result.getHeaders());
+		else
+			FileUtils.saveCSVFileWithoutClass(selectedFile, result.getData(), result.getHeaders());
 	}
 
 	public void updateMDSPlot(OpticsResult<?> clusteringList) {

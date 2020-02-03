@@ -6,8 +6,6 @@ import java.awt.Frame;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +33,7 @@ import clusterproject.program.Generator.SinglePointGenerator;
 import clusterproject.program.Normalizers.INormalizer;
 import clusterproject.program.Normalizers.Normalize;
 import clusterproject.program.Normalizers.Standardize;
-import clusterproject.util.FileFilter;
+import clusterproject.util.FileUtils;
 
 public class DataView extends JFrame {
 
@@ -119,9 +117,9 @@ public class DataView extends JFrame {
 		exportButton = new JButton("Export");
 		exportButton.addActionListener(e -> {
 			final JFileChooser fileChooser = new JFileChooser();
-			fileChooser.addChoosableFileFilter(FileFilter.csvfilter);
+			fileChooser.addChoosableFileFilter(FileUtils.csvfilter);
 			fileChooser.setApproveButtonText("Save");
-			fileChooser.setFileFilter(FileFilter.csvfilter);
+			fileChooser.setFileFilter(FileUtils.csvfilter);
 			final JFrame chooserFrame = new JFrame();
 			chooserFrame.setTitle("Export");
 			chooserFrame.add(fileChooser);
@@ -139,12 +137,12 @@ public class DataView extends JFrame {
 				if (selectedFile == null)
 					return;
 
-				if (FileFilter.csvfilter.accept(selectedFile)) {
+				if (FileUtils.csvfilter.accept(selectedFile)) {
 					saveCSVFile(selectedFile);
 
 				} else if (!selectedFile.getName().contains(".")
-						&& fileChooser.getFileFilter().equals(FileFilter.csvfilter)) {
-					saveCSVFile(new File(selectedFile.getPath() + "." + FileFilter.csvfilter.getExtensions()[0]));
+						&& fileChooser.getFileFilter().equals(FileUtils.csvfilter)) {
+					saveCSVFile(new File(selectedFile.getPath() + "." + FileUtils.csvfilter.getExtensions()[0]));
 				} else {
 					return;
 				}
@@ -383,28 +381,12 @@ public class DataView extends JFrame {
 	}
 
 	private void saveCSVFile(File selectedFile) {
-		try {
-			final FileWriter writer = new FileWriter(selectedFile);
-			final double[][][] data = pointContainer.toData();
-			writer.append("Class");
-			for (String header : pointContainer.getHeaders()) {
-				writer.append(" , " + header);
-			}
-			writer.append("\n");
-			for (int i = 0; i < data.length; i++) {
-				final int clusterID = i + 1;
-				for (int j = 0; j < data[i].length; ++j) {
-					writer.append(Integer.toString(clusterID));
-					for (int k = 0; k < data[i][j].length; ++k)
-						writer.append(" , " + Double.toString(data[i][j][k]));
-					writer.append("\n");
-				}
-			}
-			writer.close();
-		} catch (final IOException e) {
+		if (pointContainer.getPointCount() < 1 || pointContainer.getDim() < 1)
 			return;
-		}
-
+		if (pointContainer.hasClusters())
+			FileUtils.saveCSVFileWithClass(selectedFile, pointContainer.toData(), pointContainer.getHeaders());
+		else
+			FileUtils.saveCSVFileWithoutClass(selectedFile, pointContainer.toData(), pointContainer.getHeaders());
 	}
 
 	public void update() {

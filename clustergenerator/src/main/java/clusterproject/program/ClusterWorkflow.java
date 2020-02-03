@@ -55,7 +55,7 @@ import clusterproject.program.MetaClustering.ClusteringError;
 import clusterproject.program.MetaClustering.IMetaDistanceMeasure;
 import clusterproject.program.MetaClustering.VariationOfInformation;
 import clusterproject.program.MetaClustering.VariationOfInformationBootstrapped;
-import clusterproject.util.FileFilter;
+import clusterproject.util.FileUtils;
 import clusterproject.util.HackedObjectInputStream;
 import clusterproject.util.Util;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
@@ -186,8 +186,8 @@ public class ClusterWorkflow extends JFrame {
 		loadClusterButton.addActionListener(e -> {
 
 			final JFileChooser fileChooser = new JFileChooser();
-			fileChooser.addChoosableFileFilter(FileFilter.crffilter);
-			fileChooser.setFileFilter(FileFilter.crffilter);
+			fileChooser.addChoosableFileFilter(FileUtils.crffilter);
+			fileChooser.setFileFilter(FileUtils.crffilter);
 			final JFrame chooserFrame = new JFrame();
 			chooserFrame.setTitle("Load");
 			chooserFrame.add(fileChooser);
@@ -206,7 +206,7 @@ public class ClusterWorkflow extends JFrame {
 				if (selectedFile == null)
 					return;
 
-				if (FileFilter.crffilter.accept(selectedFile)) {
+				if (FileUtils.crffilter.accept(selectedFile)) {
 					loadCRFFile(selectedFile);
 					chooserFrame.setVisible(false);
 					chooserFrame.dispose();
@@ -286,9 +286,9 @@ public class ClusterWorkflow extends JFrame {
 		saveButton.setEnabled(false);
 		saveButton.addActionListener(e -> {
 			final JFileChooser fileChooser = new JFileChooser();
-			fileChooser.addChoosableFileFilter(FileFilter.cwffilter);
+			fileChooser.addChoosableFileFilter(FileUtils.cwffilter);
 			fileChooser.setApproveButtonText("Save");
-			fileChooser.setFileFilter(FileFilter.cwffilter);
+			fileChooser.setFileFilter(FileUtils.cwffilter);
 			final JFrame chooserFrame = new JFrame();
 			chooserFrame.setTitle("Save");
 			chooserFrame.add(fileChooser);
@@ -307,10 +307,10 @@ public class ClusterWorkflow extends JFrame {
 				if (selectedFile == null)
 					return;
 
-				if (FileFilter.cwffilter.accept(selectedFile))
+				if (FileUtils.cwffilter.accept(selectedFile))
 					saveCWFFile(selectedFile);
 				else if (!selectedFile.getName().contains(".")) {
-					saveCWFFile(new File(selectedFile.getPath() + "." + FileFilter.cwffilter.getExtensions()[0]));
+					saveCWFFile(new File(selectedFile.getPath() + "." + FileUtils.cwffilter.getExtensions()[0]));
 				} else {
 					return;
 				}
@@ -329,8 +329,8 @@ public class ClusterWorkflow extends JFrame {
 			if (worker != null && worker.isAlive())
 				return;
 			final JFileChooser fileChooser = new JFileChooser();
-			fileChooser.addChoosableFileFilter(FileFilter.cwffilter);
-			fileChooser.setFileFilter(FileFilter.cwffilter);
+			fileChooser.addChoosableFileFilter(FileUtils.cwffilter);
+			fileChooser.setFileFilter(FileUtils.cwffilter);
 			final JFrame chooserFrame = new JFrame();
 			chooserFrame.add(fileChooser);
 			chooserFrame.setSize(new Dimension(400, 400));
@@ -348,7 +348,7 @@ public class ClusterWorkflow extends JFrame {
 				if (selectedFile == null)
 					return;
 
-				if (FileFilter.cwffilter.accept(selectedFile)) {
+				if (FileUtils.cwffilter.accept(selectedFile)) {
 					loadCWFFile(selectedFile);
 					chooserFrame.setVisible(false);
 					chooserFrame.dispose();

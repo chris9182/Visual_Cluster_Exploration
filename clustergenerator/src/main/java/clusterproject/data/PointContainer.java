@@ -19,13 +19,13 @@ public class PointContainer {
 		this.dim = dim;
 		headers = new ArrayList<String>(dim);
 		for (int i = 0; i < dim; i++)
-			headers.add(Integer.toString(i));
+			headers.add("Dim: " + Integer.toString(i));
 	}
 
 	public void generateHeaders() {
 		headers = new ArrayList<String>(dim);
 		for (int i = 0; i < dim; i++)
-			headers.add(Integer.toString(i));
+			headers.add("Dim: " + Integer.toString(i));
 	}
 
 	public MetaInformation getMetaInformation() {
@@ -139,7 +139,7 @@ public class PointContainer {
 
 		if (headers.isEmpty())
 			for (int i = 0; i < dim; i++)
-				headers.add(Integer.toString(i));
+				headers.add("Dim: " + Integer.toString(i));
 	}
 
 	public void removeClusterInfo() {
