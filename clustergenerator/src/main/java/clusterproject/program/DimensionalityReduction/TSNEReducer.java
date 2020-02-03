@@ -11,7 +11,7 @@ import com.jujutsu.tsne.barneshut.ParallelBHTsne;
 import com.jujutsu.utils.TSneUtils;
 
 import clusterproject.data.PointContainer;
-import clusterproject.program.StartWindow;
+import clusterproject.program.DataView;
 import clusterproject.program.DimensionalityReduction.Panel.TSNEOptions;
 
 public class TSNEReducer implements IReducer {
@@ -58,7 +58,7 @@ public class TSNEReducer implements IReducer {
 		newContainer.addPoints(Y);
 		newContainer.copyInfoFrom(container);
 
-		final StartWindow newWindow = new StartWindow(newContainer);
+		final DataView newWindow = new DataView(newContainer);
 		newWindow.setSize(new Dimension(1000, 800));
 		newWindow.setLocationRelativeTo(null);
 		newWindow.setVisible(true);

@@ -37,11 +37,8 @@ import clusterproject.program.Normalizers.Normalize;
 import clusterproject.program.Normalizers.Standardize;
 import clusterproject.util.FileFilter;
 
-public class StartWindow extends JFrame {
+public class DataView extends JFrame {
 
-	/**
-	 *
-	 */
 	public static final int INNER_SPACE = 4;
 	public static final int OPTIONS_WIDTH = 200;
 
@@ -73,11 +70,12 @@ public class StartWindow extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	public StartWindow() {
+	public DataView() {
 		this(new PointContainer(2));
 	}
 
-	public StartWindow(PointContainer container) {
+	public DataView(PointContainer container) {
+		setTitle("Data-View");
 		pointContainer = container;
 		clusterViewer = new ScatterPlot(pointContainer, true);
 		clusterViewer.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.gray));
@@ -111,7 +109,7 @@ public class StartWindow extends JFrame {
 
 		importButton = new JButton("Import");
 		importButton.addActionListener(e -> {
-			final JFrame importerFrame = new ImporterWindow(pointContainer, StartWindow.this);
+			final JFrame importerFrame = new ImporterWindow(pointContainer, DataView.this);
 			importerFrame.setSize(new Dimension(450, 400));
 			importerFrame.setResizable(false);
 			importerFrame.setLocationRelativeTo(null);
@@ -125,6 +123,7 @@ public class StartWindow extends JFrame {
 			fileChooser.setApproveButtonText("Save");
 			fileChooser.setFileFilter(FileFilter.csvfilter);
 			final JFrame chooserFrame = new JFrame();
+			chooserFrame.setTitle("Export");
 			chooserFrame.add(fileChooser);
 			chooserFrame.setSize(new Dimension(400, 400));
 			chooserFrame.setLocationRelativeTo(null);
@@ -215,15 +214,15 @@ public class StartWindow extends JFrame {
 		mainLayout.putConstraint(SpringLayout.NORTH, scatterMatrixButton, INNER_SPACE, SpringLayout.NORTH, mainPanel);
 		mainLayout.putConstraint(SpringLayout.EAST, scatterMatrixButton, -INNER_SPACE, SpringLayout.WEST, selector);
 
-		mainLayout.putConstraint(SpringLayout.SOUTH, importButton, -INNER_SPACE, SpringLayout.NORTH, clusterButton);
-		mainLayout.putConstraint(SpringLayout.EAST, importButton, -INNER_SPACE, SpringLayout.EAST, mainPanel);
-		mainLayout.putConstraint(SpringLayout.WEST, importButton, -INNER_SPACE - OPTIONS_WIDTH / 2, SpringLayout.EAST,
+		mainLayout.putConstraint(SpringLayout.SOUTH, exportButton, -INNER_SPACE, SpringLayout.NORTH, clusterButton);
+		mainLayout.putConstraint(SpringLayout.EAST, exportButton, -INNER_SPACE, SpringLayout.EAST, mainPanel);
+		mainLayout.putConstraint(SpringLayout.WEST, exportButton, -INNER_SPACE - OPTIONS_WIDTH / 2, SpringLayout.EAST,
 				mainPanel);
 
-		mainLayout.putConstraint(SpringLayout.SOUTH, exportButton, -INNER_SPACE, SpringLayout.NORTH, clusterButton);
-		mainLayout.putConstraint(SpringLayout.EAST, exportButton, -INNER_SPACE - OPTIONS_WIDTH / 2, SpringLayout.EAST,
+		mainLayout.putConstraint(SpringLayout.SOUTH, importButton, -INNER_SPACE, SpringLayout.NORTH, clusterButton);
+		mainLayout.putConstraint(SpringLayout.EAST, importButton, -INNER_SPACE - OPTIONS_WIDTH / 2, SpringLayout.EAST,
 				mainPanel);
-		mainLayout.putConstraint(SpringLayout.WEST, exportButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
+		mainLayout.putConstraint(SpringLayout.WEST, importButton, -INNER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
 				mainPanel);
 
 		mainLayout.putConstraint(SpringLayout.SOUTH, clusterButton, -INNER_SPACE, SpringLayout.SOUTH, mainPanel);

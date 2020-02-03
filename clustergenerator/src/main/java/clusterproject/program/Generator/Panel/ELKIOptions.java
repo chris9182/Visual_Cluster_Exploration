@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import clusterproject.program.StartWindow;
+import clusterproject.program.DataView;
 
 public class ELKIOptions extends JPanel {
 
@@ -37,7 +37,7 @@ public class ELKIOptions extends JPanel {
 
 		final JScrollPane scroll = new JScrollPane(inputStringField, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scroll.setPreferredSize(new Dimension(StartWindow.OPTIONS_WIDTH, DEFAULT_TEXT_HEIGHT));
+		scroll.setPreferredSize(new Dimension(DataView.OPTIONS_WIDTH, DEFAULT_TEXT_HEIGHT));
 
 		add(scroll);
 		// add(Box.createVerticalStrut(5));

@@ -21,7 +21,7 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 
 import clusterproject.data.PointContainer;
-import clusterproject.program.StartWindow;
+import clusterproject.program.DataView;
 import clusterproject.util.MinMax;
 
 public class ScatterPlotMatrix extends JFrame {
@@ -45,7 +45,7 @@ public class ScatterPlotMatrix extends JFrame {
 		pane.setLayout(springLayout);
 		add(pane);
 		mainPane = new JLayeredPane();
-		getContentPane().setBackground(StartWindow.BACKGROUND_COLOR);
+		getContentPane().setBackground(DataView.BACKGROUND_COLOR);
 		mainPane.setBorder(null);
 		pane.add(mainPane, new Integer(20));
 
@@ -121,7 +121,7 @@ public class ScatterPlotMatrix extends JFrame {
 						}
 					} else {
 						final JPanel panel = new JPanel();
-						panel.setBackground(StartWindow.BACKGROUND_COLOR);
+						panel.setBackground(DataView.BACKGROUND_COLOR);
 						panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 						mainPane.add(panel);
 					}

@@ -33,7 +33,7 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import clusterproject.data.ClusteringResult;
-import clusterproject.program.StartWindow;
+import clusterproject.program.DataView;
 import clusterproject.program.Clustering.Parameters.Parameter;
 import clusterproject.program.Slider.RangeSlider;
 import clusterproject.program.Slider.RangeSliderUI;
@@ -80,7 +80,7 @@ public class FilterWindow extends JPanel {
 
 		bucketsMap = new HashMap<String, Integer>();
 		selectors = new HashMap<String, Object>();
-		setBackground(StartWindow.BACKGROUND_COLOR);
+		setBackground(DataView.BACKGROUND_COLOR);
 		setLayout(mainLayout);
 		clusteringBaseResults = new ArrayList<ClusteringResult>(clusteringResults);
 		final List<ClusteringResult> removeTruth = new ArrayList<ClusteringResult>();
@@ -471,7 +471,7 @@ public class FilterWindow extends JPanel {
 			tooltipFrame = new JFrame();
 			tooltipFrame.setType(javax.swing.JFrame.Type.UTILITY);
 			tooltipFrame.setUndecorated(true);
-			tooltipFrame.getContentPane().setBackground(StartWindow.BACKGROUND_COLOR);
+			tooltipFrame.getContentPane().setBackground(DataView.BACKGROUND_COLOR);
 			tooltip.setOpaque(false);
 			tooltipFrame.add(tooltip);
 			tooltip.setText(getTooltipText());

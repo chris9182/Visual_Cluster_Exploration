@@ -6,7 +6,7 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import clusterproject.data.PointContainer;
-import clusterproject.program.StartWindow;
+import clusterproject.program.DataView;
 import clusterproject.program.Normalizers.Panel.DimensionRemoverOptions;
 
 public class DimensionRemover implements IReducer {
@@ -48,7 +48,7 @@ public class DimensionRemover implements IReducer {
 			headers.remove(removeDim);
 		newContainer.setHeaders(headers);
 
-		final StartWindow newWindow = new StartWindow(newContainer);
+		final DataView newWindow = new DataView(newContainer);
 		newWindow.setSize(new Dimension(1000, 800));
 		newWindow.setLocationRelativeTo(null);
 		newWindow.setVisible(true);

@@ -40,7 +40,7 @@ import javax.swing.SwingUtilities;
 
 import clusterproject.data.ClusteringResult;
 import clusterproject.data.PointContainer;
-import clusterproject.program.StartWindow;
+import clusterproject.program.DataView;
 import clusterproject.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.program.ClusterViewerElement.ScatterPlotMatrix;
 import clusterproject.program.Clustering.Parameters.Parameter;
@@ -108,9 +108,9 @@ public class MetaViewer extends JFrame {
 	private final LinkedHashSet<Integer> highlighted = new LinkedHashSet<>();
 	private final AtomicBoolean dohighlight = new AtomicBoolean(true);
 
-	public MetaViewer(List<ClusteringResult> clusterings, IMetaDistanceMeasure metaDistance, int minPTS,
-			double eps) {
-		getContentPane().setBackground(StartWindow.BACKGROUND_COLOR);
+	public MetaViewer(List<ClusteringResult> clusterings, IMetaDistanceMeasure metaDistance, int minPTS, double eps) {
+		setTitle("Meta-View");
+		getContentPane().setBackground(DataView.BACKGROUND_COLOR);
 		this.metaDistance = metaDistance;
 		this.clusterings = clusterings;
 
@@ -177,7 +177,7 @@ public class MetaViewer extends JFrame {
 
 		mainWindowButton = new JButton("Show in Main");
 		mainWindowButton.addActionListener(e -> {
-			final StartWindow newWindow = new StartWindow(visibleViewer.getPointContainer());
+			final DataView newWindow = new DataView(visibleViewer.getPointContainer());
 			newWindow.setSize(new Dimension(1000, 800));
 			newWindow.setLocationRelativeTo(null);
 			newWindow.setVisible(true);
@@ -185,7 +185,7 @@ public class MetaViewer extends JFrame {
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, mainWindowButton, 0, SpringLayout.VERTICAL_CENTER,
 				clustereringSelector);
-		layout.putConstraint(SpringLayout.WEST, mainWindowButton, StartWindow.INNER_SPACE, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.WEST, mainWindowButton, DataView.INNER_SPACE, SpringLayout.EAST,
 				clustereringSelector);
 		mainPanel.add(mainWindowButton, new Integer(1));
 
@@ -199,7 +199,7 @@ public class MetaViewer extends JFrame {
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, scatterMatrixButton, 0, SpringLayout.VERTICAL_CENTER,
 				mainWindowButton);
-		layout.putConstraint(SpringLayout.WEST, scatterMatrixButton, StartWindow.INNER_SPACE, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.WEST, scatterMatrixButton, DataView.INNER_SPACE, SpringLayout.EAST,
 				mainWindowButton);
 		mainPanel.add(scatterMatrixButton, new Integer(1));
 
@@ -212,6 +212,7 @@ public class MetaViewer extends JFrame {
 			fileChooser.setApproveButtonText("Save");
 			fileChooser.setFileFilter(FileFilter.crffilter);
 			final JFrame chooserFrame = new JFrame();
+			chooserFrame.setTitle("Save");
 			chooserFrame.add(fileChooser);
 			chooserFrame.setSize(new Dimension(400, 400));
 			chooserFrame.setLocationRelativeTo(null);
@@ -247,7 +248,7 @@ public class MetaViewer extends JFrame {
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, saveButton, 0, SpringLayout.VERTICAL_CENTER,
 				scatterMatrixButton);
-		layout.putConstraint(SpringLayout.WEST, saveButton, StartWindow.INNER_SPACE, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.WEST, saveButton, DataView.INNER_SPACE, SpringLayout.EAST,
 				scatterMatrixButton);
 		mainPanel.add(saveButton, new Integer(1));
 
@@ -305,13 +306,12 @@ public class MetaViewer extends JFrame {
 		});
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, consFuncSelector, 0, SpringLayout.VERTICAL_CENTER,
 				saveButton);
-		layout.putConstraint(SpringLayout.WEST, consFuncSelector, StartWindow.INNER_SPACE, SpringLayout.EAST,
-				saveButton);
+		layout.putConstraint(SpringLayout.WEST, consFuncSelector, DataView.INNER_SPACE, SpringLayout.EAST, saveButton);
 		mainPanel.add(consFuncSelector, new Integer(1));
 
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, consensusButton, 0, SpringLayout.VERTICAL_CENTER,
 				consFuncSelector);
-		layout.putConstraint(SpringLayout.WEST, consensusButton, StartWindow.INNER_SPACE, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.WEST, consensusButton, DataView.INNER_SPACE, SpringLayout.EAST,
 				consFuncSelector);
 		mainPanel.add(consensusButton, new Integer(1));
 

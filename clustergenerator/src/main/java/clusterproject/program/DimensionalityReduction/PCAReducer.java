@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import javax.swing.JPanel;
 
 import clusterproject.data.PointContainer;
-import clusterproject.program.StartWindow;
+import clusterproject.program.DataView;
 import clusterproject.program.DimensionalityReduction.Panel.PCAOptions;
 import smile.projection.PCA;
 
@@ -43,7 +43,7 @@ public class PCAReducer implements IReducer {
 		newContainer.addPoints(result);
 		newContainer.copyInfoFrom(container);
 
-		final StartWindow newWindow = new StartWindow(newContainer);
+		final DataView newWindow = new DataView(newContainer);
 		newWindow.setSize(new Dimension(1000, 800));
 		newWindow.setLocationRelativeTo(null);
 		newWindow.setVisible(true);

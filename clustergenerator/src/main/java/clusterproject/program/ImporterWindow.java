@@ -41,9 +41,9 @@ public class ImporterWindow extends JFrame {
 	private final JFormattedTextField labelIndexField;
 	private File selectedFile;
 	private PointContainer pointContainer;
-	StartWindow update;
+	DataView update;
 
-	public ImporterWindow(PointContainer pointContainer, StartWindow update) {
+	public ImporterWindow(PointContainer pointContainer, DataView update) {
 		setTitle("Import");
 		this.update = update;
 		this.pointContainer = pointContainer;

@@ -117,6 +117,7 @@ public class ClusterWorkflow extends JFrame {
 	private Thread worker;
 
 	public ClusterWorkflow(PointContainer container) {
+		setTitle("Workflow-View");
 		final NumberFormat integerFieldFormatter = NumberFormat.getIntegerInstance();
 		integerFieldFormatter.setGroupingUsed(false);
 		addGroundTruthBox = new JCheckBox("Add ground truth", DEFAULT_ADD_GROUND_TRUTH);
@@ -144,7 +145,7 @@ public class ClusterWorkflow extends JFrame {
 
 		add(mainPanel);
 
-		getContentPane().setBackground(StartWindow.BACKGROUND_COLOR);
+		getContentPane().setBackground(DataView.BACKGROUND_COLOR);
 
 		workflow = new ArrayList<IClusterer>();
 		layout = new SpringLayout();
@@ -164,7 +165,7 @@ public class ClusterWorkflow extends JFrame {
 		mainPanel.add(clustererSelector, new Integer(1));
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, clustererSelector, 0, SpringLayout.VERTICAL_CENTER,
 				addLabel);
-		layout.putConstraint(SpringLayout.WEST, clustererSelector, 2 * StartWindow.INNER_SPACE, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.WEST, clustererSelector, 2 * DataView.INNER_SPACE, SpringLayout.EAST,
 				addLabel);
 
 		clustererSelector.addActionListener(e -> openClustererSettings((String) clustererSelector.getSelectedItem()));
@@ -188,6 +189,7 @@ public class ClusterWorkflow extends JFrame {
 			fileChooser.addChoosableFileFilter(FileFilter.crffilter);
 			fileChooser.setFileFilter(FileFilter.crffilter);
 			final JFrame chooserFrame = new JFrame();
+			chooserFrame.setTitle("Load");
 			chooserFrame.add(fileChooser);
 			chooserFrame.setSize(new Dimension(400, 400));
 			chooserFrame.setLocationRelativeTo(null);
@@ -227,12 +229,12 @@ public class ClusterWorkflow extends JFrame {
 
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, progressBar, 0, SpringLayout.VERTICAL_CENTER,
 				executeClusterersButton);
-		layout.putConstraint(SpringLayout.EAST, progressBar, -StartWindow.INNER_SPACE, SpringLayout.WEST,
+		layout.putConstraint(SpringLayout.EAST, progressBar, -DataView.INNER_SPACE, SpringLayout.WEST,
 				executeClusterersButton);
 		mainPanel.add(progressBar, new Integer(1));
 		progressBar.setVisible(false);
 
-		layout.putConstraint(SpringLayout.SOUTH, distanceSelector, -StartWindow.INNER_SPACE, SpringLayout.NORTH,
+		layout.putConstraint(SpringLayout.SOUTH, distanceSelector, -DataView.INNER_SPACE, SpringLayout.NORTH,
 				executeClusterersButton);
 		layout.putConstraint(SpringLayout.EAST, distanceSelector, 0, SpringLayout.EAST, executeClusterersButton);
 		mainPanel.add(distanceSelector, new Integer(1));
@@ -243,7 +245,7 @@ public class ClusterWorkflow extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, minPtsLabel, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 		mainPanel.add(minPtsLabel, new Integer(1));
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, minPTSField, 0, SpringLayout.VERTICAL_CENTER, minPtsLabel);
-		layout.putConstraint(SpringLayout.WEST, minPTSField, StartWindow.INNER_SPACE, SpringLayout.EAST, minPtsLabel);
+		layout.putConstraint(SpringLayout.WEST, minPTSField, DataView.INNER_SPACE, SpringLayout.EAST, minPtsLabel);
 		mainPanel.add(minPTSField, new Integer(1));
 
 		final JLabel seedLabel = new JLabel("Seed:");
@@ -251,7 +253,7 @@ public class ClusterWorkflow extends JFrame {
 		layout.putConstraint(SpringLayout.WEST, seedLabel, OUTER_SPACE, SpringLayout.EAST, minPTSField);
 		mainPanel.add(seedLabel, new Integer(1));
 		layout.putConstraint(SpringLayout.VERTICAL_CENTER, seedField, 0, SpringLayout.VERTICAL_CENTER, seedLabel);
-		layout.putConstraint(SpringLayout.WEST, seedField, StartWindow.INNER_SPACE, SpringLayout.EAST, seedLabel);
+		layout.putConstraint(SpringLayout.WEST, seedField, DataView.INNER_SPACE, SpringLayout.EAST, seedLabel);
 		mainPanel.add(seedField, new Integer(1));
 //		seedField
 
@@ -288,6 +290,7 @@ public class ClusterWorkflow extends JFrame {
 			fileChooser.setApproveButtonText("Save");
 			fileChooser.setFileFilter(FileFilter.cwffilter);
 			final JFrame chooserFrame = new JFrame();
+			chooserFrame.setTitle("Save");
 			chooserFrame.add(fileChooser);
 			chooserFrame.setSize(new Dimension(400, 400));
 			chooserFrame.setLocationRelativeTo(null);
@@ -316,8 +319,8 @@ public class ClusterWorkflow extends JFrame {
 			});
 		});
 		layout.putConstraint(SpringLayout.SOUTH, saveButton, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
-		layout.putConstraint(SpringLayout.WEST, saveButton,
-				(-OPTIONS_WIDTH + StartWindow.INNER_SPACE) / 2 - OUTER_SPACE, SpringLayout.EAST, mainPanel);
+		layout.putConstraint(SpringLayout.WEST, saveButton, (-OPTIONS_WIDTH + DataView.INNER_SPACE) / 2 - OUTER_SPACE,
+				SpringLayout.EAST, mainPanel);
 		layout.putConstraint(SpringLayout.EAST, saveButton, -OUTER_SPACE, SpringLayout.EAST, mainPanel);
 		mainPanel.add(saveButton, new Integer(1));
 
@@ -353,14 +356,14 @@ public class ClusterWorkflow extends JFrame {
 			});
 		});
 		layout.putConstraint(SpringLayout.SOUTH, loadButton, -OUTER_SPACE, SpringLayout.SOUTH, mainPanel);
-		layout.putConstraint(SpringLayout.WEST, loadButton, (-OPTIONS_WIDTH - StartWindow.INNER_SPACE) / 2,
+		layout.putConstraint(SpringLayout.WEST, loadButton, (-OPTIONS_WIDTH - DataView.INNER_SPACE) / 2,
 				SpringLayout.WEST, saveButton);
-		layout.putConstraint(SpringLayout.EAST, loadButton, -StartWindow.INNER_SPACE, SpringLayout.WEST, saveButton);
+		layout.putConstraint(SpringLayout.EAST, loadButton, -DataView.INNER_SPACE, SpringLayout.WEST, saveButton);
 		mainPanel.add(loadButton, new Integer(1));
 
 		confirmClustererButton = new JButton("Confirm");
 		confirmClustererButton.addActionListener(e -> addToWorkflow());
-		layout.putConstraint(SpringLayout.SOUTH, confirmClustererButton, -StartWindow.INNER_SPACE, SpringLayout.NORTH,
+		layout.putConstraint(SpringLayout.SOUTH, confirmClustererButton, -DataView.INNER_SPACE, SpringLayout.NORTH,
 				loadButton);
 		layout.putConstraint(SpringLayout.WEST, confirmClustererButton, -OPTIONS_WIDTH - OUTER_SPACE, SpringLayout.EAST,
 				mainPanel);
@@ -658,7 +661,7 @@ public class ClusterWorkflow extends JFrame {
 		layout.putConstraint(SpringLayout.NORTH, options, OUTER_SPACE, SpringLayout.NORTH, mainPanel);
 		layout.putConstraint(SpringLayout.EAST, options, -OUTER_SPACE, SpringLayout.EAST, mainPanel);
 		layout.putConstraint(SpringLayout.WEST, options, -OUTER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST, mainPanel);
-		layout.putConstraint(SpringLayout.SOUTH, options, -StartWindow.INNER_SPACE, SpringLayout.NORTH,
+		layout.putConstraint(SpringLayout.SOUTH, options, -DataView.INNER_SPACE, SpringLayout.NORTH,
 				confirmClustererButton);
 
 		options.setVisible(true);
@@ -695,7 +698,7 @@ public class ClusterWorkflow extends JFrame {
 		wfScrollPane.getViewport().setOpaque(false);
 		wfPanel.setOpaque(false);
 
-		layout.putConstraint(SpringLayout.NORTH, wfScrollPane, StartWindow.INNER_SPACE, SpringLayout.SOUTH, wfLabel);
+		layout.putConstraint(SpringLayout.NORTH, wfScrollPane, DataView.INNER_SPACE, SpringLayout.SOUTH, wfLabel);
 		layout.putConstraint(SpringLayout.SOUTH, wfScrollPane, -OUTER_SPACE, SpringLayout.NORTH, distanceSelector);
 		layout.putConstraint(SpringLayout.WEST, wfScrollPane, OUTER_SPACE, SpringLayout.WEST, mainPanel);
 		layout.putConstraint(SpringLayout.EAST, wfScrollPane, -2 * OUTER_SPACE - OPTIONS_WIDTH, SpringLayout.EAST,
@@ -708,18 +711,18 @@ public class ClusterWorkflow extends JFrame {
 			final JButton remove = new JButton("X");
 			remove.addActionListener(e -> removeFromWorkflow(clusterer));
 			wfPanel.add(remove);
-			wfLayout.putConstraint(SpringLayout.NORTH, remove, StartWindow.INNER_SPACE, SpringLayout.SOUTH, alignment);
-			wfLayout.putConstraint(SpringLayout.WEST, remove, StartWindow.INNER_SPACE, SpringLayout.WEST, wfPanel);
+			wfLayout.putConstraint(SpringLayout.NORTH, remove, DataView.INNER_SPACE, SpringLayout.SOUTH, alignment);
+			wfLayout.putConstraint(SpringLayout.WEST, remove, DataView.INNER_SPACE, SpringLayout.WEST, wfPanel);
 			final JLabel label = new JLabel(clusterer.getName() + ": " + clusterer.getSettingsString());
 			wfLayout.putConstraint(SpringLayout.VERTICAL_CENTER, label, 0, SpringLayout.VERTICAL_CENTER, remove);
-			wfLayout.putConstraint(SpringLayout.WEST, label, StartWindow.INNER_SPACE, SpringLayout.EAST, remove);
+			wfLayout.putConstraint(SpringLayout.WEST, label, DataView.INNER_SPACE, SpringLayout.EAST, remove);
 			wfPanel.add(label);
 
 			alignment = remove;
 		}
 
-		wfPanel.setPreferredSize(new Dimension(0, StartWindow.INNER_SPACE
-				+ workflow.size() * (StartWindow.INNER_SPACE + executeClusterersButton.getHeight())));
+		wfPanel.setPreferredSize(new Dimension(0,
+				DataView.INNER_SPACE + workflow.size() * (DataView.INNER_SPACE + executeClusterersButton.getHeight())));
 		mainPanel.add(wfScrollPane, new Integer(1));
 		SwingUtilities.invokeLater(() -> {
 			revalidate();

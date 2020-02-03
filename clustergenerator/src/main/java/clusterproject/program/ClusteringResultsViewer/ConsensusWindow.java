@@ -8,7 +8,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.SpringLayout;
 
 import clusterproject.data.PointContainer;
-import clusterproject.program.StartWindow;
+import clusterproject.program.DataView;
 import clusterproject.program.ClusterViewerElement.ScatterPlot;
 import clusterproject.program.Consensus.CoAssociationMatrixAverageLink;
 
@@ -21,7 +21,7 @@ public class ConsensusWindow extends JFrame {
 
 	public ConsensusWindow(MetaViewer clusteringViewer) {
 		add(mainPanel);
-		getContentPane().setBackground(StartWindow.BACKGROUND_COLOR);
+		getContentPane().setBackground(DataView.BACKGROUND_COLOR);
 		mainPanel.setLayout(mainLayout);
 		final JLabel betaLabel = new JLabel(
 				"BETA - should work well in most cases (magic threshhold in CoAssociationMatrixAverageLink.java)");

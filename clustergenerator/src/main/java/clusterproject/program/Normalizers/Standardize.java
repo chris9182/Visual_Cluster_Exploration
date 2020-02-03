@@ -5,7 +5,7 @@ import java.awt.Dimension;
 import javax.swing.JPanel;
 
 import clusterproject.data.PointContainer;
-import clusterproject.program.StartWindow;
+import clusterproject.program.DataView;
 import clusterproject.program.Normalizers.Panel.StandardizeOptions;
 
 public class Standardize implements INormalizer {
@@ -74,7 +74,7 @@ public class Standardize implements INormalizer {
 		newContainer.copyInfoFrom(container);
 		newContainer.setHeaders(container.getHeaders());
 
-		final StartWindow newWindow = new StartWindow(newContainer);
+		final DataView newWindow = new DataView(newContainer);
 		newWindow.setSize(new Dimension(1000, 800));
 		newWindow.setLocationRelativeTo(null);
 		newWindow.setVisible(true);

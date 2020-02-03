@@ -9,7 +9,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import clusterproject.program.StartWindow;
+import clusterproject.program.DataView;
 import clusterproject.util.MinMax;
 import clusterproject.util.Util;
 import smile.stat.distribution.KernelDensity;
@@ -25,7 +25,7 @@ public class KernelDensityPlot extends JPanel {
 	private final int pointCount;
 
 	public KernelDensityPlot(double[][] data, int[] colors) {
-		setBackground(StartWindow.BACKGROUND_COLOR);
+		setBackground(DataView.BACKGROUND_COLOR);
 		this.data = data;
 		this.colors = colors;
 		final List<Double> points = new ArrayList<Double>(data.length > 0 ? data[0].length : 1);
