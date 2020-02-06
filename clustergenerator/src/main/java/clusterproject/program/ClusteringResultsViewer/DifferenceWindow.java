@@ -52,8 +52,9 @@ public class DifferenceWindow extends JFrame {
 			if (c1IDs.get(i) != idMapc2.get(point)) {
 				intersection.getClusterInformation().addClusterID(-1);
 				filtered.add(i);
-			} else
+			} else {
 				intersection.getClusterInformation().addClusterID(-2);
+			}
 		}
 		final int differentCount = filtered.size();
 		setTitle(((float) ((double) differentCount / size) * 100) + "% Different");

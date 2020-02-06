@@ -21,11 +21,11 @@ public class ELKIOptions extends JPanel {
 	private final JCheckBox addBox;
 	private static final int DEFAULT_TEXT_HEIGHT = 400;
 	private static final String DEFAULT_TEXT = "<dataset random-seed=\"5\">\r\n"
-			+ "  <cluster name=\"Cluster1\" size=\"50\">\r\n" + "    <normal mean=\"0.1\" stddev=\"0.02\" />\r\n"
+			+ "  <cluster name=\"c1\" size=\"50\">\r\n" + "    <normal mean=\"0.1\" stddev=\"0.02\" />\r\n"
 			+ "    <normal mean=\"0.1\" stddev=\"0.02\" />\r\n" + "  </cluster>\r\n"
-			+ "  <cluster name=\"Cluster2\" size=\"50\">\r\n" + "    <normal mean=\"0.28\" stddev=\"0.08\" />\r\n"
+			+ "  <cluster name=\"c2\" size=\"50\">\r\n" + "    <normal mean=\"0.28\" stddev=\"0.08\" />\r\n"
 			+ "    <normal mean=\"0.28\" stddev=\"0.08\" />\r\n" + "  </cluster>\r\n"
-			+ "  <cluster name=\"Cluster3\" size=\"50\">\r\n" + "    <normal mean=\"0.65\" stddev=\"0.13\" />\r\n"
+			+ "  <cluster name=\"c3\" size=\"50\">\r\n" + "    <normal mean=\"0.65\" stddev=\"0.13\" />\r\n"
 			+ "    <normal mean=\"0.65\" stddev=\"0.13\" />\r\n" + "  </cluster>\r\n" + "</dataset>";
 
 	public ELKIOptions() {

@@ -11,7 +11,7 @@ public class ClusterInformation {
 	private List<Integer> clusterIDs;
 	Map<Integer, Integer> idMap = null;
 	private final PointContainer pointContainer;
-	private int noiseIndex = -1;
+	private int noiseIndex = -3;
 
 	public ClusterInformation(PointContainer pointContainer) {
 		this.pointContainer = pointContainer;
