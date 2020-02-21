@@ -254,4 +254,16 @@ public class PointContainer {
 
 	}
 
+	public Map<double[], Integer> getOriginalLabelMapWithoutNoise() {
+		if (clusterInformation == null || !clusterInformation.hasClusters())
+			return null;
+		final Map<double[], Integer> assignments = new HashMap<double[], Integer>(points.size());
+		for (int i = 0; i < points.size(); ++i)
+			if (clusterInformation.getOriginalClusterIDs().get(i) == clusterInformation.getNoiseIndex())
+				assignments.put(points.get(i), null);
+			else
+				assignments.put(points.get(i), clusterInformation.getOriginalClusterIDs().get(i));
+		return assignments;
+	}
+
 }

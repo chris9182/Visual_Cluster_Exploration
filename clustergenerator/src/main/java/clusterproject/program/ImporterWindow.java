@@ -240,6 +240,8 @@ public class ImporterWindow extends JFrame {
 					try {
 						point[index] = format.parse(record.get(i)).doubleValue();
 					} catch (final Exception e) {
+						System.err.println(e);
+						System.err.println(record.toString());
 						point[index] = Double.NaN;
 					}
 				}

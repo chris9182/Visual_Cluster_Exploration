@@ -746,14 +746,14 @@ public class ClusterWorkflow extends JFrame {
 	}
 
 	private static void initClusterers() {
-		clusterersELKI.add(new DBScan());
-		clusterersELKI.add(new DiSHClustering());
-		clusterersELKI.add(new SNN());
-		// clusterers.add(new CLIQUEClustering());//XXX this is bugged
 		clusterersELKI.add(new LloydKMeans());
 		clusterersELKI.add(new MacQueenKMeans());
 		clusterersELKI.add(new LloydKMeadians());
+		clusterersELKI.add(new DBScan());
+		clusterersELKI.add(new DiSHClustering());
+		clusterersELKI.add(new SNN());
 		clusterersELKI.add(new EMClustering());
+		// clusterers.add(new CLIQUEClustering());//XXX this is bugged
 
 		clusterersOther.add(new SpectralClustering());
 

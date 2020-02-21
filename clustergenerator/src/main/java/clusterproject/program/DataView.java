@@ -90,7 +90,7 @@ public class DataView extends JFrame {
 		clusterButton = new JButton("Clustering");
 		clusterButton.addActionListener(e -> {
 			final ClusterWorkflow cw = new ClusterWorkflow(pointContainer);
-			cw.setSize(new Dimension(800, 600));
+			cw.setSize(new Dimension(1100, 800));
 			cw.setExtendedState(Frame.MAXIMIZED_BOTH);
 			cw.setLocationRelativeTo(null);
 			cw.setVisible(true);
