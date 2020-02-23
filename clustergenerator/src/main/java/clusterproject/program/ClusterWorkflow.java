@@ -414,8 +414,8 @@ public class ClusterWorkflow extends JFrame {
 			final FileInputStream fileIn = new FileInputStream(selectedFile);
 			final ObjectInputStream in = new HackedObjectInputStream(fileIn);
 			final List<ClusteringResult> sClusterings = (List<ClusteringResult>) in.readObject();
-
-			openClusterViewer(sClusterings);
+			boolean addGroundTruth = addGroundTruthBox.isSelected();
+			openClusterViewer(sClusterings, addGroundTruth);
 			in.close();
 			fileIn.close();
 		} catch (final IOException i) {
@@ -497,7 +497,7 @@ public class ClusterWorkflow extends JFrame {
 				}
 			}
 			progressBar.setString("Converting Results");
-			if (pointContainer.hasClusters() && addGroundTruth) {
+			if (pointContainer.hasClusters()) {
 				final Relation<NumberVector> rel = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 
 				final List<List<NumberVector>> pointList = new ArrayList<List<NumberVector>>();
@@ -604,14 +604,14 @@ public class ClusterWorkflow extends JFrame {
 //			final List<ClusteringResult> dedup = Util.removeDuplicates(sClusterings);
 			progressBar.setString("Calculating Meta");
 //			openClusterViewer(dedup);
-			openClusterViewer(sClusterings);
+			openClusterViewer(sClusterings, addGroundTruth);
 			progressBar.setString("Done");
 		});
 		worker.start();
 
 	}
 
-	private void openClusterViewer(List<ClusteringResult> clusterings) {
+	private void openClusterViewer(List<ClusteringResult> clusterings, boolean addGroundTruth) {
 		final NumberFormat format = NumberFormat.getInstance();
 		Number number = null;
 		try {
@@ -625,8 +625,13 @@ public class ClusterWorkflow extends JFrame {
 			minPTS = 2;
 		if (number != null)
 			eps = number.doubleValue() < 0 ? Double.MAX_VALUE : number.doubleValue();
-
-		final MetaViewer cv = new MetaViewer(clusterings, getDistanceMeasure(), minPTS, eps);
+		ClusteringResult gt = null;
+		if (clusterings.get(0).getParameter().getName().contentEquals(Parameter.GROUND_TRUTH)) {
+			gt = clusterings.get(0);
+			if (!addGroundTruth)
+				clusterings.remove(0);
+		}
+		final MetaViewer cv = new MetaViewer(gt, clusterings, getDistanceMeasure(), minPTS, eps);
 		cv.setMinimumSize(new Dimension(800, 600));
 		cv.setExtendedState(Frame.MAXIMIZED_BOTH);
 		cv.setLocationRelativeTo(null);

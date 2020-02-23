@@ -35,6 +35,7 @@ public class OpticsPlot extends JLayeredPane {
 
 	private final static int BAR_OFFSET = 20;
 	private static final int LABLE_OFFSET = 5;
+	public static final boolean DEBUG_FORCE_SHOW_TOOLTIP = false;
 
 	private final OpticsResult<?> clusteringList;
 	private final JPanel opticsBars;
@@ -220,6 +221,7 @@ public class OpticsPlot extends JLayeredPane {
 
 				@Override
 				public void mouseMoved(MouseEvent e) {
+
 					final int width = getWidth();
 					final int length = clusteredList.size();
 					final double singleWidth = width / (double) length;
@@ -227,14 +229,15 @@ public class OpticsPlot extends JLayeredPane {
 					final int myid = plot.getInIndex(selected);
 					final Double dist = plot.getDistanceToTruth(myid);
 
-					if (!dist.equals(Double.NaN)) {
+					if (!dist.equals(Double.NaN) || DEBUG_FORCE_SHOW_TOOLTIP) {
 						if (Math.abs(dist) < Double.MIN_NORMAL)
 							setToolTipText("<html>" + "Equal to Ground Truth" + "</html>");
 						else
 							setToolTipText("<html>" + "Distance to Ground Truth: "
 									+ Float.toString((float) (double) dist) + "<br> NMI: "
 									+ Float.toString((float) (double) plot.getNMIToTruth(myid)) + "</html>");
-					}
+					} else
+						setToolTipText(null);
 				}
 			};
 			addMouseListener(listener);

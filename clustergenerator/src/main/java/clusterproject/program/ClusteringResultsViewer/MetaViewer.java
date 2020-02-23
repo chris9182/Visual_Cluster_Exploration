@@ -106,9 +106,16 @@ public class MetaViewer extends JFrame {
 	private Set<Integer> filteredIndexes;
 	private final LinkedHashSet<Integer> highlighted = new LinkedHashSet<>();
 	private final AtomicBoolean dohighlight = new AtomicBoolean(true);
+	private ClusteringResult mainResult;
 
-	public MetaViewer(List<ClusteringResult> clusterings, IMetaDistanceMeasure metaDistance, int minPTS, double eps) {
+	private PointContainer mainPointContainer;
+
+	public MetaViewer(ClusteringResult gt, List<ClusteringResult> clusterings, IMetaDistanceMeasure metaDistance,
+			int minPTS, double eps) {
 		setTitle("Meta-View");
+		this.mainResult = gt;
+		if (gt != null)
+			mainPointContainer = mainResult.toPointContainer();
 		getContentPane().setBackground(DataView.BACKGROUND_COLOR);
 		this.metaDistance = metaDistance;
 		this.clusterings = clusterings;
@@ -296,7 +303,7 @@ public class MetaViewer extends JFrame {
 					;
 				if (groundTruth >= 0)
 					results.add(0, clusterings.get(groundTruth));
-				final MetaViewer newWindow = new MetaViewer(results, metaDistance, minPTS, eps);
+				final MetaViewer newWindow = new MetaViewer(gt, results, metaDistance, minPTS, eps);
 				newWindow.setSize(new Dimension(1000, 800));
 				newWindow.setLocationRelativeTo(null);
 				newWindow.setVisible(true);
@@ -858,8 +865,12 @@ public class MetaViewer extends JFrame {
 	}
 
 	public Double getNMIToTruth(int i) {
+
 		if (groundTruth < 0)
-			return Double.NaN;
+			if (mainResult != null)
+				return NMI.calc(mainPointContainer, viewers[i].getPointContainer());
+			else
+				return Double.NaN;
 		return Parameter.getParameterDoubleValue(clusterings.get(i).getParameter().get("NMI"));
 	}
 
