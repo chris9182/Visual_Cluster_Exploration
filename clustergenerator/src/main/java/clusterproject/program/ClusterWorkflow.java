@@ -626,11 +626,13 @@ public class ClusterWorkflow extends JFrame {
 		if (number != null)
 			eps = number.doubleValue() < 0 ? Double.MAX_VALUE : number.doubleValue();
 		ClusteringResult gt = null;
-		if (clusterings.get(0).getParameter().getName().contentEquals(Parameter.GROUND_TRUTH)) {
-			gt = clusterings.get(0);
-			if (!addGroundTruth)
-				clusterings.remove(0);
-		}
+		for (int i = 0; i < clusterings.size(); ++i)
+			if (clusterings.get(i).getParameter().getName().equals(Parameter.GROUND_TRUTH)) {
+				gt = clusterings.get(i);
+				if (!addGroundTruth)
+					clusterings.remove(i);
+				break;
+			}
 		final MetaViewer cv = new MetaViewer(gt, clusterings, getDistanceMeasure(), minPTS, eps);
 		cv.setMinimumSize(new Dimension(800, 600));
 		cv.setExtendedState(Frame.MAXIMIZED_BOTH);

@@ -526,6 +526,19 @@ public class MetaViewer extends JFrame {
 
 		}
 
+		for (final ClusteringResult result : clusterings) {
+			int minSize = Integer.MAX_VALUE;
+			int totalSize = 0;
+			for (final double[][] cluster : result.getData()) {
+				if (minSize > cluster.length)
+					minSize = cluster.length;
+				totalSize += cluster.length;
+
+				result.getParameter().addAdditionalParameter("Min Cluster Size %", minSize / (double) totalSize);
+			}
+
+		}
+
 		// for (final ClusteringResult result : clusterings) {
 		// int length = 0;
 		// int size = 0;
