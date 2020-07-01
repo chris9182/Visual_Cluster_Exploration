@@ -8,15 +8,13 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 
-import clusterproject.data.ClusteringResult;
 import clusterproject.program.MetaClustering.OpticsResult;
 import smile.math.Math;
 
 public class CoAssociationHeatMap extends HeatMap {
 	private static final long serialVersionUID = -3268593863313504815L;
 
-	public CoAssociationHeatMap(double[][] distances, MetaViewer clusteringViewer,
-			OpticsResult<ClusteringResult> clusteringList) {
+	public CoAssociationHeatMap(double[][] distances, MetaViewer clusteringViewer, OpticsResult clusteringList) {
 		super(distances, clusteringViewer, clusteringList);
 
 		heatMap.add(new HeatMapDataPainter(this, distances, maxDistance));

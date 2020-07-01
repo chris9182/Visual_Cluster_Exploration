@@ -11,7 +11,6 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 
-import clusterproject.data.ClusteringResult;
 import clusterproject.program.MetaClustering.OpticsResult;
 import clusterproject.util.Util;
 import smile.math.Math;
@@ -19,8 +18,7 @@ import smile.math.Math;
 public class ClusterDistanceHeatMap extends HeatMap {
 	private static final long serialVersionUID = -3268593863313504815L;
 
-	public ClusterDistanceHeatMap(double[][] distances, MetaViewer clusteringViewer,
-			OpticsResult<ClusteringResult> clusteredList) {
+	public ClusterDistanceHeatMap(double[][] distances, MetaViewer clusteringViewer, OpticsResult clusteredList) {
 		super(distances, clusteringViewer, clusteredList);
 
 		heatMap.add(new HeatMapDataPainter(this, distances, maxDistance));

@@ -37,7 +37,7 @@ public class OpticsPlot extends JLayeredPane {
 	private static final int LABLE_OFFSET = 5;
 	public static final boolean DEBUG_FORCE_SHOW_TOOLTIP = false;
 
-	private final OpticsResult<?> clusteringList;
+	private final OpticsResult clusteringList;
 	private final JPanel opticsBars;
 	private final SpringLayout layout;
 	private double threshhold = -Double.MIN_NORMAL;
@@ -46,14 +46,14 @@ public class OpticsPlot extends JLayeredPane {
 	private final JButton setHistogramDataButton;
 	private final Map<Integer, Integer> indexMap;
 
-	public OpticsPlot(MetaViewer clusteringViewer, OpticsResult<?> clusteredList) {
+	public OpticsPlot(MetaViewer clusteringViewer, OpticsResult clusteredList) {
 		this.clusteringViewer = clusteringViewer;
 		this.clusteringList = clusteredList;
 		layout = new SpringLayout();
 		setLayout(layout);
 		this.indexMap = new HashMap<Integer, Integer>();
 		int key = 0;
-		for (final OpticsContainer<?> clu : clusteredList)
+		for (final OpticsContainer clu : clusteredList)
 			indexMap.put(key++, clu.inIndex);
 		setOpaque(false);
 		setHistogramDataButton = new JButton("Clusters to Histogram");
@@ -64,7 +64,12 @@ public class OpticsPlot extends JLayeredPane {
 		add(setHistogramDataButton, new Integer(22));
 		layout.putConstraint(SpringLayout.NORTH, setHistogramDataButton, 0, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.EAST, setHistogramDataButton, 0, SpringLayout.EAST, this);
-		setHistogramDataButton.setBackground(new Color(255, 255, 255, 0));// color doesnt matter just for transparancy
+		setHistogramDataButton.setBackground(new Color(255, 255, 255, 0));// color
+																			// doesnt
+																			// matter
+																			// just
+																			// for
+																			// transparancy
 		// to kick in
 		setHistogramDataButton.setOpaque(false);
 		setHistogramDataButton.setFocusable(false);
@@ -128,12 +133,14 @@ public class OpticsPlot extends JLayeredPane {
 	}
 
 	private void adaptHistogramData() {
+		List<ClusteringResult> allClusterings = clusteringViewer.getClusterings();
 		final List<ClusteringResult> newData = new ArrayList<ClusteringResult>();
-		if (!clusteringList.isEmpty() && !(clusteringList.get(0).getObject() instanceof ClusteringResult))
+		if (!clusteringList.isEmpty()
+				&& !(allClusterings.get(clusteringList.get(0).inIndex) instanceof ClusteringResult))
 			return;
-		for (final OpticsContainer<?> c : clusteringList)
+		for (final OpticsContainer c : clusteringList)
 			if (c.tag >= 0)
-				newData.add((ClusteringResult) c.getObject());
+				newData.add(allClusterings.get(c.inIndex));
 		// if (newData.size() == clusteringList.size())
 		// clusteringViewer.setHistogramData(newData, "All Clusterings");
 		// else
@@ -197,14 +204,14 @@ public class OpticsPlot extends JLayeredPane {
 		private final static int INNER_SPACE = 2;
 		private final static int BORDER_MIN_SIZE = 2;
 		final OpticsPlot plot;
-		final OpticsResult<?> clusteringList;
+		final OpticsResult clusteringList;
 		final List<Double> percentages;
 
-		public OpticsDataPainter(OpticsPlot plot, OpticsResult<?> clusteredList) {
+		public OpticsDataPainter(OpticsPlot plot, OpticsResult clusteredList) {
 			this.plot = plot;
 			this.clusteringList = clusteredList;
 			percentages = new ArrayList<Double>();
-			for (final OpticsContainer<?> clu : clusteredList)
+			for (final OpticsContainer clu : clusteredList)
 				percentages.add(Math.min(clu.distance / max, 1));
 			final MouseAdapter listener = new MouseAdapter() {
 				@Override

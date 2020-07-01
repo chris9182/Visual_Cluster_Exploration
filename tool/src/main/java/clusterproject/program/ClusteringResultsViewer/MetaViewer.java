@@ -53,8 +53,8 @@ import clusterproject.program.Consensus.IConsensusFunction;
 import clusterproject.program.MetaClustering.DistanceCalculation;
 import clusterproject.program.MetaClustering.HungarianAlgorithm;
 import clusterproject.program.MetaClustering.IMetaDistanceMeasure;
+import clusterproject.program.MetaClustering.OpticsClustering;
 import clusterproject.program.MetaClustering.OpticsContainer;
-import clusterproject.program.MetaClustering.OpticsMetaClustering;
 import clusterproject.program.MetaClustering.OpticsResult;
 import clusterproject.util.FileUtils;
 import clusterproject.util.NMI;
@@ -79,7 +79,7 @@ public class MetaViewer extends JFrame {
 	private final double[][] distanceMatrix;
 	private final List<ClusteringResult> clusterings;
 
-	private final OpticsResult<ClusteringResult> clusteredList;
+	private final OpticsResult clusteredList;
 	private final ScatterPlot[] viewers;
 	private ScatterPlot visibleViewer;
 	private JPanel viewerPanel;
@@ -335,7 +335,8 @@ public class MetaViewer extends JFrame {
 			int k = distanceMatrix.length - 1 < MDS_MAX_DIM ? distanceMatrix.length - 1 : MDS_MAX_DIM;
 			k = k < 1 ? 1 : k;
 			mds = new MDS(distanceMatrix, k);
-			// System.err.println(mds.getProportion()[0] + " " + mds.getProportion()[1]);
+			// System.err.println(mds.getProportion()[0] + " " +
+			// mds.getProportion()[1]);
 			final double[][] coords = mds.getCoordinates();
 			final PointContainer mdsContainer = new PointContainer(coords[0].length);
 			mdsContainer.addPoints(coords);
@@ -360,8 +361,7 @@ public class MetaViewer extends JFrame {
 			e.printStackTrace();
 		}
 
-		final OpticsMetaClustering<ClusteringResult> optics = new OpticsMetaClustering<ClusteringResult>(clusterings,
-				distanceMatrix, minPTS, eps);
+		final OpticsClustering optics = new OpticsClustering(distanceMatrix, minPTS, eps);
 		clusteredList = optics.runOptics();
 		oPlot = new OpticsPlot(this, clusteredList);
 		layout.putConstraint(SpringLayout.NORTH, oPlot, VIEWER_SPACE, SpringLayout.VERTICAL_CENTER, mainPanel);
@@ -606,11 +606,11 @@ public class MetaViewer extends JFrame {
 			FileUtils.saveCSVFileWithoutClass(selectedFile, result.getData(), result.getHeaders());
 	}
 
-	public void updateMDSPlot(OpticsResult<?> clusteringList) {
+	public void updateMDSPlot(OpticsResult clusteringList) {
 		if (mdsPlot == null)
 			return;
 		final Integer[] clusterIDs = new Integer[clusteringList.size()];
-		for (final OpticsContainer<?> clustering : clusteringList)
+		for (final OpticsContainer clustering : clusteringList)
 			clusterIDs[clustering.inIndex] = clustering.tag;
 		mdsPlot.getPointContainer().setUpClusters();
 		mdsPlot.getPointContainer().getClusterInformation()
@@ -659,7 +659,7 @@ public class MetaViewer extends JFrame {
 	}
 
 	private List<Integer> getNewColors(int previous, int other) { // TODO: maybe something with cluster size for color
-		// selection?
+																	// selection?
 		final ClusteringResult oldClustering = clusterings.get(previous);
 		final ClusteringResult newClustering = clusterings.get(other);
 		final Map<Integer, Integer> oldIDMap = visibleViewer.getPointContainer().getClusterInformation().getIDMap();
@@ -726,14 +726,14 @@ public class MetaViewer extends JFrame {
 	private void clusterHighlight(int closest, boolean replace) {
 
 		int clusterid = -3;
-		for (final OpticsContainer<?> clustering : clusteredList) {
+		for (final OpticsContainer clustering : clusteredList) {
 			if (clustering.inIndex == closest) {
 				clusterid = clustering.tag;
 				break;
 			}
 		}
 		final List<Integer> indices = new ArrayList<Integer>();
-		for (final OpticsContainer<?> clustering : clusteredList) {
+		for (final OpticsContainer clustering : clusteredList) {
 			if (clustering.tag == clusterid) {
 				indices.add(clustering.inIndex);
 			}
@@ -843,7 +843,8 @@ public class MetaViewer extends JFrame {
 	}
 
 	public void setFilteredData(Set<ClusteringResult> filteredResults) {
-		this.filteredIndexes = null;// TODO display not contained ClusteringResults differently
+		this.filteredIndexes = null;// TODO display not contained ClusteringResults
+									// differently
 		if (filteredResults == null)
 			mdsPlot.getPointContainer().getMetaInformation().setFilteredResults(null);
 		else {

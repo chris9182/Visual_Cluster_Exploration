@@ -143,7 +143,7 @@ public class Util {
 		return sClusterings;
 	}
 
-	public static double[][] getSortedDistances(OpticsResult<?> clusteredList, double[][] distanceMatrix) {
+	public static double[][] getSortedDistances(OpticsResult clusteredList, double[][] distanceMatrix) {
 		final double[][] sorted = new double[distanceMatrix.length][distanceMatrix.length];
 		for (int i = 0; i < distanceMatrix.length; ++i)
 			for (int j = 0; j < distanceMatrix.length; ++j) {
